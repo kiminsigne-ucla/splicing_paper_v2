@@ -104,8 +104,8 @@ write.table(ref, '../../ref/splicemod/splicemod_ref_formatted_converted.txt',
 # Update Ensembl exon IDs
 ###############################################################################
 print('Updating Ensembl exon IDs...')
-ref <- read.table('../../ref/splicemod/splicemod_ref_formatted_converted.txt',
-                  sep = '\t', header = T)
+# ref <- read.table('../../ref/splicemod/splicemod_ref_formatted_converted.txt',
+#                   sep = '\t', header = T)
 
 # release 89 5/17 based on hg38
 ensembl <- biomaRt::useMart('ENSEMBL_MART_ENSEMBL', dataset = 'hsapiens_gene_ensembl')
@@ -138,9 +138,9 @@ exon_coords_update_inphase <- exon_coords_update %>%
 write.table(exon_coords_update_inphase, '../../ref/exon_ids_updated.txt', 
             sep='\t', row.names = F, quote = F)
 
-ref <- ref %>% 
-    left_join(select(exon_coords_update_inphase, exon_id_old, ensembl_gene_id, ensembl_transcript_id, is_constitutive, rank, phase, end_phase),
-              by = c('ensembl_id' = 'exon_id_old'))
+# ref <- ref %>% 
+#     left_join(select(exon_coords_update_inphase, exon_id_old, ensembl_gene_id, ensembl_transcript_id, is_constitutive, rank, phase, end_phase),
+#               by = c('ensembl_id' = 'exon_id_old'))
 
-write.table(ref, '../../ref/splicemod/splicemod_ref_formatted_converted_updated.txt', sep = '\t',
-            col.names = T, row.names = F, quote = F)
+# write.table(ref, '../../ref/splicemod/splicemod_ref_formatted_converted_updated.txt', sep = '\t',
+#             col.names = T, row.names = F, quote = F)
