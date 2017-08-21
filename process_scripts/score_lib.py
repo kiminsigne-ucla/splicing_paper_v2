@@ -4,7 +4,7 @@ import os
 import pickle
 import argparse
 import sys
-sys.path.append('./splicemod_src/src')
+sys.path.append('./src')
 import util
 import feature
 import motif

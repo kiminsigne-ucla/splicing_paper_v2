@@ -16,7 +16,7 @@ from numpy import array
 #===============================================================================
 
 # where all this stuff should happen, usually one dir up from the src/ dir
-topDir = os.getcwd() + '/splicemod_src/'
+topDir = os.getcwd()
 
 # intron dropbox dir that contains sequence info
 intronDataDir = os.path.join(topDir, 'data')
