@@ -5,12 +5,21 @@ format_ref: ../../ref/splicemod/splicemod_ref_formatted_converted_updated.txt
 
 rescore_ref: ../../ref/splicemod/splicemod_ref_rescored.txt
 
+clean_data: ../../processed_data/splicemod/splicemod_data_clean.txt
+
+
 ../../ref/splicemod/splicemod_ref_formatted_converted.txt: ../../ref/splicemod/splicemod_ref.txt
 	@ Rscript splicemod_format_ref.R
+
 
 ../../ref/splicemod/splicemod_ref_rescored.txt: ../../ref/splicemod/splicemod_ref_formatted_converted.txt
 	@ cd ../splicemod_src && \
 	python ../score_lib.py $< ./data/motifs/Ke2011/ \
 	../../ref/Rosenberg_2015/exonic_mer6_scores.series 30 $@
+
+
+../../processed_data/splicemod/splicemod_data_clean.txt: ../../ref/splicemod/splicemod_ref_formatted_converted.txt
+	@ Rscript splicemod_data_clean.R
+
 
 
