@@ -1,2 +1,3 @@
 ./process_scripts/splicemod_src/data/hg38.100way.phyloP100way/
 ./ref/phastCons
+./ref/Rosenberg_2015/model_full_data.mat
