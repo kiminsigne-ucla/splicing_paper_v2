@@ -81,4 +81,24 @@ data <- data %>%
 # convert blanks to NA
 data[data == ''] <- NA
 
+data <- data %>%
+    mutate(index_R1_smn1 = (DP_R1_norm_smn1*0 + INT_R1_norm_smn1*0.85 + SP_R1_norm_smn1*1) / 
+               (DP_R1_norm_smn1 + INT_R1_norm_smn1 + SP_R1_norm_smn1),
+           index_R2_smn1 = (DP_R2_norm_smn1*0 + INT_R2_norm_smn1*0.85 + SP_R2_norm_smn1*1) / 
+               (DP_R2_norm_smn1 + INT_R2_norm_smn1 + SP_R2_norm_smn1),
+           index_R1_dhfr = (DP_R1_norm_dhfr*0 + INT_R1_norm_dhfr*0.85 + SP_R1_norm_dhfr*1) / 
+               (DP_R1_norm_dhfr + INT_R1_norm_dhfr + SP_R1_norm_dhfr),
+           index_R2_dhfr = (DP_R2_norm_dhfr*0 + INT_R2_norm_dhfr*0.85 + SP_R2_norm_dhfr*1) / 
+               (DP_R2_norm_dhfr + INT_R2_norm_dhfr + SP_R2_norm_dhfr))
+
+data$index_smn1 <- rowMeans(select(data, index_R1_smn1, index_R2_smn1))
+data$index_dhfr <- rowMeans(select(data, index_R1_dhfr, index_R2_dhfr))
+
+# replace NaN with NA
+data[data == 'NaN'] <- NA
+
+rep_agreement <- 0.30
+data <- data %>% 
+    mutate(rep_quality = ifelse(abs(index_smn1 - index_dhfr) <= rep_agreement, 'high', 'low'))
+
 write.table(data, '../../processed_data/splicemod/splicemod_data_clean.txt', sep ='\t', row.names = F)
