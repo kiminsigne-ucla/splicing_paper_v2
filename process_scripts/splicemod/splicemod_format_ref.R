@@ -12,9 +12,6 @@ load_pkgs <- function(pkgs){
 pkgs <- c('dplyr', 'tidyr')
 load_pkgs(pkgs)
 
-# suppressMessages(library(dplyr))
-# suppressWarnings(suppressMessages(library(tidyr)))
-
 options(stringsAsFactors = F, warn = -1, warnings = -1)
 
 ###############################################################################
@@ -137,10 +134,3 @@ exon_coords_update_inphase <- exon_coords_update %>%
 
 write.table(exon_coords_update_inphase, '../../ref/exon_ids_updated.txt', 
             sep='\t', row.names = F, quote = F)
-
-# ref <- ref %>% 
-#     left_join(select(exon_coords_update_inphase, exon_id_old, ensembl_gene_id, ensembl_transcript_id, is_constitutive, rank, phase, end_phase),
-#               by = c('ensembl_id' = 'exon_id_old'))
-
-# write.table(ref, '../../ref/splicemod/splicemod_ref_formatted_converted_updated.txt', sep = '\t',
-#             col.names = T, row.names = F, quote = F)
