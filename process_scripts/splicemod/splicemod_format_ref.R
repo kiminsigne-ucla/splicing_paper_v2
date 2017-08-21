@@ -42,7 +42,8 @@ mut_ref <- ref %>%
     separate(header, c('id', 'seq_type', 'chr', 'strand', 'length', 'ccds', 'category',
                        'loc', 'str', 'mutations', 'num_changes', 'orig_score',
                        'new_score', 'criteria_met', 'max_iter_reached',
-                       'no_new_mutants'), sep = ' ')
+                       'no_new_mutants'), sep = ' ') %>% 
+    filter(!grepl('_000', id))
 
 # more reference formatting
 ref <- bind_rows(nat_ref, mut_ref) %>%
@@ -93,8 +94,10 @@ ref <- ref %>%
     left_join(read.table('../../processed_data/splicemod/splicemod_ref_liftover.bed', 
                          sep = '\t', header = F, 
                          col.names = c('chr', 'start_hg38', 'end_hg38', 'id'))  %>%
-                  select(-chr), by = 'id')
-                  
+                  select(-chr), by = 'id') %>% 
+    mutate(id = ifelse(grepl('_', id), id, paste(ensembl_id, sub_id, sep = '_')))
+
+                 
 write.table(ref, '../../ref/splicemod/splicemod_ref_formatted_converted.txt',
   sep = '\t', row.names = F, col.names = T)
 

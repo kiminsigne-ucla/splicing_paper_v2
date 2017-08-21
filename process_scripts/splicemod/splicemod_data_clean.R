@@ -69,13 +69,13 @@ data <- full_join(smn1, dhfr, by = 'header', suffix = c('_smn1', '_dhfr'))
 # join reference 
 data <- data %>% 
     rowwise %>% 
-    mutate(id = unlist(strsplit(header, split = ' '))[1]) %>% 
+    mutate(id = unlist(strsplit(header, split = ' '))[1],
+           id = ifelse(grepl('_', id), id, paste(id, '000', sep = '_'))) %>% 
     select(-header) %>% 
     left_join(ref, by = 'id') %>% 
     # reorder
     select(id:end_hg38, DP_R1_smn1:SP_R2_norm_dhfr) %>% 
     ungroup() %>% 
-    mutate(id = ifelse(grepl('_', id), id, paste(ensembl_id, sub_id, sep = '_'))) %>% 
     arrange(ensembl_id, sub_id)
 
 # convert blanks to NA
