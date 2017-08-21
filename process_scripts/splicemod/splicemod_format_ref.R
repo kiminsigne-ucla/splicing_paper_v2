@@ -77,7 +77,7 @@ ref <- bind_rows(nat_ref, mut_ref) %>%
     arrange(ensembl_id, sub_id)
 
 write.table(ref, '../../ref/splicemod/splicemod_ref_formatted.txt', sep = '\t',
-row.names = F, col.names = F, quote = F)
+row.names = F, col.names = F)
 
 ###############################################################################
 # Convert genomic coordinates
@@ -90,12 +90,13 @@ system('bash ./splicemod_ref_liftover.sh')
 ###############################################################################
 print('Converting genomic coordinates...')
 ref <- ref %>%
-    left_join(read.table('../../processed_data/splicemod/splicemod_ref_liftover.bed', sep = '\t',
-      header = F, col.names = c('chr', 'start_hg38', 'end_hg38', 'id'))  %>%
+    left_join(read.table('../../processed_data/splicemod/splicemod_ref_liftover.bed', 
+                         sep = '\t', header = F, 
+                         col.names = c('chr', 'start_hg38', 'end_hg38', 'id'))  %>%
                   select(-chr), by = 'id')
-
+                  
 write.table(ref, '../../ref/splicemod/splicemod_ref_formatted_converted.txt',
-  sep = '\t', row.names = F, col.names = T, quote = F)
+  sep = '\t', row.names = F, col.names = T)
 
 ###############################################################################
 # Update Ensembl exon IDs
@@ -133,4 +134,4 @@ exon_coords_update_inphase <- exon_coords_update %>%
     filter(phase == 0, end_phase == 0)
 
 write.table(exon_coords_update_inphase, '../../ref/exon_ids_updated.txt', 
-            sep='\t', row.names = F, quote = F)
+            sep='\t', row.names = F)

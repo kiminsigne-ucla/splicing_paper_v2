@@ -2,7 +2,8 @@
 # called in splicemod_format_ref.R and depends on file produced in first chunk
 
 liftOver <(cat ../../ref/splicemod/splicemod_ref_formatted.txt | \
-  awk '{OFS="\t"; print "chr"$4,$5,$6,$1}' | grep -v 'NA' | sort | uniq) \
+	sed 's/\"//g' | \
+	awk '{OFS="\t"; print "chr"$4,$5,$6,$1}' | grep -v 'NA' | sort | uniq) \
   ../../ref/hg19ToHg38.over.chain \
   ../../processed_data/splicemod/splicemod_ref_liftover.bed \
   ../../processed_data/splicemod/splicemod_unlifted.bed
