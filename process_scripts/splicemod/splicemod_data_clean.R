@@ -22,6 +22,7 @@ dhfr <- read.csv('../../processed_data/splicemod/dhfr/dhfr_all_alignments.csv') 
     rename(DP_R1 = R1.DP, INT_R1 = R1.INT, PS_R1 = R1.PRESORT, SP_R1 = R1.SP, DN_R1 = R1.DN,
            DP_R2 = R2.DP, INT_R2 = R2.INT, PS_R2 = R2.PRESORT, SP_R2 = R2.SP, DN_R2 = R2.DN)
 
+
 # normalize to number of million reads in each sample
 smn1 <- smn1 %>%
     select(-id) %>% 
@@ -100,5 +101,28 @@ data[data == 'NaN'] <- NA
 rep_agreement <- 0.30
 data <- data %>% 
     mutate(rep_quality = ifelse(abs(index_smn1 - index_dhfr) <= rep_agreement, 'high', 'low'))
+
+# calculate difference in splicing index between mutant and natural
+data <- data %>% 
+    group_by(ensembl_id) %>% 
+    # filter out anything that doesn't have a corresponding natural sequence
+    filter(any(sub_id == '000')) %>% 
+    mutate(nat_index_R1_smn1 = index_R1_smn1[sub_id == '000'],
+           nat_index_R2_smn1 = index_R2_smn1[sub_id == '000'],
+           nat_index_R1_dhfr = index_R1_dhfr[sub_id == '000'], 
+           nat_index_R2_dhfr = index_R2_dhfr[sub_id == '000'],
+           dpsi_R1_smn1 = index_R1_smn1 - nat_index_R1_smn1,
+           dpsi_R2_smn1 = index_R2_smn1 - nat_index_R2_smn1,
+           dpsi_R1_dhfr = index_R1_dhfr - nat_index_R1_dhfr,
+           dpsi_R2_dhfr = index_R2_dhfr - nat_index_R2_dhfr) %>%
+    ungroup()
+
+data <- data %>% 
+    rowwise() %>% 
+    mutate(dpsi_smn1 = mean(c(dpsi_R1_smn1, dpsi_R2_smn1)),
+           dpsi_dhfr = mean(c(dpsi_R1_dhfr, dpsi_R2_dhfr)),
+           nat_index_smn1 = mean(c(nat_index_R1_smn1, nat_index_R2_smn1)),
+           nat_index_dhfr = mean(c(nat_index_R1_dhfr, nat_index_R2_dhfr))) %>% 
+    ungroup()
 
 write.table(data, '../../processed_data/splicemod/splicemod_data_clean.txt', sep ='\t', row.names = F)
