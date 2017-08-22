@@ -47,15 +47,25 @@ def extract_exon_seq(strand, intron1_len, exon_len, intron2_len, seq, extend=0, 
     return exon_seq
 
 
-def calculate_exonic_score(exon_seq, exonic_mer6_scores):
-    # given a score matrix and an exon sequence, return the average effect size for the sequence 
-    # (sum of all k-mer scores / number of k-mers)
-    # do not score first three bases of exons which overlap with splice acceptor region
-    if exon_seq == '':
+# def calculate_exonic_score(exon_seq, exonic_mer6_scores):
+#     # given a score matrix and an exon sequence, return the average effect size for the sequence 
+#     # (sum of all k-mer scores / number of k-mers)
+#     # do not score first three bases of exons which overlap with splice acceptor region
+#     if exon_seq == '':
+#         return float('NaN')
+#     kmer_scores = [exonic_mer6_scores[exon_seq[i: i + 6]] for i in range(3, len(exon_seq) - 6)]
+#     score_avg = sum(kmer_scores) / len(kmer_scores)
+#     return score_avg
+
+
+def score_exon(seq, score_dict, k):
+    kmer_scores = [score_dict.get(seq[i:i+k], float('NaN')) for i in range(len(seq) - k + 1)]
+    if len(kmer_scores) != 0:
+        # remove nan from average
+        score = np.mean([score for score in kmer_scores if not np.isnan(score)])
+    else:
         return float('NaN')
-    kmer_scores = [exonic_mer6_scores[exon_seq[i: i + 6]] for i in range(3, len(exon_seq) - 6)]
-    score_avg = sum(kmer_scores) / len(kmer_scores)
-    return score_avg
+    return score
 
 
 def create_record(seq, intron1_len, intron2_len, exon_len, strand, name, rc):
@@ -146,23 +156,32 @@ if __name__ == '__main__':
     # rename column
     data.rename(index=str, columns={'seq' : 'sequence'}, inplace=True)
 
-    data['exon_seq'] = [extract_exon_seq(data.iloc[i]['strand'],
-                                         data.iloc[i]['intron1_len'],
-                                         data.iloc[i]['exon_len'],
-                                         data.iloc[i]['intron2_len'],
-                                         data.iloc[i]['sequence'], extend=5, rc=args.rev) for i in range(len(data))]
+    data['exon_seq'] = data.apply(lambda x : extract_exon_seq(x['strand'], 
+        x['intron1_len'], x['exon_len'], x['intron2_len'], x['sequence'], extend=0, rc=args.rev), axis=1)
 
     # Now that we have the exon sequences for our library, let's bring in the score 
     # matrices and give an effect size sum score for each sequence. A higher 
     # score means the hexamer is more likely to active nearby splice sites and 
     # promote exon inclusion (to be an ESE, exonic splicing enhancer). A negative 
     # score means the hexamer is an exonic splicing silencer and promotes exon skipping.
-
-    exonic_mer6_scores = pd.read_pickle(args.mer6_file)
-
     print "Calculating average HAL exon score..."
-    data['avg_exon_effect_score'] = [calculate_exonic_score(data.iloc[i]['exon_seq'],
-                                                            exonic_mer6_scores) for i in range(len(data))]
+    exonic_mer6_scores = pd.read_pickle(args.mer6_file)
+    HAL_score_dict = exonic_mer6_scores.to_dict()
+    data['avg_exon_effect_score'] = data.apply(lambda x : score_exon(x['exon_seq'], HAL_score_dict, 6), axis=1)
+    # data['avg_exon_effect_score'] = [calculate_exonic_score(data.iloc[i]['exon_seq'],
+    #                                                         exonic_mer6_scores) for i in range(len(data))]
+
+    # calculate overall Ke score
+    ESE_motifs = pd.read_table('./data/motifs/Ke2011/ESEseq.txt',
+                          sep = '\t', header = None, names = ['seq', 'Ke_score'])
+    ESS_motifs = pd.read_table('./data/motifs/Ke2011/ESSseq.txt',
+                          sep = '\t', header = None, names = ['seq', 'Ke_score'])
+    Ke_motifs = pd.concat([ESE_motifs, ESS_motifs])
+    Ke_score_dict = Ke_motifs.set_index('seq').T.to_dict('records')[0]
+    # # re-calculate exon sequence without extension
+    # data['exon_seq'] = data.apply(lambda x : extract_exon_seq(x['strand'], 
+    #     x['intron1_len'], x['exon_len'], x['intron2_len'], x['sequence'], extend=0, rc=args.rev), axis=1)
+    data['Ke2011_avg_score'] = data.apply(lambda x : score_exon(x['exon_seq'], Ke_score_dict, 6), axis=1)
 
     # Let's format our library into `SeqRecord` objects from `biopython` to make 
     # the motif finding easier and compatible with existing code.
