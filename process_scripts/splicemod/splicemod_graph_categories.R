@@ -1,3 +1,6 @@
+###############################################################################
+# set-up
+###############################################################################
 load_pkgs <- function(pkgs){
     new_pkgs <- pkgs[!(pkgs %in% installed.packages()[, 'Package'])]
     if(length(new_pkgs)) install.packages(new_pkgs)
@@ -10,6 +13,7 @@ pkgs <- c('dplyr', 'tidyr', 'ggplot2', 'cowplot')
 load_pkgs(pkgs)
 
 options(stringsAsFactors = F, warn = -1, warnings = -1)
+plot_format <- '.png'
 
 # custom color palette
 color.palette <- function(steps, n.steps.between=NULL, ...){
@@ -39,8 +43,9 @@ color.palette <- function(steps, n.steps.between=NULL, ...){
 steps <- c("blue2", "cyan", "white", "yellow", "red2")
 pal <- color.palette(steps, c(160,1,1,160), space = "rgb")
 
-
-
+###############################################################################
+# Read in data
+###############################################################################
 data <- read.table('../../processed_data/splicemod/splicemod_data_clean.txt', sep = '\t', header = T, 
                    colClasses = c('sub_id' = 'character')) %>% 
     filter(rep_quality == 'high')
@@ -51,6 +56,8 @@ updated_ref <- read.csv('../../ref/splicemod/splicemod_ref_rescored.txt', header
 
 data <- data %>% 
     left_join(select(updated_ref, id, exon_seq:correct_don_score), by = 'id')
+
+
 
 # calculate change in donor/acceptor score between mutant and natural
 data <- data %>% 
@@ -65,16 +72,10 @@ data <- data %>%
            acc_score_fold_change = (correct_acc_score - correct_acc_score_nat) / abs(correct_acc_score_nat)) %>%
     ungroup()
 
-# calculate change in average HAL score
-data <- data %>% 
-    rename('avg_HAL_score' = 'avg_exon_effect_score') %>% 
-    group_by(ensembl_id) %>% 
-    mutate(delta_avg_HAL_score = avg_HAL_score - avg_HAL_score[sub_id == '000']) %>% 
-    ungroup()
-
 ###############################################################################
 # MaxEnt splice donor score fold-change
 ###############################################################################
+# SMN1
 data %>%
     filter(don_score_fold_change != 0) %>%
     mutate(don_fold_change_bin = cut(don_score_fold_change, c(-12, -2, -1, 0, 1))) %>%
@@ -86,14 +87,32 @@ data %>%
     scale_colour_gradientn(limits = c(-0.005, 1), breaks = seq(0, 1, by = 0.25), colors = pal(321)) +
     labs(x = 'fold change MaxEnt splice donor score', 
          y = expression(paste(Delta, ' inclusion index (SMN1)')),
-         color = 'inclusion\nindex (WT)') +
+         color = expression(index["WT "])) +
     theme(axis.text = element_text(size = 15), text = element_text(size = 18))
 
-ggsave('../../figs/splicemod/splicemod_donor_fc.tiff', width = 6, height = 4, dpi = 100)
+ggsave(paste0('../../figs/splicemod/smn1/splicemod_smn1_donor_fc', plot_format), width = 6, height = 4, dpi = 100)
+
+# DHFR
+data %>%
+    filter(don_score_fold_change != 0) %>%
+    mutate(don_fold_change_bin = cut(don_score_fold_change, c(-12, -2, -1, 0, 1))) %>%
+    filter(!is.na(don_fold_change_bin)) %>%
+    ggplot(aes(don_fold_change_bin, dpsi_smn1)) + 
+    geom_jitter(alpha = 0.50, aes(color = nat_index_smn1)) + 
+    scale_x_discrete(labels = c('<= -2', '(-2, -1]', '(-1, -0)', '(0, 1]')) +
+    geom_boxplot(alpha = 0) + 
+    scale_colour_gradientn(limits = c(-0.005, 1), breaks = seq(0, 1, by = 0.25), colors = pal(321)) +
+    labs(x = 'fold change MaxEnt splice donor score', 
+         y = expression(paste(Delta, ' inclusion index (SMN1)')),
+         color = expression(index["WT "])) +
+    theme(axis.text = element_text(size = 15), text = element_text(size = 18))
+
+ggsave(paste0('../../figs/splicemod/dhfr/splicemod_dhfr_donor_fc', plot_format), width = 6, height = 4, dpi = 100)
 
 ###############################################################################
 # MaxEnt splice acceptor score fold-change
 ###############################################################################
+# SMN1
 data %>%
     filter(acc_score_fold_change != 0) %>%
     mutate(acc_fold_change_bin = cut(acc_score_fold_change, c(-184, -2, -1, 0, 1))) %>%
@@ -103,10 +122,25 @@ data %>%
     geom_boxplot(alpha = 0) + 
     scale_colour_gradientn(limits = c(-0.005, 1), breaks = seq(0, 1, by = 0.25), colors = pal(321)) +
     labs(x = 'fold change MaxEnt splice acceptor score', y = expression(paste(Delta, ' inclusion index (SMN1)')),
-         color = 'inclusion\nindex (WT)') +
+         color = expression(index["WT "])) +
     theme(axis.text = element_text(size = 15), text = element_text(size = 18))
 
-ggsave('../../figs/splicemod/splicemod_acceptor_fc.tiff', width = 6, height = 4, dpi = 100)
+ggsave(paste0('../../figs/splicemod/smn1/splicemod_smn1_acceptor_fc', plot_format), width = 6, height = 4, dpi = 100)
+
+# DHFR
+data %>%
+    filter(acc_score_fold_change != 0) %>%
+    mutate(acc_fold_change_bin = cut(acc_score_fold_change, c(-184, -2, -1, 0, 1))) %>%
+    filter(!is.na(acc_fold_change_bin)) %>%
+    ggplot(aes(acc_fold_change_bin, dpsi_dhfr)) + geom_jitter(alpha = 0.50, aes(color = nat_index_smn1)) + 
+    scale_x_discrete(labels = c('<= -2', '(-2, -1]', '(-1, -0)', '(0, 1]')) +
+    geom_boxplot(alpha = 0) + 
+    scale_colour_gradientn(limits = c(-0.005, 1), breaks = seq(0, 1, by = 0.25), colors = pal(321)) +
+    labs(x = 'fold change MaxEnt splice acceptor score', y = expression(paste(Delta, ' inclusion index (SMN1)')),
+         color = expression(index["WT "])) +
+    theme(axis.text = element_text(size = 15), text = element_text(size = 18))
+
+ggsave(paste0('../../figs/splicemod/dhfr/splicemod_dhfr_acceptor_fc', plot_format), width = 6, height = 4, dpi = 100)
 
 ###############################################################################
 # All splicemod categories
@@ -140,6 +174,7 @@ random_labels <- c('random 1nt intron', 'random 2nt intron', 'random 3nt intron'
 other_categories <- c('cnsrv_1nt', 'cnsrv_3nt', 'RBPmats', 'variation')
 other_labels <- c('conserved 1nt', 'conservered 3nt', 'destroy RBP motifs', 'dbSNPs')
 
+# SMN1
 data %>% 
     filter(seq_type == 'mut') %>% 
     mutate(category_fctr = factor(category,
@@ -148,12 +183,26 @@ data %>%
     ggplot(aes(x = category_fctr, y = dpsi_smn1)) + geom_jitter(alpha = 0.50, aes(color = nat_index_smn1)) + geom_boxplot(alpha=0) +
     scale_colour_gradientn(limits = c(-0.005, 1), breaks = seq(0, 1, by = 0.25), colors = pal(321)) + 
     scale_x_discrete(labels = c(splice_site_labels, esr_labels, intron_labels, random_labels, other_labels)) +
-    geom_hline(yintercept = 0, linetype = 'dotted') +
     theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
     labs(x = '', y = expression(paste(Delta, ' inclusion index (SMN1)')),
-         color = 'exon\ninclusion\nindex (WT)')
+         color = expression(index["WT "]))
 
-ggsave('../../figs/splicemod/splicemod_all_categories.tiff', width = 12, height = 5, dpi = 300)
+ggsave(paste0('../../figs/splicemod/smn1/splicemod_smn1_all_categories', plot_format), width = 12, height = 5, dpi = 300)
+
+# DHFR
+data %>% 
+    filter(seq_type == 'mut') %>% 
+    mutate(category_fctr = factor(category,
+                                  levels = c(splice_site_categories, esr_categories,
+                                             intron_categories, random_categories, other_categories))) %>% 
+    ggplot(aes(x = category_fctr, y = dpsi_dhfr)) + geom_jitter(alpha = 0.50, aes(color = nat_index_smn1)) + geom_boxplot(alpha=0) +
+    scale_colour_gradientn(limits = c(-0.005, 1), breaks = seq(0, 1, by = 0.25), colors = pal(321)) + 
+    scale_x_discrete(labels = c(splice_site_labels, esr_labels, intron_labels, random_labels, other_labels)) +
+    theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+    labs(x = '', y = expression(paste(Delta, ' inclusion index (SMN1)')),
+         color = expression(index["WT "]))
+
+ggsave(paste0('../../figs/splicemod/dhfr/splicemod_dhfr_all_categories', plot_format), width = 12, height = 5, dpi = 300)
 
 ###############################################################################
 # Exonic changes
@@ -170,20 +219,28 @@ ggsave('../../figs/splicemod/splicemod_all_categories.tiff', width = 12, height 
 #     labs(x = '', y = expression(paste(Delta, ' exon inclusion index (SMN1)')),
 #          color = 'exon\ninclusion\nindex (WT)')
 
+# calculate change in average HAL score
+data <- data %>% 
+    rename('avg_HAL_score' = 'avg_exon_effect_score') %>% 
+    group_by(ensembl_id) %>% 
+    mutate(delta_avg_HAL_score = avg_HAL_score - avg_HAL_score[sub_id == '000']) %>% 
+    ungroup()
+
 # HAL
 data <- data %>%
     mutate(HAL_bin = case_when(.$delta_avg_HAL_score < 0 ~ 'down',
                                .$delta_avg_HAL_score > 0 ~ 'up',
                                .$delta_avg_HAL_score == 0 ~ 'same'))
 
+# violin
 data %>%
     filter(HAL_bin != 'same', seq_type == 'mut') %>%
-    ggplot(aes(HAL_bin, dpsi_smn1)) + geom_jitter(alpha = 0.25, aes(color = nat_index_smn1)) + 
-    geom_violin(alpha=0) +
+    ggplot(aes(HAL_bin, dpsi_smn1)) + geom_jitter(alpha = 0.50, aes(color = nat_index_smn1)) + 
+    geom_violin(alpha = 0) +
     scale_colour_gradientn(limits = c(-0.005, 1), breaks = seq(0, 1, by = 0.25), colors = pal(321)) + 
     labs(x = expression(paste(Delta, ' HAL mean exonic hexamer score')), 
          y = expression(paste(Delta, ' exon inclusion index (SMN1)')),
-         color = 'exon\ninclusion\nindex (WT)') +
+         color = expression(index["WT "])) +
     ggsignif::geom_signif(comparisons = list(c('down', 'up')),
                           test = 't.test', map_signif_level = T) +
     stat_summary(fun.y=mean, geom="point", size=2, color="black") +
@@ -221,7 +278,7 @@ data %>%
     scale_colour_gradientn(limits = c(-0.005, 1), breaks = seq(0, 1, by = 0.25), colors = pal(321)) +
     labs(x = expression(paste(Delta, ' Ke 2011 mean exonic hexamer score')), 
          y = expression(paste(Delta, ' exon inclusion index (SMN1)')),
-         color = 'exon\ninclusion\nindex (WT)') +
+         color = expression(index["WT "])) +
     ggsignif::geom_signif(comparisons = list(c('down', 'up')),
                           test = 't.test', map_signif_level = T) +
     stat_summary(fun.y=mean, geom="point", size=2, color="black") +
