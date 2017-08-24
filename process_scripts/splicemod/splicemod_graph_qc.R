@@ -99,23 +99,44 @@ dev.off()
 # ggsave(paste0('../../figs/splicemod/smn1/splicemod_smn1_bin_dist', plot_format),
 #        width = 13, height = 4)
 
-# # DHFR
-# data %>% 
-#     filter(abs(index_R1_dhfr - index_R2_dhfr) <= 0.30) %>% 
-#     rowwise() %>% 
-#     select(id, DP_R1_norm_dhfr, INT_R1_norm_dhfr, SP_R1_norm_dhfr) %>% 
-#     mutate(DP = DP_R1_norm_dhfr / (DP_R1_norm_dhfr + INT_R1_norm_dhfr + SP_R1_norm_dhfr) * 100,
-#            INT = INT_R1_norm_dhfr / (DP_R1_norm_dhfr + INT_R1_norm_dhfr + SP_R1_norm_dhfr) * 100,
-#            SP = SP_R1_norm_dhfr / (DP_R1_norm_dhfr + INT_R1_norm_dhfr + SP_R1_norm_dhfr) * 100) %>% 
-#     select(-DP_R1_norm_dhfr, -INT_R1_norm_dhfr, -SP_R1_norm_dhfr) %>% 
-#     gather(key = 'bin', value = 'bin_percent', DP:SP) %>% 
-#     # add index for graph order
-#     left_join(select(data, id, index_R1_dhfr), by = 'id') %>% 
-#     ggplot(aes(x = reorder(id, index_R1_dhfr), y = bin)) + 
-#     geom_tile(aes(fill = bin_percent)) +
-#     theme(axis.text.x = element_blank(), axis.ticks.x = element_blank()) +
-#     labs(x = 'Construct #', y = '', fill = '% contigs', title = 'DHFR intron backbone') +
-#     scale_y_discrete(labels = bin_labels) +
-#     viridis::scale_fill_viridis(option = 'plasma')
-# 
+# DHFR
+read_dist <- data %>%
+    filter(abs(index_R1_dhfr - index_R2_dhfr) <= 0.30) %>%
+    rowwise() %>%
+    select(id, DP_R1_norm_dhfr, INT_R1_norm_dhfr, SP_R1_norm_dhfr) %>%
+    mutate(DP = DP_R1_norm_dhfr / (DP_R1_norm_dhfr + INT_R1_norm_dhfr + SP_R1_norm_dhfr) * 100,
+           INT = INT_R1_norm_dhfr / (DP_R1_norm_dhfr + INT_R1_norm_dhfr + SP_R1_norm_dhfr) * 100,
+           SP = SP_R1_norm_dhfr / (DP_R1_norm_dhfr + INT_R1_norm_dhfr + SP_R1_norm_dhfr) * 100) %>%
+    select(-DP_R1_norm_dhfr, -INT_R1_norm_dhfr, -SP_R1_norm_dhfr) %>%
+    gather(key = 'bin', value = 'bin_percent', DP:SP) %>%
+    # add index for graph order
+    left_join(select(data, id, index_R1_dhfr), by = 'id')
+
+gg1 <- ggplot(read_dist, aes(x = reorder(id, index_R1_dhfr), y = bin)) +
+    geom_tile(aes(fill = bin_percent)) +
+    theme(axis.text.x = element_blank(), axis.ticks.x = element_blank(), 
+          legend.position = 'none',
+          plot.margin = unit(c(0,0,0,0), "in")) +
+    labs(x = 'Construct #', y = '', fill = '% contigs') +
+    scale_y_discrete(labels = bin_labels) +
+    viridis::scale_fill_viridis(option = 'plasma')
+
+gg2 <- data %>% 
+    filter(abs(index_R1_dhfr - index_R2_dhfr) <= 0.30) %>%
+    ggplot(aes(reorder(id, index_R1_dhfr), index_R1_dhfr)) + 
+    geom_bar(stat = 'identity', color = 'darkgrey') + 
+    theme(axis.text.x = element_blank(), axis.ticks.x = element_blank(),
+          axis.title.x = element_blank(),
+          plot.margin = unit(c(0,0,0, 0.5), "in")) +
+    labs(y = 'index')
+
+png(paste0('../../figs/splicemod/dhfr/splicemod_dhfr_bin_dist', plot_format),
+    width = 13, height = 4, units = 'in', res = 300)
+g <- rbind(ggplotGrob(gg2), ggplotGrob(gg1), size = 'last')
+id <- g$layout$t[g$layout$name == "panel"]
+g$heights[id] <- unit(c(1, 2.5), 'null')
+grid.newpage()
+grid.draw(g)
+dev.off()
+
 # ggsave(paste0('../figs/splicemod/smn1/splicemod_smn1_bin_dist', plot_format), width = 13, height = 4)
