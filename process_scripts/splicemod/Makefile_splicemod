@@ -1,6 +1,8 @@
 # TODO: add commands to process sequencing data. This will run everything for
 # splicemod, from processing sequencing, formatting reference, and making figures
 
+all: format_ref rescore_ref clean_data qc_figs
+
 format_ref: ../../ref/splicemod/splicemod_ref_formatted_converted_updated.txt
 
 rescore_ref: ../../ref/splicemod/splicemod_ref_rescored.txt
