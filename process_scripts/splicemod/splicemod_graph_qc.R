@@ -81,23 +81,25 @@ gg1 <- ggplot(read_dist, aes(x = reorder(id, index_R1_smn1), y = bin)) +
     scale_y_discrete(labels = bin_labels) +
     viridis::scale_fill_viridis(option = 'plasma')
 
-# gg2 <- data %>% 
-#     filter(abs(index_R1_smn1 - index_R2_smn1) <= 0.30) %>%
-#     ggplot(aes(reorder(id, index_R1_smn1), index_R1_smn1)) + 
-#     geom_bar(stat = 'identity', color = 'darkgrey') + 
-#     theme(axis.text.x = element_blank(), axis.ticks.x = element_blank(),
-#           axis.title.x = element_blank(),
-#           plot.margin = unit(c(0,0,0, 0.5), "in")) +
-#     labs(y = 'index')
-
-gg2 <- data %>% 
+# filled
+gg2 <- data %>%
     filter(abs(index_R1_smn1 - index_R2_smn1) <= 0.30) %>%
-    ggplot(aes(x = reorder(id, index_R1_smn1), y = index_R1_smn1, group = 1)) + 
-    geom_line(color = 'black') + 
+    ggplot(aes(reorder(id, index_R1_smn1), index_R1_smn1)) +
+    geom_bar(stat = 'identity', color = 'lightgrey') +
     theme(axis.text.x = element_blank(), axis.ticks.x = element_blank(),
           axis.title.x = element_blank(),
           plot.margin = unit(c(0,0,0, 0.5), "in")) +
     labs(y = 'index')
+
+# # line
+# gg2 <- data %>% 
+#     filter(abs(index_R1_smn1 - index_R2_smn1) <= 0.30) %>%
+#     ggplot(aes(x = reorder(id, index_R1_smn1), y = index_R1_smn1, group = 1)) + 
+#     geom_line(color = 'black') + 
+#     theme(axis.text.x = element_blank(), axis.ticks.x = element_blank(),
+#           axis.title.x = element_blank(),
+#           plot.margin = unit(c(0,0,0, 0.5), "in")) +
+#     labs(y = 'index')
 
 png(paste0('../../figs/splicemod/smn1/splicemod_smn1_bin_dist', plot_format),
     width = 13, height = 4, units = 'in', res = 300)
@@ -149,5 +151,3 @@ g$heights[id] <- unit(c(1, 2.5), 'null')
 grid.newpage()
 grid.draw(g)
 dev.off()
-
-# ggsave(paste0('../figs/splicemod/smn1/splicemod_smn1_bin_dist', plot_format), width = 13, height = 4)

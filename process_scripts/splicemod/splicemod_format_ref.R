@@ -16,8 +16,6 @@ options(stringsAsFactors = F, warn = -1, warnings = -1)
 
 ###############################################################################
 # File formatting
-###############################################################################
-print('Formatting splicemod reference...')
 # read in ref, format ID field
 ref <- read.table('../../ref/splicemod/splicemod_ref.txt', sep = '\t',
                   col.names = c('header', 'seq')) %>%
