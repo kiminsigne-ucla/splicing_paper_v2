@@ -11,6 +11,10 @@ clean_data: ../../processed_data/splicemod/splicemod_data_clean.txt
 
 qc_figs: ../../figs/splicemod/smn1/splicemod_smn1_replicates.png
 
+category_figs: ../../figs/splicemod/nat_index_legend.png
+
+figs: qc_figs category_figs
+
 
 ../../ref/splicemod/splicemod_ref_formatted_converted.txt: ../../ref/splicemod/splicemod_ref.txt
 	@ echo "Formatting reference..."
@@ -35,5 +39,12 @@ qc_figs: ../../figs/splicemod/smn1/splicemod_smn1_replicates.png
 ../../figs/splicemod/smn1/splicemod_smn1_replicates.png: splicemod_graph_qc.R ../../processed_data/splicemod/splicemod_data_clean.txt
 	@ echo "Making quality control figures..."
 	@ Rscript splicemod_graph_qc.R
+
+
+../../figs/splicemod/nat_index_legend.png: splicemod_graph_categories.R ../../processed_data/splicemod/splicemod_data_clean.txt
+	@ echo "Making figures for splicemod categories..."
+	@ Rscript splicemod_graph_categories.R
+
+
 
 

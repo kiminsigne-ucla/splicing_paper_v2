@@ -9,7 +9,7 @@ load_pkgs <- function(pkgs){
     }
 }
 
-pkgs <- c('dplyr', 'tidyr', 'ggplot2', 'cowplot', 'gridExtra')
+pkgs <- c('dplyr', 'tidyr', 'ggplot2', 'cowplot', 'gridExtra', 'grid')
 load_pkgs(pkgs)
 
 options(stringsAsFactors = F, warn = -1, warnings = -1)
@@ -107,13 +107,13 @@ grid.newpage()
 grid.draw(legend)
 dev.off()
 
-gg + theme(legend.position = 'none')
+gg_no_legend <- gg + theme(legend.position = 'none')
 
 ggsave(paste0('../../figs/splicemod/smn1/splicemod_smn1_donor_fc', plot_format), 
-       width = 3, height = 3, dpi = 100, scale = 1.3)
+       gg_no_legend, width = 3, height = 3, dpi = 100, scale = 1.3)
 
 # DHFR
-data %>%
+gg <- data %>%
     filter(don_score_fold_change != 0) %>%
     mutate(don_fold_change_bin = cut(don_score_fold_change, c(-12, -2, -1, 0, 1))) %>%
     filter(!is.na(don_fold_change_bin)) %>%
@@ -129,13 +129,13 @@ data %>%
           legend.position = 'none')
 
 ggsave(paste0('../../figs/splicemod/dhfr/splicemod_dhfr_donor_fc', plot_format), 
-       width = 3, height = 3, dpi = 100, scale = 1.3)
+       gg, width = 3, height = 3, dpi = 100, scale = 1.3)
 
 ###############################################################################
 # MaxEnt splice acceptor score fold-change
 ###############################################################################
 # SMN1
-data %>%
+gg <- data %>%
     filter(acc_score_fold_change != 0) %>%
     mutate(acc_fold_change_bin = cut(acc_score_fold_change, c(-184, -2, -1, 0, 1))) %>%
     filter(!is.na(acc_fold_change_bin)) %>%
@@ -149,10 +149,10 @@ data %>%
           legend.position = 'none')
 
 ggsave(paste0('../../figs/splicemod/smn1/splicemod_smn1_acceptor_fc', plot_format), 
-       width = 3, height = 3, dpi = 100, scale = 1.3)
+       gg, width = 3, height = 3, dpi = 100, scale = 1.3)
 
 # DHFR
-data %>%
+gg <- data %>%
     filter(acc_score_fold_change != 0) %>%
     mutate(acc_fold_change_bin = cut(acc_score_fold_change, c(-184, -2, -1, 0, 1))) %>%
     filter(!is.na(acc_fold_change_bin)) %>%
@@ -166,7 +166,7 @@ data %>%
           legend.position = 'none')
 
 ggsave(paste0('../../figs/splicemod/dhfr/splicemod_dhfr_acceptor_fc', plot_format),
-       width = 3, height = 3, dpi = 100, scale = 1.3)
+       gg, width = 3, height = 3, dpi = 100, scale = 1.3)
 
 ###############################################################################
 # All splicemod categories
@@ -201,7 +201,7 @@ other_categories <- c('cnsrv_1nt', 'cnsrv_3nt', 'RBPmats', 'variation')
 other_labels <- c('conserved 1nt', 'conservered 3nt', 'destroy RBP motifs', 'dbSNPs')
 
 # SMN1
-data %>% 
+gg <- data %>% 
     filter(seq_type == 'mut') %>% 
     mutate(category_fctr = factor(category,
                                   levels = c(splice_site_categories, esr_categories,
@@ -213,10 +213,11 @@ data %>%
     labs(x = '', y = expression(paste(Delta, ' inclusion index (SMN1)')),
          color = expression(index["WT "]))
 
-ggsave(paste0('../../figs/splicemod/smn1/splicemod_smn1_all_categories', plot_format), width = 12, height = 5, dpi = 300)
+ggsave(paste0('../../figs/splicemod/smn1/splicemod_smn1_all_categories', plot_format), 
+       gg, width = 12, height = 5, dpi = 300)
 
 # DHFR
-data %>% 
+gg <- data %>% 
     filter(seq_type == 'mut') %>% 
     mutate(category_fctr = factor(category,
                                   levels = c(splice_site_categories, esr_categories,
@@ -228,7 +229,8 @@ data %>%
     labs(x = '', y = expression(paste(Delta, ' inclusion index (SMN1)')),
          color = expression(index["WT "]))
 
-ggsave(paste0('../../figs/splicemod/dhfr/splicemod_dhfr_all_categories', plot_format), width = 12, height = 5, dpi = 300)
+ggsave(paste0('../../figs/splicemod/dhfr/splicemod_dhfr_all_categories', plot_format), 
+       gg, width = 12, height = 5, dpi = 300)
 
 ###############################################################################
 # Exonic changes
@@ -259,7 +261,7 @@ data <- data %>%
                                .$delta_avg_HAL_score == 0 ~ 'same'))
 
 # SMN1
-data %>%
+gg <- data %>%
     filter(HAL_bin != 'same', seq_type == 'mut') %>%
     ggplot(aes(HAL_bin, dpsi_smn1)) + geom_jitter(alpha = jitter_alpha , aes(color = nat_index_smn1)) + 
     geom_violin(alpha = 0) +
@@ -274,10 +276,10 @@ data %>%
           legend.position = 'none')
 
 ggsave(paste0('../../figs/splicemod/smn1/splicemod_smn1_hal', plot_format),
-       width = 3, height = 3, dpi = 100, scale = 1.3)
+       gg, width = 3, height = 3, dpi = 100, scale = 1.3)
 
 # DHFR
-data %>%
+gg <- data %>%
     filter(HAL_bin != 'same', seq_type == 'mut') %>%
     ggplot(aes(HAL_bin, dpsi_dhfr)) + geom_jitter(alpha = jitter_alpha , aes(color = nat_index_dhfr)) + 
     geom_violin(alpha = 0) +
@@ -292,7 +294,7 @@ data %>%
           legend.position = 'none')
 
 ggsave(paste0('../../figs/splicemod/dhfr/splicemod_dhfr_hal', plot_format),
-       width = 3, height = 3, dpi = 100, scale = 1.3)
+       gg, width = 3, height = 3, dpi = 100, scale = 1.3)
 
 # data %>% 
 #     group_by(ensembl_id) %>% 
@@ -319,7 +321,7 @@ data <- data %>%
                                   .$delta_Ke2011_ESS_avg_score > 0 ~ 'up',
                                   .$delta_Ke2011_ESS_avg_score == 0 ~ 'same'))
 # SMN1
-data %>%
+gg <- data %>%
     filter(Ke_bin != 'same', seq_type == 'mut') %>%
     ggplot(aes(Ke_bin, dpsi_smn1)) + geom_jitter(alpha = jitter_alpha , aes(color = nat_index_smn1)) + 
     geom_violin(alpha=0) +
@@ -334,10 +336,10 @@ data %>%
           legend.position = 'none')
 
 ggsave(paste0('../../figs/splicemod/smn1/splicemod_smn1_Ke11', plot_format),
-       width = 3, height = 3, dpi = 100, scale = 1.3)
+       gg, width = 3, height = 3, dpi = 100, scale = 1.3)
 
 # DHFR
-data %>%
+gg <- data %>%
     filter(Ke_bin != 'same', seq_type == 'mut') %>%
     ggplot(aes(Ke_bin, dpsi_dhfr)) + geom_jitter(alpha = jitter_alpha , aes(color = nat_index_dhfr)) + 
     geom_violin(alpha=0) +
@@ -352,4 +354,4 @@ data %>%
           legend.position = 'none')
 
 ggsave(paste0('../../figs/splicemod/dhfr/splicemod_dhfr_Ke11', plot_format),
-       width = 3, height = 3, dpi = 100, scale = 1.3)
+       gg, width = 3, height = 3, dpi = 100, scale = 1.3)

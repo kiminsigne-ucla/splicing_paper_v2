@@ -22,29 +22,29 @@ data <- read.table('../../processed_data/splicemod/splicemod_data_clean.txt', se
 
 # Index across SMN1 replicates
 corr <- signif(cor(data$index_R1_smn1, data$index_R2_smn1, use = 'p'), 3)
-data %>% 
+gg <- data %>% 
     ggplot(aes(index_R1_smn1, index_R2_smn1)) + geom_point(alpha = 0.10) +
     geom_smooth(method = 'lm', color = 'red') +
     scale_color_manual(values = c('black', 'red')) +
     labs(x = 'inclusion index (Rep. 1)', y = 'inclusion index (Rep. 2)') +
     theme(legend.position = 'None', text = element_text(size = 20), axis.text = element_text(size = 16)) +
     annotate('text', x = 0.85, y = 0.10, size = 6,  label = paste('r = ', corr))
-ggsave(paste0('../../figs/splicemod/smn1/splicemod_smn1_replicates', plot_format), width = 5, height = 5, dpi = 100)
+ggsave(paste0('../../figs/splicemod/smn1/splicemod_smn1_replicates', plot_format), gg, width = 5, height = 5, dpi = 100)
 
 # Index across DHFR replicates
 corr <- signif(cor(data$index_R1_dhfr, data$index_R2_dhfr, use = 'p'), 3)
-data %>% 
+gg <- data %>% 
     ggplot(aes(index_R1_dhfr, index_R2_dhfr)) + geom_point(alpha = 0.10) +
     geom_smooth(method = 'lm', color = 'red') +
     scale_color_manual(values = c('black', 'red')) +
     labs(x = 'inclusion index (Rep. 1)', y = 'inclusion index (Rep. 2)') +
     theme(legend.position = 'None', text = element_text(size = 20), axis.text = element_text(size = 16)) +
     annotate('text', x = 0.85, y = 0.10, size = 6,  label = paste('r = ', corr))
-ggsave(paste0('../../figs/splicemod/dhfr/splicemod_dhfr_replicates', plot_format), width = 5, height = 5, dpi = 100)
+ggsave(paste0('../../figs/splicemod/dhfr/splicemod_dhfr_replicates', plot_format), gg, width = 5, height = 5, dpi = 100)
 
 # Index across SMN1 and DHFR
 corr <- signif(cor(data$index_smn1, data$index_dhfr, use = 'p'), 3)
-ggplot(data, aes(index_smn1, index_dhfr)) + geom_point(alpha = 0.10) +
+gg <- ggplot(data, aes(index_smn1, index_dhfr)) + geom_point(alpha = 0.10) +
     # scale_color_manual(values = c('black', 'grey')) +
     geom_abline(linetype = 'dotted', slope = 1, intercept = 0.30) +
     geom_abline(linetype = 'dotted', slope = 1, intercept = -0.30) +
@@ -53,7 +53,7 @@ ggplot(data, aes(index_smn1, index_dhfr)) + geom_point(alpha = 0.10) +
     theme(text = element_text(size = 20), axis.text = element_text(size = 16),
           legend.position = 'none') +
     annotate('text', x = 0.85, y = 0.10, size = 6,  label = paste('r = ', corr))
-ggsave(paste0('../../figs/splicemod/splicemod_smn1_dhfr_replicates', plot_format), width = 5, height = 5, dpi = 100)
+ggsave(paste0('../../figs/splicemod/splicemod_smn1_dhfr_replicates', plot_format), gg, width = 5, height = 5, dpi = 100)
 
 ###############################################################################
 # Read distribution across bins
@@ -137,7 +137,7 @@ gg1 <- ggplot(read_dist, aes(x = reorder(id, index_R1_dhfr), y = bin)) +
 gg2 <- data %>% 
     filter(abs(index_R1_dhfr - index_R2_dhfr) <= 0.30) %>%
     ggplot(aes(reorder(id, index_R1_dhfr), index_R1_dhfr)) + 
-    geom_bar(stat = 'identity', color = 'darkgrey') + 
+    geom_bar(stat = 'identity', color = 'lightgrey') + 
     theme(axis.text.x = element_blank(), axis.ticks.x = element_blank(),
           axis.title.x = element_blank(),
           plot.margin = unit(c(0,0,0, 0.5), "in")) +
