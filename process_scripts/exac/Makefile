@@ -15,7 +15,7 @@ clean_data: ../../processed_data/exac/exac_data_clean.txt
 ../../ref/exac/exac_ref_rescored.txt: ../../ref/exac/exac_ref_formatted_converted.txt
 	@ echo "Re-scoring reference file..."
 	@ cd ../splicemod_src && \
-	python ../score_lib.py $< ./data/motifs/Ke2011/ \
+	python ../score_lib.py $< --rev ./data/motifs/Ke2011/ \
 	../../ref/Rosenberg_2015/exonic_mer6_scores.series 30 $@
 
 
