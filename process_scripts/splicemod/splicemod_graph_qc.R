@@ -61,7 +61,7 @@ ggsave(paste0('../../figs/splicemod/splicemod_smn1_dhfr_replicates', plot_format
 bin_labels <- c('GFP+', 'GFPint', 'GFP-')   
 # SMN1
 read_dist <- data %>% 
-    filter(abs(index_R1_smn1 - index_R2_smn1) <= 0.30) %>%
+    filter(rep_quality == 'high') %>%
     rowwise() %>% 
     select(id, DP_R1_norm_smn1, INT_R1_norm_smn1, SP_R1_norm_smn1) %>% 
     mutate(DP = DP_R1_norm_smn1 / (DP_R1_norm_smn1 + INT_R1_norm_smn1 + SP_R1_norm_smn1) * 100,
@@ -85,21 +85,11 @@ gg1 <- ggplot(read_dist, aes(x = reorder(id, index_R1_smn1), y = bin)) +
 gg2 <- data %>%
     filter(abs(index_R1_smn1 - index_R2_smn1) <= 0.30) %>%
     ggplot(aes(reorder(id, index_R1_smn1), index_R1_smn1)) +
-    geom_bar(stat = 'identity', color = 'lightgrey') +
+    geom_bar(stat = 'identity', color = 'darkgrey') +
     theme(axis.text.x = element_blank(), axis.ticks.x = element_blank(),
           axis.title.x = element_blank(),
           plot.margin = unit(c(0,0,0, 0.5), "in")) +
     labs(y = 'index')
-
-# # line
-# gg2 <- data %>% 
-#     filter(abs(index_R1_smn1 - index_R2_smn1) <= 0.30) %>%
-#     ggplot(aes(x = reorder(id, index_R1_smn1), y = index_R1_smn1, group = 1)) + 
-#     geom_line(color = 'black') + 
-#     theme(axis.text.x = element_blank(), axis.ticks.x = element_blank(),
-#           axis.title.x = element_blank(),
-#           plot.margin = unit(c(0,0,0, 0.5), "in")) +
-#     labs(y = 'index')
 
 png(paste0('../../figs/splicemod/smn1/splicemod_smn1_bin_dist', plot_format),
     width = 13, height = 4, units = 'in', res = 300)
@@ -114,7 +104,7 @@ dev.off()
 
 # DHFR
 read_dist <- data %>%
-    filter(abs(index_R1_dhfr - index_R2_dhfr) <= 0.30) %>%
+    filter(rep_quality == 'high') %>%
     rowwise() %>%
     select(id, DP_R1_norm_dhfr, INT_R1_norm_dhfr, SP_R1_norm_dhfr) %>%
     mutate(DP = DP_R1_norm_dhfr / (DP_R1_norm_dhfr + INT_R1_norm_dhfr + SP_R1_norm_dhfr) * 100,
@@ -137,7 +127,7 @@ gg1 <- ggplot(read_dist, aes(x = reorder(id, index_R1_dhfr), y = bin)) +
 gg2 <- data %>% 
     filter(abs(index_R1_dhfr - index_R2_dhfr) <= 0.30) %>%
     ggplot(aes(reorder(id, index_R1_dhfr), index_R1_dhfr)) + 
-    geom_bar(stat = 'identity', color = 'lightgrey') + 
+    geom_bar(stat = 'identity', color = 'darkgrey') + 
     theme(axis.text.x = element_blank(), axis.ticks.x = element_blank(),
           axis.title.x = element_blank(),
           plot.margin = unit(c(0,0,0, 0.5), "in")) +

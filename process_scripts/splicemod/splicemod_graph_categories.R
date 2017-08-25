@@ -110,7 +110,7 @@ dev.off()
 gg_no_legend <- gg + theme(legend.position = 'none')
 
 ggsave(paste0('../../figs/splicemod/smn1/splicemod_smn1_donor_fc', plot_format), 
-       gg_no_legend, width = 3, height = 3, dpi = 100, scale = 1.3)
+       gg_no_legend, width = 3, height = 3, dpi = 300, scale = 1.3)
 
 # DHFR
 gg <- data %>%
@@ -129,7 +129,7 @@ gg <- data %>%
           legend.position = 'none')
 
 ggsave(paste0('../../figs/splicemod/dhfr/splicemod_dhfr_donor_fc', plot_format), 
-       gg, width = 3, height = 3, dpi = 100, scale = 1.3)
+       gg, width = 3, height = 3, dpi = 300, scale = 1.3)
 
 ###############################################################################
 # MaxEnt splice acceptor score fold-change
@@ -149,7 +149,7 @@ gg <- data %>%
           legend.position = 'none')
 
 ggsave(paste0('../../figs/splicemod/smn1/splicemod_smn1_acceptor_fc', plot_format), 
-       gg, width = 3, height = 3, dpi = 100, scale = 1.3)
+       gg, width = 3, height = 3, dpi = 300, scale = 1.3)
 
 # DHFR
 gg <- data %>%
@@ -166,7 +166,7 @@ gg <- data %>%
           legend.position = 'none')
 
 ggsave(paste0('../../figs/splicemod/dhfr/splicemod_dhfr_acceptor_fc', plot_format),
-       gg, width = 3, height = 3, dpi = 100, scale = 1.3)
+       gg, width = 3, height = 3, dpi = 300, scale = 1.3)
 
 ###############################################################################
 # All splicemod categories
@@ -276,7 +276,7 @@ gg <- data %>%
           legend.position = 'none')
 
 ggsave(paste0('../../figs/splicemod/smn1/splicemod_smn1_hal', plot_format),
-       gg, width = 3, height = 3, dpi = 100, scale = 1.3)
+       gg, width = 3, height = 3, dpi = 300, scale = 1.3)
 
 # DHFR
 gg <- data %>%
@@ -294,7 +294,7 @@ gg <- data %>%
           legend.position = 'none')
 
 ggsave(paste0('../../figs/splicemod/dhfr/splicemod_dhfr_hal', plot_format),
-       gg, width = 3, height = 3, dpi = 100, scale = 1.3)
+       gg, width = 3, height = 3, dpi = 300, scale = 1.3)
 
 # data %>% 
 #     group_by(ensembl_id) %>% 
@@ -336,7 +336,7 @@ gg <- data %>%
           legend.position = 'none')
 
 ggsave(paste0('../../figs/splicemod/smn1/splicemod_smn1_Ke11', plot_format),
-       gg, width = 3, height = 3, dpi = 100, scale = 1.3)
+       gg, width = 3, height = 3, dpi = 300, scale = 1.3)
 
 # DHFR
 gg <- data %>%
@@ -354,4 +354,4 @@ gg <- data %>%
           legend.position = 'none')
 
 ggsave(paste0('../../figs/splicemod/dhfr/splicemod_dhfr_Ke11', plot_format),
-       gg, width = 3, height = 3, dpi = 100, scale = 1.3)
+       gg, width = 3, height = 3, dpi = 300, scale = 1.3)
