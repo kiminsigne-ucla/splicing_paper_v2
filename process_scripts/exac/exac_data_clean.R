@@ -6,7 +6,7 @@ load_pkgs <- function(pkgs){
     }
 }
 
-pkgs <- c('dplyr', 'tidyr', 'ggplot2')
+pkgs <- c('dplyr', 'tidyr', 'ggplot2', 'cowplot')
 load_pkgs(pkgs)
 
 options(stringsAsFactors = F, warn = -1, warnings = -1)
@@ -59,8 +59,6 @@ print(paste("Initial number of sequences (v1, v2):", nrow(exac_v1), nrow(exac_v2
 ###############################################################################
 # Filtering
 ###############################################################################
-# dpsi_threshold <- -0.50
-# dpsi_threshold_stringent <- -0.70
 
 hi_read_threshold <- 10
 # nat_read_threshold <- 500
@@ -181,6 +179,13 @@ data <- data %>%
            v2_dpsi = mean(c(v2_dpsi_R1, v2_dpsi_R2)),
            delta_dpsi = abs(v1_dpsi - v2_dpsi) ) %>%
     ungroup()
+
+dpsi_threshold <- -0.50
+dpsi_threshold_stringent <- -0.70
+
+data <- data %>% 
+    mutate(strong_lof = ifelse(v2_dpsi <= dpsi_threshold, TRUE, FALSE),
+           stringent_lof = ifelse(v2_dpsi <= dpsi_threshold_stringent, TRUE, FALSE))
 
 write.table(data, '../../processed_data/exac/exac_data_clean.txt', sep = '\t',
             row.names = F, quote = F)

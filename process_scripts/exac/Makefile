@@ -23,7 +23,7 @@ run_SPANR: ../../processed_data/exac/exac_SPANR_scores.txt
 	../../ref/Rosenberg_2015/exonic_mer6_scores.series 30 $@
 
 
-../../processed_data/exac/exac_data_clean.txt: ../../ref/exac/exac_ref_formatted_converted.txt
+../../processed_data/exac/exac_data_clean.txt: ../../ref/exac/exac_ref_formatted_converted.txt exac_data_clean.R
 	@ echo "Cleaning up data..."
 	@ Rscript exac_data_clean.R
 
