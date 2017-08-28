@@ -121,7 +121,8 @@ fit <- summary(lm(v2_index ~ v1_index, data_all))$r.squared
 gg <- ggplot(data_all, aes(v1_index, v2_index)) + geom_point(alpha = 0.25) +
     geom_smooth(method = 'lm', color = 'red') +
     labs(x = 'ExAC V1', y = 'ExAC V2') +
-    annotate('text', x = 0.95, y = 0.10, parse = T, label = paste0('R^2==', signif(fit, 3)), size = 5)
+    annotate('text', x = 0.95, y = 0.10, parse = T, 
+             label = paste0('R^2==', signif(fit, 3)), size = 5)
 
 ggsave(paste0('../../figs/exac/exac_v1_v2_replicates', plot_format), gg,
        width = 6, height = 6, dpi = 300)
@@ -181,5 +182,5 @@ data <- data %>%
            delta_dpsi = abs(v1_dpsi - v2_dpsi) ) %>%
     ungroup()
 
-write.table(data, '../../processed_data/exac_data_clean.txt', sep = '\t',
+write.table(data, '../../processed_data/exac/exac_data_clean.txt', sep = '\t',
             row.names = F, quote = F)

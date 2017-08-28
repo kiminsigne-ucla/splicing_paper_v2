@@ -73,5 +73,85 @@ ref <- ref %>%
     left_join(read.table('../../processed_data/exac/exac_snp_liftover.bed', sep = '\t',
                          col.names = c('chr', 'snp_position_hg38', 'snp_position_end_hg38', 'id')) %>% select(-chr), by = 'id')
 
+
+# get relative position of SNP mutations and where they fall (intron/exon)
+rel_position <- function(intron1_len, exon_len, intron2_len, strand, rel_position) {
+    in_interval <- function(start, end, x) {
+        if (start <= x & x <= end) { return(TRUE) }
+        else {return(FALSE)}
+    }
+    if (strand == '-' | strand == -1) {
+        # set appropriate lengths
+        upstr_intron_len <- intron2_len
+        downstr_intron_len <- intron1_len
+    }
+    else{
+        upstr_intron_len <- intron1_len
+        downstr_intron_len <- intron2_len
+    }
+    
+    regions <- data.frame(label = c('upstr_intron', 'exon', 'downstr_intron'),
+                          start = c(1, upstr_intron_len + 1, upstr_intron_len + exon_len + 1),
+                          end = c(upstr_intron_len, upstr_intron_len + exon_len, 
+                                  upstr_intron_len + exon_len + downstr_intron_len))
+    # select region the SNP falls in
+    label <- regions %>% 
+        rowwise() %>% 
+        filter(in_interval(start, end, x = rel_position))
+    
+    start <- label$start[1]
+    end <- label$end[1]
+    label <- label$label[1]
+    
+    # get distance from end of upstream intron/exon boundary
+    boundary <- upstr_intron_len
+    distance <- rel_position - boundary
+    
+    # normalize to feature length
+    if (label == 'downstr_intron') {
+        scaled_distance <- 1 + (distance - exon_len) / (end - start)
+    }
+    else {
+        scaled_distance <- distance / (end - start + 1)
+    }
+    
+    # additionally, find distance from respective intron/exon boundary
+    # left side of boundary is negative, right side is positive
+    if (label == 'upstr_intron') {
+        rel_pos_feature <- rel_position - end - 1
+    }
+    if (label == 'exon') {
+        # closer to downstream intron
+        if ( rel_position - start + 1 >= end - rel_position + 1) {
+            rel_pos_feature <- rel_position - end - 1 # negative position, left side of boundary
+        }
+        else {
+            # closer to upstream intron, right side of boundary, positive
+            rel_pos_feature <- rel_position - start + 1
+        }
+    }
+    if (label == 'downstr_intron') {
+        rel_pos_feature <- rel_position - start + 1
+    }
+    return(paste(label, rel_pos_feature, scaled_distance, sep = ':'))
+}
+
+ref <- ref %>% 
+    mutate(rel_position = ifelse(strand == '+', snp_position - start + 1, 
+                                 end - snp_position + 1))
+
+ref <- ref %>% 
+    select(intron1_len, exon_len, intron2_len, strand, rel_position, id) %>%
+    na.omit() %>%
+    rowwise() %>%
+    mutate(rel_position_info = rel_position(intron1_len, exon_len, 
+                                            intron2_len, strand, rel_position)) %>%
+    separate(rel_position_info, 
+             c('label', 'rel_position_feature', 'rel_position_scaled'), 
+             sep = ':', convert = T) %>%
+    select(id, label, rel_position_feature, rel_position_scaled) %>%
+    left_join(ref, ., by = 'id') %>% distinct()
+
+
 write.table(ref, '../../ref/exac/exac_ref_formatted_converted.txt', sep = '\t',
             quote = F, row.names = F)

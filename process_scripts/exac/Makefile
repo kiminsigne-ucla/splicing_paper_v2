@@ -6,6 +6,10 @@ rescore_ref: ../../ref/exac/exac_ref_rescored.txt
 
 clean_data: ../../processed_data/exac/exac_data_clean.txt
 
+run_HAL: ../../processed_data/exac/exac_HAL_scores.txt
+
+run_SPANR: ../../processed_data/exac/exac_SPANR_scores.txt
+
 
 ../../ref/exac/exac_ref_formatted_converted.txt: ../../ref/exac/exac_ref_all.txt
 	@ echo "Formatting reference..."
@@ -22,3 +26,13 @@ clean_data: ../../processed_data/exac/exac_data_clean.txt
 ../../processed_data/exac/exac_data_clean.txt: ../../ref/exac/exac_ref_formatted_converted.txt
 	@ echo "Cleaning up data..."
 	@ Rscript exac_data_clean.R
+
+
+../../processed_data/exac/exac_HAL_scores.txt: ../../processed_data/exac/exac_data_clean.txt exac_run_HAL.py
+	@ echo "Calculating HAL scores..."
+	@ python exac_run_HAL.py $< $@
+
+
+../../processed_data/exac/exac_SPANR_scores.txt: ../../processed_data/exac/exac_data_clean.txt exac_run_SPANR.py
+	@ echo "Calculating SPANR scores..."
+	@ python exac_run_SPANR.py $< $@
