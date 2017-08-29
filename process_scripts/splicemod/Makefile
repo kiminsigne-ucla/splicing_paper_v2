@@ -44,6 +44,7 @@ figs: qc_figs category_figs
 ../../figs/splicemod/nat_index_legend.png: splicemod_graph_categories.R ../../processed_data/splicemod/splicemod_data_clean.txt
 	@ echo "Making figures for splicemod categories..."
 	@ Rscript splicemod_graph_categories.R
+	@ rm -f Rplots.pdf
 
 
 

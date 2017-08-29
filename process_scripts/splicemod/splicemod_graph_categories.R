@@ -192,10 +192,10 @@ ggsave(paste0('../../figs/splicemod/dhfr/splicemod_dhfr_acceptor_fc', plot_forma
 
 # facet
 data %>% 
-    mutate(acc_fold_change_bin = cut(acc_score_fold_change, c(-184, -2, -1, 0, 1)),
-           don_fold_change_bin = cut(don_score_fold_change, c(-184, -2, -1, 0, 1))) %>%
-    gather(key = 'splice_site', value = 'fold_change_bin', 
-           don_fold_change_bin, acc_fold_change_bin) %>% 
+    gather(key = 'splice_site', value = 'fold_change', 
+           don_score_fold_change, acc_score_fold_change) %>% 
+    filter(fold_change != 0) %>% 
+    mutate(fold_change_bin = cut(fold_change, c(-184, -2, -1, 0, 1))) %>%
     filter(!is.na(fold_change_bin), seq_type == 'mut') %>% 
     # reorder binned intervals
     mutate(fold_change_bin = factor(fold_change_bin,
@@ -205,9 +205,9 @@ data %>%
     ggplot(aes(fold_change_bin, dpsi_smn1)) + 
     geom_jitter(alpha = jitter_alpha, aes(color = nat_index_smn1)) + 
     geom_boxplot(alpha = 0) +
-    facet_grid(~ splice_site, 
-               labeller = as_labeller(c('acc_fold_change_bin' = 'SA',
-                                        'don_fold_change_bin' = 'SD'))) +
+    facet_grid(~ splice_site,
+               labeller = as_labeller(c('acc_score_fold_change' = 'SA',
+                                        'don_score_fold_change' = 'SD'))) +
     scale_colour_gradientn(limits = c(-0.005, 1), 
                            breaks = seq(0, 1, by = 0.25), 
                            colors = pal(321)) +
