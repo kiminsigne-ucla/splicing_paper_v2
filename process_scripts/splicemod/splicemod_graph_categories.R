@@ -23,8 +23,9 @@ jitter_alpha <- 0.50
 color.palette <- function(steps, n.steps.between=NULL, ...){
     
     if (is.null(n.steps.between)) n.steps.between <- rep(0, (length(steps) - 1))
-    if (length(n.steps.between) != length(steps) - 1) stop("Must have one less n.steps.between value than steps")
-    
+    if (length(n.steps.between) != length(steps) - 1) {
+        stop("Must have one less n.steps.between value than steps")
+    }
     fill.steps <- cumsum(rep(1, length(steps)) + c(0,n.steps.between))
     RGB <- matrix(NA, nrow = 3, ncol = fill.steps[length(fill.steps)])
     RGB[,fill.steps] <- col2rgb(steps)
@@ -33,7 +34,8 @@ color.palette <- function(steps, n.steps.between=NULL, ...){
         col.start = RGB[,fill.steps[i]]
         col.end = RGB[,fill.steps[i + 1]]
         for (j in seq(3)) {
-            vals <- seq(col.start[j], col.end[j], length.out = n.steps.between[i] + 2)[2:(2 + n.steps.between[i] - 1)]  
+            vals <- seq(col.start[j], col.end[j], 
+                        length.out = n.steps.between[i] + 2)[2:(2 + n.steps.between[i] - 1)]  
             RGB[j,(fill.steps[i] + 1):(fill.steps[i + 1] - 1)] <- vals
         }
     }
@@ -50,12 +52,14 @@ pal <- color.palette(steps, c(160,1,1,160), space = "rgb")
 ###############################################################################
 # Read in data
 ###############################################################################
-data <- read.table('../../processed_data/splicemod/splicemod_data_clean.txt', sep = '\t', header = T, 
+data <- read.table('../../processed_data/splicemod/splicemod_data_clean.txt', 
+                   sep = '\t', header = T, 
                    colClasses = c('sub_id' = 'character')) %>% 
     filter(rep_quality == 'high')
 
 # read in re-scored reference file
-updated_ref <- read.csv('../../ref/splicemod/splicemod_ref_rescored.txt', header = T, sep = '\t',
+updated_ref <- read.csv('../../ref/splicemod/splicemod_ref_rescored.txt',
+                        header = T, sep = '\t',
                         colClasses = c('sub_id' = 'character'))
 
 data <- data %>% 
@@ -72,8 +76,10 @@ data <- data %>%
            delta_acc_score = correct_acc_score - correct_acc_score_nat,
            delta_don_score = correct_don_score - correct_don_score_nat,
            # calculate fold change in score relative to wild-type
-           don_score_fold_change = (correct_don_score - correct_don_score_nat) / abs(correct_don_score_nat),
-           acc_score_fold_change = (correct_acc_score - correct_acc_score_nat) / abs(correct_acc_score_nat)) %>%
+           don_score_fold_change = (correct_don_score - correct_don_score_nat) / 
+               abs(correct_don_score_nat),
+           acc_score_fold_change = (correct_acc_score - correct_acc_score_nat) / 
+               abs(correct_acc_score_nat)) %>%
     ungroup()
 
 ###############################################################################
@@ -88,11 +94,14 @@ gg <- data %>%
     geom_jitter(alpha = jitter_alpha, aes(color = nat_index_smn1)) + 
     scale_x_discrete(labels = c('<= -2', '(-2, -1]', '(-1, -0)', '(0, 1]')) +
     geom_boxplot(alpha = 0) + 
-    scale_colour_gradientn(limits = c(-0.005, 1), breaks = seq(0, 1, by = 0.25), colors = pal(321)) +
+    scale_colour_gradientn(limits = c(-0.005, 1), 
+                           breaks = seq(0, 1, by = 0.25), 
+                           colors = pal(321)) +
     labs(x = 'fold change MaxEnt splice donor score', 
          y = expression(paste(Delta, ' inclusion index (SMN1)')),
          color = expression(index["WT "])) +
-    theme(axis.text = element_text(size = axis_text), text = element_text(size = general_text))
+    theme(axis.text = element_text(size = axis_text), 
+          text = element_text(size = general_text))
 
 # grab legend
 g_legend<-function(a.gplot){
@@ -121,11 +130,14 @@ gg <- data %>%
     geom_jitter(alpha = jitter_alpha , aes(color = nat_index_dhfr)) + 
     scale_x_discrete(labels = c('<= -2', '(-2, -1]', '(-1, -0)', '(0, 1]')) +
     geom_boxplot(alpha = 0) + 
-    scale_colour_gradientn(limits = c(-0.005, 1), breaks = seq(0, 1, by = 0.25), colors = pal(321)) +
+    scale_colour_gradientn(limits = c(-0.005, 1), 
+                           breaks = seq(0, 1, by = 0.25), 
+                           colors = pal(321)) +
     labs(x = 'fold change MaxEnt splice donor score', 
          y = expression(paste(Delta, ' inclusion index (SMN1)')),
          color = expression(index["WT "])) +
-    theme(axis.text = element_text(size = axis_text), text = element_text(size = general_text),
+    theme(axis.text = element_text(size = axis_text), 
+          text = element_text(size = general_text),
           legend.position = 'none')
 
 ggsave(paste0('../../figs/splicemod/dhfr/splicemod_dhfr_donor_fc', plot_format), 
@@ -139,13 +151,18 @@ gg <- data %>%
     filter(acc_score_fold_change != 0) %>%
     mutate(acc_fold_change_bin = cut(acc_score_fold_change, c(-184, -2, -1, 0, 1))) %>%
     filter(!is.na(acc_fold_change_bin)) %>%
-    ggplot(aes(acc_fold_change_bin, dpsi_smn1)) + geom_jitter(alpha = jitter_alpha , aes(color = nat_index_smn1)) + 
+    ggplot(aes(acc_fold_change_bin, dpsi_smn1)) + 
+    geom_jitter(alpha = jitter_alpha , aes(color = nat_index_smn1)) + 
     scale_x_discrete(labels = c('<= -2', '(-2, -1]', '(-1, -0)', '(0, 1]')) +
     geom_boxplot(alpha = 0) + 
-    scale_colour_gradientn(limits = c(-0.005, 1), breaks = seq(0, 1, by = 0.25), colors = pal(321)) +
-    labs(x = 'fold change MaxEnt splice acceptor score', y = expression(paste(Delta, ' inclusion index (SMN1)')),
+    scale_colour_gradientn(limits = c(-0.005, 1), 
+                           breaks = seq(0, 1, by = 0.25), 
+                           colors = pal(321)) +
+    labs(x = 'fold change MaxEnt splice acceptor score',
+         y = expression(paste(Delta, ' inclusion index (SMN1)')),
          color = expression(index["WT "])) +
-    theme(axis.text = element_text(size = axis_text), text = element_text(size = general_text),
+    theme(axis.text = element_text(size = axis_text), 
+          text = element_text(size = general_text),
           legend.position = 'none')
 
 ggsave(paste0('../../figs/splicemod/smn1/splicemod_smn1_acceptor_fc', plot_format), 
@@ -156,17 +173,51 @@ gg <- data %>%
     filter(acc_score_fold_change != 0) %>%
     mutate(acc_fold_change_bin = cut(acc_score_fold_change, c(-184, -2, -1, 0, 1))) %>%
     filter(!is.na(acc_fold_change_bin)) %>%
-    ggplot(aes(acc_fold_change_bin, dpsi_dhfr)) + geom_jitter(alpha = jitter_alpha , aes(color = nat_index_dhfr)) + 
+    ggplot(aes(acc_fold_change_bin, dpsi_dhfr)) + 
+    geom_jitter(alpha = jitter_alpha , aes(color = nat_index_dhfr)) + 
     scale_x_discrete(labels = c('<= -2', '(-2, -1]', '(-1, -0)', '(0, 1]')) +
     geom_boxplot(alpha = 0) + 
-    scale_colour_gradientn(limits = c(-0.005, 1), breaks = seq(0, 1, by = 0.25), colors = pal(321)) +
-    labs(x = 'fold change MaxEnt splice acceptor score', y = expression(paste(Delta, ' inclusion index (SMN1)')),
+    scale_colour_gradientn(limits = c(-0.005, 1), 
+                           breaks = seq(0, 1, by = 0.25), 
+                           colors = pal(321)) +
+    labs(x = 'fold change MaxEnt splice acceptor score', 
+         y = expression(paste(Delta, ' inclusion index (SMN1)')),
          color = expression(index["WT "])) +
-    theme(axis.text = element_text(size = axis_text), text = element_text(size = general_text),
+    theme(axis.text = element_text(size = axis_text), 
+          text = element_text(size = general_text),
           legend.position = 'none')
 
 ggsave(paste0('../../figs/splicemod/dhfr/splicemod_dhfr_acceptor_fc', plot_format),
        gg, width = 3, height = 3, dpi = 300, scale = 1.3)
+
+# facet
+data %>% 
+    mutate(acc_fold_change_bin = cut(acc_score_fold_change, c(-184, -2, -1, 0, 1)),
+           don_fold_change_bin = cut(don_score_fold_change, c(-184, -2, -1, 0, 1))) %>%
+    gather(key = 'splice_site', value = 'fold_change_bin', 
+           don_fold_change_bin, acc_fold_change_bin) %>% 
+    filter(!is.na(fold_change_bin), seq_type == 'mut') %>% 
+    # reorder binned intervals
+    mutate(fold_change_bin = factor(fold_change_bin,
+                                    levels = c('(-184,-2]', '(-2,-1]',
+                                               '(-1,0]', '(0,1]'))) %>% 
+    # select(acc_score_fold_change, don_score_fold_change, splice_site, fold_change_bin)
+    ggplot(aes(fold_change_bin, dpsi_smn1)) + 
+    geom_jitter(alpha = jitter_alpha, aes(color = nat_index_smn1)) + 
+    geom_boxplot(alpha = 0) +
+    facet_grid(~ splice_site, 
+               labeller = as_labeller(c('acc_fold_change_bin' = 'SA',
+                                        'don_fold_change_bin' = 'SD'))) +
+    scale_colour_gradientn(limits = c(-0.005, 1), 
+                           breaks = seq(0, 1, by = 0.25), 
+                           colors = pal(321)) +
+    scale_x_discrete(labels = c('<= -2', '(-2, -1]', '(-1, -0)', '(0, 1]')) +
+    labs(x = 'fold-change MaxEnt score', 
+         y = expression(paste(Delta, ' inclusion index (SMN1)')),
+         color = expression(index["WT "])) +
+    theme(axis.text = element_text(size = axis_text), 
+          text = element_text(size = general_text),
+          legend.position = 'none')
 
 ###############################################################################
 # All splicemod categories
