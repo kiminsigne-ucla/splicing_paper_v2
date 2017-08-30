@@ -23,36 +23,34 @@ data <- read.table('../../processed_data/splicemod/splicemod_data_clean.txt', se
 # Index across SMN1 replicates
 corr <- signif(cor(data$index_R1_smn1, data$index_R2_smn1, use = 'p'), 3)
 gg <- data %>% 
-    ggplot(aes(index_R1_smn1, index_R2_smn1)) + geom_point(alpha = 0.10) +
-    geom_smooth(method = 'lm', color = 'red') +
-    scale_color_manual(values = c('black', 'red')) +
+    ggplot(aes(index_R1_smn1, index_R2_smn1)) + geom_point(alpha = 0.10, aes(color = replicability_smn1)) +
+    geom_smooth(method = 'lm', color = 'blue') +
+    scale_color_manual(values = c('black', '#0033CC')) +
     labs(x = 'inclusion index (Rep. 1)', y = 'inclusion index (Rep. 2)') +
     theme(legend.position = 'None', text = element_text(size = 20), axis.text = element_text(size = 16)) +
-    annotate('text', x = 0.85, y = 0.10, size = 6,  label = paste('r = ', corr))
+    annotate('text', x = 0.20, y = 0.90, size = 7, label = paste('r = ', corr))
 ggsave(paste0('../../figs/splicemod/smn1/splicemod_smn1_replicates', plot_format), gg, width = 5, height = 5, dpi = 100)
 
 # Index across DHFR replicates
 corr <- signif(cor(data$index_R1_dhfr, data$index_R2_dhfr, use = 'p'), 3)
 gg <- data %>% 
-    ggplot(aes(index_R1_dhfr, index_R2_dhfr)) + geom_point(alpha = 0.10) +
-    geom_smooth(method = 'lm', color = 'red') +
-    scale_color_manual(values = c('black', 'red')) +
+    ggplot(aes(index_R1_dhfr, index_R2_dhfr)) + geom_point(alpha = 0.10, aes(color = replicability_dhfr)) +
+    geom_smooth(method = 'lm', color = 'blue') +
+    scale_color_manual(values = c('black', '#0033CC')) +
     labs(x = 'inclusion index (Rep. 1)', y = 'inclusion index (Rep. 2)') +
     theme(legend.position = 'None', text = element_text(size = 20), axis.text = element_text(size = 16)) +
-    annotate('text', x = 0.85, y = 0.10, size = 6,  label = paste('r = ', corr))
+    annotate('text', x = 0.20, y = 0.90, size = 7, label = paste('r = ', corr))
 ggsave(paste0('../../figs/splicemod/dhfr/splicemod_dhfr_replicates', plot_format), gg, width = 5, height = 5, dpi = 100)
 
 # Index across SMN1 and DHFR
 corr <- signif(cor(data$index_smn1, data$index_dhfr, use = 'p'), 3)
-gg <- ggplot(data, aes(index_smn1, index_dhfr)) + geom_point(alpha = 0.10) +
+gg <- ggplot(data %>% filter(replicability_dhfr == 'high', replicability_smn1 == 'high'), aes(index_smn1, index_dhfr)) + geom_point(alpha = 0.10) +
     # scale_color_manual(values = c('black', 'grey')) +
-    geom_abline(linetype = 'dotted', slope = 1, intercept = 0.30) +
-    geom_abline(linetype = 'dotted', slope = 1, intercept = -0.30) +
-    geom_smooth(method = 'lm', color = 'red') + 
+    geom_smooth(method = 'lm', color = 'blue') + 
     labs(x = 'inclusion index (SMN1)', y = 'inclusion index (DHFR)') +
     theme(text = element_text(size = 20), axis.text = element_text(size = 16),
           legend.position = 'none') +
-    annotate('text', x = 0.85, y = 0.10, size = 6,  label = paste('r = ', corr))
+    annotate('text', x = 0.20, y = 0.90, size = 7, label = paste('r = ', corr))
 ggsave(paste0('../../figs/splicemod/splicemod_smn1_dhfr_replicates', plot_format), gg, width = 5, height = 5, dpi = 100)
 
 ###############################################################################

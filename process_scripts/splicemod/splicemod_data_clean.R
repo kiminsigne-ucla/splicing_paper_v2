@@ -100,7 +100,9 @@ data[data == 'NaN'] <- NA
 
 rep_agreement <- 0.30
 data <- data %>% 
-    mutate(rep_quality = ifelse(abs(index_smn1 - index_dhfr) <= rep_agreement, 'high', 'low'))
+    mutate(rep_quality = ifelse(abs(index_smn1 - index_dhfr) <= rep_agreement, 'high', 'low'),
+           replicability_dhfr = ifelse(abs(index_R1_dhfr - index_R2_dhfr) <= rep_agreement, 'high', 'low'),
+           replicability_smn1 = ifelse(abs(index_R1_smn1 - index_R2_smn1) <= rep_agreement, 'high', 'low'))
 
 # calculate difference in splicing index between mutant and natural
 data <- data %>% 
