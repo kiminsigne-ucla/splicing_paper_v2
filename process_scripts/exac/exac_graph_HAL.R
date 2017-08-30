@@ -20,12 +20,16 @@ exac_exon_vars <- read.table('../../processed_data/exac/exac_HAL_scores.txt',
 
 
 fit <- signif(summary(lm(DPSI_pred ~ v2_dpsi, exac_exon_vars))$r.squared, 3)
+pearson <- signif(cor(exac_exon_vars$DPSI_pred, exac_exon_vars$v2_dpsi), 3)
+spearman <- signif(cor(exac_exon_vars$DPSI_pred, exac_exon_vars$v2_dpsi, method = 'spearman'), 3)
 ggplot(exac_exon_vars, aes(v2_dpsi, DPSI_pred)) + geom_point(alpha = 0.25) +
     geom_smooth(method = 'lm') +
     labs(x = expression(paste(Delta, ' inclusion index ')),
          y = expression(paste('HAL predicted ', Delta, 'PSI')),
          title = 'ExAC exonic variants') +
-    annotate('text', parse=T, label=paste('R^2==', fit), x = 0.75, y = -0.75)
+    annotate('text', label=paste0('R^2 = ', fit, 
+                                  '\nr = ', pearson,
+                                  '\nspearman = ', spearman), x = 0.75, y = -0.50)
 
 
 exac_exon_vars <- exac_exon_vars %>%
@@ -40,6 +44,8 @@ dpsi_threshold <- -0.50
 
 exac_exon_vars <- exac_exon_vars %>% 
     mutate(hal_strong_lof = ifelse(DPSI_pred <= dpsi_threshold, 'True', 'False'))
+
+
 
 # true positive, both HAL and our calls agree
 num_true_pos <- filter(exac_exon_vars, hal_strong_lof == 'True', strong_lof == 'True') %>% nrow()
@@ -64,6 +70,3 @@ specificity <- (num_true_neg / (num_true_neg + num_false_pos)) * 100
 print(paste0('precision:', precision))
 print(paste0('recall/sensitivity:', recall))
 print(paste0('specificity:', specificity))
-
-
-

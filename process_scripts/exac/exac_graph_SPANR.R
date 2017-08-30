@@ -33,12 +33,17 @@ exac_spanr <- exac_spanr %>%
 
 
 fit <- signif(summary(lm(dpsi_spanr_capped ~ v2_dpsi, exac_spanr))$r.squared, 3)
+pearson <- signif(cor(exac_spanr$dpsi_spanr_capped, exac_spanr$v2_dpsi), 3)
+spearman <- signif(cor(exac_spanr$dpsi_spanr_capped, exac_spanr$v2_dpsi, method = 'spearman'), 3)
 ggplot(exac_spanr, aes(v2_dpsi, dpsi_spanr_capped)) + geom_point(alpha = 0.25) +
     geom_smooth(method = 'lm') + 
     labs(x = expression(paste(Delta, ' inclusion index')), 
          y = expression(paste('SPANR predicted ', Delta, 'PSI')),
-         title = 'ExAC library') +
-    annotate('text', parse=T, label=paste('R^2==', fit), x = 0.75, y = -0.70)
+         title = 'ExAC SNVs') +
+    # annotate('text', parse=T, label=paste('R^2==', fit), x = 0.75, y = -0.70)
+    annotate('text', label=paste0('R^2 = ', fit, 
+                                  '\nr = ', pearson,
+                                  '\nspearman = ', spearman), x = 0.75, y = -0.50)
 
 
 exac_spanr <- exac_spanr %>%
@@ -77,4 +82,5 @@ specificity <- (num_true_neg / (num_true_neg + num_false_pos)) * 100
 print(paste0('precision:', precision))
 print(paste0('recall/sensitivity:', recall))
 print(paste0('specificity:', specificity))
+
                  

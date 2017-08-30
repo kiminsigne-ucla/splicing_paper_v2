@@ -96,7 +96,7 @@ if __name__ == '__main__':
 
 	exac_spanr = predict_spanr(exac_snps)
 
-	exac_spanr.to_csv(args.outfile, sep='\t', na_rep='NA')
+	exac_spanr.to_csv(args.outfile, sep='\t', na_rep='NA', index=False)
 
 
 
