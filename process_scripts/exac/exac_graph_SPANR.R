@@ -31,6 +31,9 @@ exac_spanr <- exac_spanr %>%
                                       sign(dpsi_max_tissue)*nat_v2_index, 
                                       dpsi_max_tissue))
 
+write.table(exac_spanr, '../../processed_data/exac/exac_SPANR_scores_capped.txt',
+            sep = '\t', row.names = F, quote = F)
+
 
 fit <- signif(summary(lm(dpsi_spanr_capped ~ v2_dpsi, exac_spanr))$r.squared, 3)
 pearson <- signif(cor(exac_spanr$dpsi_spanr_capped, exac_spanr$v2_dpsi), 3)
