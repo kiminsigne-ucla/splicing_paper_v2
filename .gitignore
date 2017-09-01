@@ -2,3 +2,6 @@ process_scripts/splicemod_src/data/hg38.100way.phyloP100way/
 ref/phastCons/
 ref/Rosenberg_2015/model_full_data.mat
 ref/spidex/
+ref/vep/
+ref/exac/ExAC.r0.3.1.sites.vep.vcf.gz*
+ref/exac/snp_exac_annot_all.txt
