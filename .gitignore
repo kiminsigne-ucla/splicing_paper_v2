@@ -2,3 +2,12 @@ process_scripts/splicemod_src/data/hg38.100way.phyloP100way/
 ref/phastCons/
 ref/Rosenberg_2015/model_full_data.mat
 ref/spidex/
+ref/vep/
+ref/exac/ExAC.r0.3.1.sites.vep.vcf.gz*
+ref/exac/snp_exac_annot_all.txt
+./processed_data/exac/nat_downstr_intron_cons_scores_all.bed
+./processed_data/exac/nat_downstr_intron_positions.bed
+./processed_data/exac/nat_exon_cons_scores_all.bed
+./processed_data/exac/nat_exon_positions.bed
+./processed_data/exac/nat_upstr_intron_cons_scores_all.bed
+./processed_data/exac/nat_upstr_intron_positions.bed
