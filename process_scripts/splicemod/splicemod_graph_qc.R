@@ -161,24 +161,27 @@ gg <- data %>%
   geom_histogram(binwidth = 0.02) +
   geom_vline(xintercept = 0.79, color = 'red') +
   xlab('inclusion index') +
-  annotate('text', x = 0.115, y = 558, size = 7, label = paste("italic(n)"), parse=TRUE) +
-  annotate('text', x = 0.27, y = 560, size = 7, label = paste("=", smn1_natCount)) +
+  annotate('text', x = 0.115, y = 558, size = 9, label = paste("italic(n)"), parse=TRUE) +
+  annotate('text', x = 0.27, y = 560, size = 9, label = paste("=", smn1_natCount)) +
   scale_y_continuous(expand = c(0,0)) +
   expand_limits(y = 650) +
-  theme(axis.title = element_text(size = 20))
+  theme(axis.title = element_text(size = 22),
+        axis.text = element_text(size = 16))
 ggsave(paste0('../../figs/splicemod/smn1/splicemod_smn1_index_hist', plot_format), gg, width = 5, height = 5, dpi = 100)
 
 gg <- data %>%
   filter (sub_id == '000', !is.na(index_dhfr), replicability_dhfr == 'high') %>%
   ggplot(aes(index_dhfr)) + 
   geom_histogram(binwidth = 0.02) +
-  geom_vline(xintercept = 0.79, color = 'red') +
+  # geom_vline(xintercept = 0.79, color = 'red') +
+  # geom_rect(aes(xmin = 0.8, xmax = 1.02, ymin = 0, ymax = 675), alpha = 0.1, fill = "lightgray") +
   xlab('inclusion index') +
-  annotate('text', x = 0.115, y = 588, size = 7, label = paste("italic(n)"), parse=TRUE) +
-  annotate('text', x = 0.27, y = 590, size = 7, label = paste("=", dhfr_natCount)) +
+  annotate('text', x = 0.115, y = 588, size = 9, label = paste("italic(n)"), parse=TRUE) +
+  annotate('text', x = 0.33, y = 590, size = 9, label = paste("=", dhfr_natCount)) +
   scale_y_continuous(expand = c(0,0)) +
   expand_limits(y = 700) +
-  theme(axis.title = element_text(size = 20))
+  theme(axis.title = element_text(size = 22),
+        axis.text = element_text(size = 18))
 ggsave(paste0('../../figs/splicemod/dhfr/splicemod_dhfr_index_hist', plot_format), gg, width = 5, height = 5, dpi = 100)
 
 

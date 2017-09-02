@@ -173,7 +173,7 @@ gg <- data %>%
   labs(x = 'MaxEnt score (fold change)', 
        y = expression(paste(Delta, ' inclusion index')),
        color = expression(index["WT "])) +
-  theme(strip.background =element_rect(fill="lightgrey"),
+  theme(strip.background = element_rect(fill="lightgrey"),
         strip.text = element_text(size = 16),
         axis.title.y = element_text(size = 16), 
         axis.title.x = element_text(size = 16), 
@@ -209,6 +209,34 @@ gg <- data %>%
 
 ggsave(paste0('../../figs/splicemod/dhfr/splicemod_dhfr_donor_fc', plot_format), 
        gg, width = 2.4, height = 3, dpi = 300, scale = 1.3)
+
+###############################################################################
+# Legend
+###############################################################################
+
+gg <- data %>%
+  filter(acc_score_fold_change != 0) %>%
+  mutate(acc_fold_change_bin = cut(acc_score_fold_change, c(-184, -2, -1, 0, 1))) %>%
+  filter(!is.na(acc_fold_change_bin)) %>%
+  ggplot(aes(acc_fold_change_bin, dpsi_smn1)) + 
+  geom_jitter(alpha = jitter_alpha , aes(color = nat_index_smn1)) + 
+  scale_x_discrete(labels = c('<= -2', '(-2, -1]', '(-1, -0)', '(0, 1]')) +
+  geom_boxplot(alpha = 0) + 
+  scale_colour_gradientn(limits = c(-0.005, 1), 
+                         breaks = seq(0, 1, by = 0.25), 
+                         colors = pal(321)) +
+  labs(x = 'fold change MaxEnt splice acceptor score',
+       y = expression(paste(Delta, ' inclusion index (SMN1)')),
+       color = expression(index["WT "])) +
+  theme(axis.text = element_text(size = axis_text), 
+        text = element_text(size = general_text),
+        legend.key.width=unit(1,"cm"),
+        legend.key.height=unit(1.8,"cm"),
+        legend.text=element_text(size=28),
+        legend.title=element_text(size=32))
+
+ggsave(paste0('../../figs/splicemod/legend', plot_format), 
+       gg, width = 3, height = 6, dpi = 300, scale = 1.3)
 
 ###############################################################################
 # MaxEnt splice acceptor score fold-change (DHFR)
