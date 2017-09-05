@@ -34,7 +34,6 @@ exac_spanr <- exac_spanr %>%
 write.table(exac_spanr, '../../processed_data/exac/exac_SPANR_scores_capped.txt',
             sep = '\t', row.names = F, quote = F)
 
-
 fit <- signif(summary(lm(dpsi_spanr_capped ~ v2_dpsi, exac_spanr))$r.squared, 3)
 pearson <- signif(cor(exac_spanr$dpsi_spanr_capped, exac_spanr$v2_dpsi), 3)
 spearman <- signif(cor(exac_spanr$dpsi_spanr_capped, exac_spanr$v2_dpsi, method = 'spearman'), 3)
@@ -60,7 +59,6 @@ binom.test(num_success, num_trials)
 dpsi_threshold <- -0.50
 exac_spanr <- exac_spanr %>% 
     mutate(spanr_strong_lof = ifelse(dpsi_spanr_capped <= dpsi_threshold, T, F))
-    
 
 # true positive, both spanr and our calls agree
 num_true_pos <- filter(exac_spanr, spanr_strong_lof == T, strong_lof == T) %>% nrow()

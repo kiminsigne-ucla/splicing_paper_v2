@@ -203,3 +203,64 @@ cadd_annot <- read.table('../../processed_data/exac/snp_cadd_annot.txt',
 data <- data %>%
     left_join(dplyr::select(cadd_annot, -ref_allele), 
               by = c('chr', 'snp_position', 'alt_allele'))
+
+###############################################################################
+# FATHMM
+###############################################################################
+# based on hg37
+ref %>% 
+    filter(category == 'mutant') %>%
+    select(chr, snp_position, ref_allele, alt_allele) %>% 
+    write.table('../../processed_data/exac/fathmm_input.txt',
+                sep = '\t', quote = F)
+# input file submitted on web server
+fathmm <- read.table('../../processed_data/exac/exac_fathmm_scores.tsv',
+                     sep = '\t', header = F, skip = 1,
+                     col.names = c('chr', 'snp_position', 'ref_allele',
+                                   'alt_allele', 'noncoding_score',
+                                   'noncoding_group', 'coding_score',
+                                   'coding_group', 'warning'))
+
+data <- data %>% 
+    left_join(fathmm, by = c('chr', 'snp_position', 'ref_allele', 'alt_allele'))
+
+###############################################################################
+# fitCons
+###############################################################################
+#hg38 fitCons
+#http://compgen.cshl.edu/fitCons/0downloads/tracks/i6/scores/
+# system(paste('bigWigAverageOverBed ../../ref/fc-i6-0.bw', 
+#              '../../processed_data/exac/snp_positions.bed',
+#              '../../processed_data/exac/snp_fitCons_scores.bed'))
+
+fitcons <- read.table('../../processed_data/exac/snp_fitCons_scores.bed',
+                      sep = '\t', header = F,
+                      col.names = c('name', 'size', 'bases_covered', 
+                                    'snp_sum', 'mean0', 'fitCons_score'))
+data <- data %>% 
+    left_join(select(fitcons, id = name, fitCons_score), by = 'id')
+
+###############################################################################
+# DANN annotation
+###############################################################################
+dann <- read.table('../../processed_data/exac/snp_dann_annot.txt',
+                   sep = '\t', header = T)
+data <- data %>% 
+    left_join(dann, by = c('chr', 'snp_position', 'ref_allele', 'alt_allele'))
+
+###############################################################################
+# LINSIGHT
+###############################################################################
+linsight <- read.table('../../processed_data/exac/snp_linsight_score.bed',
+                       sep = '\t', header = F,
+                       col.names = c('id', 'size', 'bases_covered', 
+                                     'snp_sum', 'mean0', 'linsight_score'))
+
+data <- data %>% 
+    left_join(select(linsight, id, linsight_score), by = 'id')
+
+data <- data %>% 
+    distinct(.keep_all = T)
+
+write.table(data, '../../processed_data/exac/exac_func_annot.txt',
+            sep = '\t', quote = F, row.names = F)
