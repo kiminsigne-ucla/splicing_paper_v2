@@ -193,6 +193,9 @@ data <- data %>%
 ###############################################################################
 # submitted VCF file (exac.vcf) at http://cadd.gs.washington.edu/score to 
 # score variants
+# system(paste('while read line; do tabix ../ref/cadd/ExAC_r0.3.tsv.gz $line',
+#              '>> ../../processed_data/exac/snp_cadd_annot.txt done',
+#              '< ../../processed_data/exac/ref/tabix_input_snp_regions.txt'))
 
 cadd_annot <- read.table('../../processed_data/exac/snp_cadd_annot.txt', 
                          sep = '\t', header = F, 
@@ -205,8 +208,9 @@ data <- data %>%
               by = c('chr', 'snp_position', 'alt_allele'))
 
 ###############################################################################
-# FATHMM
+# FATHMM-MKL annotation
 ###############################################################################
+# http://fathmm.biocompute.org.uk/fathmmMKL.htm
 # based on hg37
 ref %>% 
     filter(category == 'mutant') %>%
@@ -225,7 +229,7 @@ data <- data %>%
     left_join(fathmm, by = c('chr', 'snp_position', 'ref_allele', 'alt_allele'))
 
 ###############################################################################
-# fitCons
+# fitCons annotation
 ###############################################################################
 #hg38 fitCons
 #http://compgen.cshl.edu/fitCons/0downloads/tracks/i6/scores/
@@ -243,14 +247,24 @@ data <- data %>%
 ###############################################################################
 # DANN annotation
 ###############################################################################
+#https://cbcl.ics.uci.edu/public_data/DANN/.
+# system(paste('while read line; do tabix ../../ref/dann/DANN_whole_genome_SNVs.tsv.bgz $line',
+#              '>> ../../processed_data/exac/snp_dann_annot.txt done',
+#              '< ../../processed_data/ref/tabix_input_snp_regions.txt'))
+
 dann <- read.table('../../processed_data/exac/snp_dann_annot.txt',
                    sep = '\t', header = T)
 data <- data %>% 
     left_join(dann, by = c('chr', 'snp_position', 'ref_allele', 'alt_allele'))
 
 ###############################################################################
-# LINSIGHT
+# LINSIGHT annotation
 ###############################################################################
+#http://compgen.cshl.edu/~yihuang/LINSIGHT/
+# system(paste('bigWigAverageOverBed ../../ref/LINSIGHT.bw', 
+#              '../../processed_data/exac/snp_positions.bed',
+#              '../../processed_data/exac/snp_linsight_score.bed'))
+
 linsight <- read.table('../../processed_data/exac/snp_linsight_score.bed',
                        sep = '\t', header = F,
                        col.names = c('id', 'size', 'bases_covered', 
