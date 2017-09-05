@@ -11,3 +11,4 @@ ref/exac/snp_exac_annot_all.txt
 ./processed_data/exac/nat_exon_positions.bed
 ./processed_data/exac/nat_upstr_intron_cons_scores_all.bed
 ./processed_data/exac/nat_upstr_intron_positions.bed
+ref/exac/tabix_input_snp_37_dbNCFP.txt
