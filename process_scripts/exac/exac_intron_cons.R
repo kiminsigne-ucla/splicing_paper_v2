@@ -381,3 +381,5 @@ nat_cons %>%
 #     geom_point() + scale_color_manual(values = c('black', 'red')) +
 #     theme(axis.text.x = element_blank(), axis.ticks.x = element_blank()) +
 #     labs(x = 'relative scaled position', y = 'average phastCons score', color = 'exon type')
+
+save.image("../../processed_data/exac/exac_intron_cons.RData")
