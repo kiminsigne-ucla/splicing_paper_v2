@@ -23,6 +23,20 @@ ggplot(pr_curve_info, aes(recall, precision)) + geom_line() +
     facet_wrap(~ method) +
     scale_y_log10() + annotation_logticks(sides = 'l')
 
+roc_curve_info <- read.table('../../processed_data/exac/exac_models_roc_curves.txt',
+                             sep = '\t', header = T)
+
+ggplot(roc_curve_info, aes(false_positive_rate, true_positive_rate)) + 
+    geom_line(aes(color = method)) + 
+    labs(x = 'false positive rate', y = 'true positive rate (recall)') +
+    geom_abline(intercept = 0, linetype = 'dashed')
+
+ggplot(roc_curve_info, aes(false_positive_rate, true_positive_rate)) + 
+    geom_line() +
+    facet_wrap( ~ method) +
+    labs(x = 'false positive rate', y = 'true positive rate (recall)') +
+    geom_abline(intercept = 0, linetype = 'dashed')
+
 data_annot <- read.table('../../processed_data/exac/exac_func_annot.txt',
                         sep = '\t', header = T)
 
