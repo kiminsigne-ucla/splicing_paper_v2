@@ -6,36 +6,88 @@ load_pkgs <- function(pkgs){
     }
 }
 
-pkgs <- c('dplyr', 'tidyr', 'ggplot2', 'cowplot')
+pkgs <- c('dplyr', 'tidyr', 'ggplot2', 'cowplot', 'grid')
 load_pkgs(pkgs)
 
 options(stringsAsFactors = F, warn = -1, warnings = -1)
 
 plot_format <- '.png'
 
-pr_curve_info <- read.table('../../processed_data/exac/exac_models_pr_curves.txt', 
-                           sep = '\t', header = T)
+###############################################################################
+# precision-recall curves
+###############################################################################
+pr_curve_all <- read.table('../../processed_data/exac/exac_models_pr_curves_all.txt', 
+                           sep = '\t', header = T) %>% 
+    filter(method != 'hal') %>% # only scores exonic variants
+    mutate(type = 'all')
 
+pr_curve_exon <- read.table('../../processed_data/exac/exac_models_pr_curves_exon.txt', 
+                            sep = '\t', header = T) %>% 
+    mutate(type = 'exon')
+
+pr_curve_intron <- read.table('../../processed_data/exac/exac_models_pr_curves_intron.txt', 
+                              sep = '\t', header = T) %>% 
+    mutate(type = 'intron')
+
+pr_curve_info <- bind_rows(pr_curve_all, pr_curve_exon) %>% 
+    bind_rows(pr_curve_intron)
+
+# all variants
+pr_curve_all %>% 
+    filter(method != 'fathmm_noncoding') %>% # pick one FATHMM score method
+    mutate(method = factor(method, labels = c('CADD', 'DANN', 'FATHMM-MKL', 'fitCons', 
+                                              'LINSIGHT', 'SPANR'))) %>% 
+    ggplot(aes(recall, precision)) + 
+    geom_line(aes(color = method), size = 1) + 
+    scale_y_log10() + annotation_logticks(sides = 'l') +
+    labs(color = '') +
+    theme(legend.position = c(0.80, 0.85)) +
+    geom_hline(yintercept = 3.7, linetype = 'dashed', color = 'grey')
+
+ggsave(paste0('../../figs/exac/exac_pr_curves', plot_format), 
+       height = 4, width = 4, units = 'in')
+
+# split by intron/exon
 ggplot(pr_curve_info, aes(recall, precision)) + geom_line(aes(color = method)) +
-    scale_y_log10() + annotation_logticks(sides = 'l')
+    scale_y_log10() + annotation_logticks(sides = 'l') +
+    facet_grid(~ type)
 
-ggplot(pr_curve_info, aes(recall, precision)) + geom_line() +
-    facet_wrap(~ method) +
-    scale_y_log10() + annotation_logticks(sides = 'l')
+###############################################################################
+# ROC curves
+###############################################################################
+roc_curve_all <- read.table('../../processed_data/exac/exac_models_roc_curves_all.txt', 
+                            sep = '\t', header = T) %>% 
+    filter(method != 'hal') %>% 
+    mutate(type = 'all')
 
-roc_curve_info <- read.table('../../processed_data/exac/exac_models_roc_curves.txt',
-                             sep = '\t', header = T)
+roc_curve_exon <- read.table('../../processed_data/exac/exac_models_roc_curves_exon.txt', 
+                             sep = '\t', header = T) %>% 
+    mutate(type = 'exon')
 
-ggplot(roc_curve_info, aes(false_positive_rate, true_positive_rate)) + 
+roc_curve_intron <- read.table('../../processed_data/exac/exac_models_roc_curves_intron.txt', 
+                               sep = '\t', header = T) %>% 
+    mutate(type = 'intron')
+
+roc_curve_info <- bind_rows(roc_curve_all, roc_curve_exon) %>% 
+    bind_rows(roc_curve_intron)
+
+
+roc_curve_all %>% 
+    filter(method != 'fathmm_noncoding') %>% # pick one FATHMM score method
+    mutate(method = factor(method, labels = c('CADD', 'DANN', 'FATHMM', 'fitCons', 
+                                              'LINSIGHT', 'SPANR'))) %>% 
+    ggplot(aes(false_positive_rate, true_positive_rate)) + 
     geom_line(aes(color = method)) + 
-    labs(x = 'false positive rate', y = 'true positive rate (recall)') +
-    geom_abline(intercept = 0, linetype = 'dashed')
+    labs(color = '', x = 'false positive rate', y = 'true positive rate')
 
+# split by intron/exon
 ggplot(roc_curve_info, aes(false_positive_rate, true_positive_rate)) + 
-    geom_line() +
-    facet_wrap( ~ method) +
-    labs(x = 'false positive rate', y = 'true positive rate (recall)') +
-    geom_abline(intercept = 0, linetype = 'dashed')
+    geom_line(aes(color = method)) +
+    geom_abline(intercept = 0, linetype = 'dashed') +
+    facet_grid(~type) +
+    labs(x = 'false positive rate', y = 'true positive rate (recall)')
+
+###############################################################################
 
 data_annot <- read.table('../../processed_data/exac/exac_func_annot.txt',
                         sep = '\t', header = T)
