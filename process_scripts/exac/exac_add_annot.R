@@ -212,7 +212,7 @@ data <- data %>%
 ###############################################################################
 # http://fathmm.biocompute.org.uk/fathmmMKL.htm
 # based on hg37
-ref %>% 
+data %>% 
     filter(category == 'mutant') %>%
     select(chr, snp_position, ref_allele, alt_allele) %>% 
     write.table('../../processed_data/exac/fathmm_input.txt',
@@ -275,6 +275,23 @@ data <- data %>%
 
 data <- data %>% 
     distinct(.keep_all = T)
+
+###############################################################################
+# probability of gene being loss-of-function intolerant
+###############################################################################
+
+pli_table <- read.table('../../ref/exac/fordist_cleaned_exac_r03_march16_z_pli_rec_null_data.txt',
+                        sep = '\t', header = T)
+
+# fill in gene information for natural sequence
+data <- data %>% 
+    group_by(ensembl_id) %>% 
+    mutate(SYMBOL = ifelse(is.na(SYMBOL), SYMBOL[category == 'mutant'], SYMBOL)) %>% 
+    ungroup()
+
+data <- data %>% 
+    left_join(select(pli_table, gene, pLI), by = c('SYMBOL' = 'gene')) %>% 
+    mutate(pLI_high = ifelse(pLI >= 0.90, TRUE, FALSE))
 
 write.table(data, '../../processed_data/exac/exac_func_annot.txt',
             sep = '\t', quote = F, row.names = F)
