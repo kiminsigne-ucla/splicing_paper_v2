@@ -9,7 +9,7 @@ load_pkgs <- function(pkgs){
     }
 }
 
-pkgs <- c('dplyr', 'tidyr')
+pkgs <- c('dplyr', 'tidyr', 'Biostrings', 'stringr')
 load_pkgs(pkgs)
 
 options(stringsAsFactors = F, warn = -1, warnings = -1)
@@ -69,9 +69,12 @@ system('bash ./exac_ref_liftover.sh')
 # join
 ref <- ref %>% 
     left_join(read.table('../../processed_data/exac/exac_ref_liftover.bed', sep = '\t',
-                         col.names = c('chr', 'start_hg38', 'end_hg38', 'id')) %>% select(-chr), by = 'id') %>% 
+                         col.names = c('chr', 'start_hg38_0based', 'end_hg38_0based', 'id')) %>% select(-chr), by = 'id') %>% 
     left_join(read.table('../../processed_data/exac/exac_snp_liftover.bed', sep = '\t',
-                         col.names = c('chr', 'snp_position_hg38', 'snp_position_end_hg38', 'id')) %>% select(-chr), by = 'id')
+                         col.names = c('chr', 'snp_position_hg38_0based_start', 
+                                       'snp_position_hg38_1based', 'id')) %>% 
+                  select(-chr) %>% 
+                  mutate(snp_position_hg38_0based_end = snp_position_hg38_1based), by = 'id')
 
 
 # get relative position of SNP mutations and where they fall (intron/exon)
@@ -152,6 +155,35 @@ ref <- ref %>%
     select(id, label, rel_position_feature, rel_position_scaled) %>%
     left_join(ref, ., by = 'id') %>% distinct()
 
-
 write.table(ref, '../../ref/exac/exac_ref_formatted_converted.txt', sep = '\t',
             quote = F, row.names = F)
+
+###############################################################################
+# It is harder to synthesize A's, so oligos in the reference file are the strand
+# with the lower A count. In order to determine the correct orientation, refer
+# to the splicemod naturals (they are unflipped)
+###############################################################################
+splicemod_ref_nat <- read.table('../../ref/splicemod/splicemod_ref_formatted_converted.txt',
+                            sep = '\t', header = T, colClasses = c('sub_id' = 'character')) %>% 
+    filter(seq_type == 'nat')
+
+ref$sequence_rc <- sapply(ref$seq,
+                          function(x) as.character(reverseComplement(DNAString(x))))
+
+ref <- ref %>% 
+    left_join(select(splicemod_ref_nat, ensembl_id, splicemod_seq = seq), by = 'ensembl_id')
+
+# compare natural sequence of each group to the splicemod natural, if they do not match then
+# the sequences were flipped and need to be flipped back to the reverse complement
+tmp <- ref %>% 
+    filter(sub_id == '000') %>% 
+    mutate(mismatch = ifelse(sequence != splicemod_seq, T, F)) %>% 
+    select(ensembl_id, mismatch) %>% 
+    left_join(ref, ., by = 'ensembl_id') %>% 
+    mutate(unflipped_seq = ifelse(mismatch,
+                                  as.character(reverseComplement(DNAString(sequence))),
+                                  sequence))
+
+
+
+
