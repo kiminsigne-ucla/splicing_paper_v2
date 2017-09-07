@@ -150,7 +150,9 @@ index_boxplot <- data %>%
 ggsave(paste0('../../figs/exac/exac_index_boxplot', plot_format),
        width = 11, height = 4, units = 'in')
 
+###############################################################################
 #### index, average index at each binned relative position, heatmap tile ###
+###############################################################################
 index_tile_with_legend <- data %>%
     filter(category == "mutant") %>%
     filter(!is.na(rel_pos_binned)) %>% 
@@ -188,8 +190,9 @@ ggsave(paste0('../../figs/exac/exac_index_tile', plot_format),
     width = 11, height = 0.8, units = 'in')
 
 
-
+###############################################################################
 ### phastCons scores for all natural sequences in library
+###############################################################################
 create_positions <- function(ensembl_id, chr, start, end, strand) {
     all_positions = data.frame()
     if(strand == '-'){ counter = 170}
@@ -340,8 +343,9 @@ nat_cons_tile <- exac_nat_cons %>%
 ggsave(paste0("../../figs/exac/exac_phastCons_nat_tile", plot_format), 
        width = 11, height = 0.8, units = 'in')
 
-
+###############################################################################
 ### SNP density tile ###
+###############################################################################
 ref <- read.table('../../ref/exac/exac_ref_formatted_converted.txt',
                   sep = '\t', header = T)
 
