@@ -180,7 +180,8 @@ ref <- ref %>%
     mutate(mismatch = ifelse(sequence != splicemod_seq, T, F)) %>% 
     select(ensembl_id, mismatch) %>% 
     left_join(ref, ., by = 'ensembl_id') %>% 
-    mutate(unflipped_seq = ifelse(mismatch, sequence_rc, sequence))
+    mutate(unflipped_seq = ifelse(mismatch, sequence_rc, sequence)) %>% 
+    mutate(unflipped_seq = ifelse(is.na(mismatch), sequence, unflipped_seq))
 
 ref %>% 
     select(-mismatch, -sequence_rc) %>% 
