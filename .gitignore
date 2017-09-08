@@ -1,5 +1,6 @@
 process_scripts/splicemod_src/data/hg38.100way.phyloP100way/
 ref/phastCons/
+ref/phyloP/
 ref/Rosenberg_2015/model_full_data.mat
 ref/spidex/
 ref/vep/
@@ -13,3 +14,6 @@ processed_data/exac/nat_upstr_intron_cons_scores_all.bed
 processed_data/exac/nat_upstr_intron_positions.bed
 ref/exac/tabix_input_snp_37_dbNCFP.txt
 ref/linsight.bw
+process_scripts/ensembl-vep/htslib
+process_scripts/exac/.ipynb_checkpoints/exac_models-checkpoint.ipynb
+process_scripts/ensembl-vep/htslib
