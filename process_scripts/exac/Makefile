@@ -19,7 +19,7 @@ run_SPANR: ../../processed_data/exac/exac_SPANR_scores.txt
 ../../ref/exac/exac_ref_rescored.txt: ../../ref/exac/exac_ref_formatted_converted_flipped.txt
 	@ echo "Re-scoring reference file..."
 	@ cd ../splicemod_src && \
-	python ../score_lib.py $< --rev ./data/motifs/Ke2011/ \
+	python ../score_lib.py $< unflipped_seq ./data/motifs/Ke2011/ \
 	../../ref/Rosenberg_2015/exonic_mer6_scores.series 30 $@
 
 

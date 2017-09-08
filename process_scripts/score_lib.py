@@ -47,17 +47,6 @@ def extract_exon_seq(strand, intron1_len, exon_len, intron2_len, seq, extend=0, 
     return exon_seq
 
 
-# def calculate_exonic_score(exon_seq, exonic_mer6_scores):
-#     # given a score matrix and an exon sequence, return the average effect size for the sequence 
-#     # (sum of all k-mer scores / number of k-mers)
-#     # do not score first three bases of exons which overlap with splice acceptor region
-#     if exon_seq == '':
-#         return float('NaN')
-#     kmer_scores = [exonic_mer6_scores[exon_seq[i: i + 6]] for i in range(3, len(exon_seq) - 6)]
-#     score_avg = sum(kmer_scores) / len(kmer_scores)
-#     return score_avg
-
-
 def score_exon(seq, score_dict, k):
     kmer_scores = [score_dict.get(seq[i:i+k], float('NaN')) for i in range(len(seq) - k + 1)]
     if len(kmer_scores) != 0:
@@ -142,6 +131,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('lib_file', help='tab-separated library text file')
     parser.add_argument('--rev', help="optional, does library need to be reverse complemented", action='store_true')
+    parser.add_argument('seq_name', help='column name of sequence', type=str)
     parser.add_argument('esr_folder', help='path to folder with ESE and ESS scores')
     parser.add_argument('mer6_file', help='exonic mer6 series')
     parser.add_argument('num_processes', help='Number of parallel processes', type=int)
@@ -149,15 +139,16 @@ if __name__ == '__main__':
     parser.add_argument('--debug', help='save records to .pkl for debugging', action='store_true')
     args = parser.parse_args()
 
+    seq_name = args.seq_name
     data = pd.read_table(args.lib_file, sep='\t', dtype={'sub_id' : str})
     # reformat so intron/exon length columns are int and not float, convert NA to 0 so we can use int
     data[['intron1_len', 'exon_len', 'intron2_len']] = data[['intron1_len', 'exon_len', 'intron2_len']].fillna(0.0).astype(int)
 
-    # rename column
-    data.rename(index=str, columns={'seq' : 'sequence'}, inplace=True)
+    # # rename column
+    # data.rename(index=str, columns={'seq' : 'sequence'}, inplace=True)
 
     data['exon_seq'] = data.apply(lambda x : extract_exon_seq(x['strand'], 
-        x['intron1_len'], x['exon_len'], x['intron2_len'], x['sequence'], extend=0, rc=args.rev), axis=1)
+        x['intron1_len'], x['exon_len'], x['intron2_len'], x[seq_name], extend=0, rc=args.rev), axis=1)
 
     # Now that we have the exon sequences for our library, let's bring in the score 
     # matrices and give an effect size sum score for each sequence. A higher 
@@ -195,7 +186,7 @@ if __name__ == '__main__':
     print "Creating records..."
 
 
-    lib_records = lib.apply(lambda x : create_record(x['sequence'], x['intron1_len'], 
+    lib_records = lib.apply(lambda x : create_record(x[seq_name], x['intron1_len'], 
         x['intron2_len'], x['exon_len'], x['strand'], x['id'], rc=args.rev), axis=1)
 
     pool = mp.Pool(processes=args.num_processes)
