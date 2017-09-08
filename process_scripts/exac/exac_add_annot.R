@@ -28,6 +28,7 @@ write.table(file = '../../processed_data/exac/snp_positions_hg38.bed',
                 na.omit(), 
             sep = '\t', col.names = F, row.names = F, quote = F)
 
+# phastCons
 system(paste('bash',
              '../run_phastCons.sh',
              '../../processed_data/exac/snp_positions_hg38.bed',
@@ -41,7 +42,23 @@ phastCons <- read.table('../../processed_data/exac/snp_position_cons_scores.bed'
     filter(bases_covered != 0)
 
 data <- data %>% 
-    left_join(select(phastCons, id = name, mean_cons_score), by = 'id')
+  left_join(select(phastCons, id = name, mean_cons_score), by = 'id') 
+
+# # phyloP
+# system(paste('bash',
+#              '../run_phyloP.sh',
+#              '../../processed_data/exac/snp_positions_hg38.bed',
+#              '../../processed_data/exac/snp_position_phyloP_scores.bed'))
+# 
+# # read in phyloP
+# phyloP <- read.table('../../processed_data/exac/snp_position_phyloP_scores.bed', 
+#                         sep = '\t', header = F,
+#                         col.names = c('name', 'size', 'bases_covered', 
+#                                       'snp_sum', 'mean0', 'mean_phyloP_score')) %>% 
+#   filter(bases_covered != 0)
+# 
+# data <- data %>% 
+#     left_join(select(phyloP, id = name, mean_phyloP_score), by = 'id') 
 
 ###############################################################################
 # grab ExAC annotation for all sequences
@@ -57,8 +74,8 @@ write.table(ref %>%
             file = '../../processed_data/exac/tabix_input_snp_regions.txt',
             quote = F, row.names = F, col.names = F, sep = '\t')
 
-# write SNP file for 0-based hg37 coordinates
-write.table(file = '../../processed_data/exac/snp_positions_hg37.bed', 
+# write SNP file for 0-based hg19 coordinates
+write.table(file = '../../processed_data/exac/snp_positions_hg19.bed', 
             x = data %>% 
                 na.omit() %>% 
                 mutate(chr = paste0('chr', chr),
@@ -220,7 +237,7 @@ data <- data %>%
 # FATHMM-MKL annotation
 ###############################################################################
 # http://fathmm.biocompute.org.uk/fathmmMKL.html
-# based on hg37
+# based on hg19
 data %>% 
     filter(category == 'mutant') %>%
     select(chr, snp_position, ref_allele, alt_allele) %>% 
@@ -243,7 +260,7 @@ data <- data %>%
 # hg19 fitCons, 0-based bed file
 #http://compgen.cshl.edu/fitCons/0downloads/tracks/i6/scores/
 system(paste('bigWigAverageOverBed ../../ref/fc-i6-0.bw',
-             '../../processed_data/exac/snp_positions_hg37.bed',
+             '../../processed_data/exac/snp_positions_hg19.bed',
              '../../processed_data/exac/snp_fitCons_scores.bed'))
 
 fitcons <- read.table('../../processed_data/exac/snp_fitCons_scores.bed',
@@ -270,9 +287,9 @@ data <- data %>%
 # LINSIGHT annotation
 ###############################################################################
 # http://compgen.cshl.edu/~yihuang/LINSIGHT/
-# hg19/hg37
+# hg19/hg19
 system(paste('bigWigAverageOverBed ../../ref/linsight.bw',
-             '../../processed_data/exac/snp_positions_hg37.bed',
+             '../../processed_data/exac/snp_positions_hg19.bed',
              '../../processed_data/exac/snp_linsight_score.bed'))
 
 linsight <- read.table('../../processed_data/exac/snp_linsight_score.bed',
