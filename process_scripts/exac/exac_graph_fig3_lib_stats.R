@@ -215,8 +215,8 @@ if(!file.exists('../../processed_data/exac/exac_nat_cons_scaled.rds')) {
     data %>% 
         filter(category == 'natural') %>% 
         group_by(ensembl_id) %>% 
-        do(data.frame(create_positions(.$ensembl_id, .$chr, .$start_hg38, 
-                                       .$end_hg38, .$strand))) %>% 
+        do(data.frame(create_positions(.$ensembl_id, .$chr, .$start_hg38_0based, 
+                                       .$end_hg38_0based, .$strand))) %>% 
         ungroup() %>% 
         select(-ensembl_id) %>% 
         write.table('../../processed_data/exac/exac_nat_positions.bed',

@@ -175,15 +175,17 @@ ref <- ref %>%
 
 # compare natural sequence of each group to the splicemod natural, if they do not match then
 # the sequences were flipped and need to be flipped back to the reverse complement
-tmp <- ref %>% 
+ref <- ref %>% 
     filter(sub_id == '000') %>% 
     mutate(mismatch = ifelse(sequence != splicemod_seq, T, F)) %>% 
     select(ensembl_id, mismatch) %>% 
     left_join(ref, ., by = 'ensembl_id') %>% 
-    mutate(unflipped_seq = ifelse(mismatch,
-                                  as.character(reverseComplement(DNAString(sequence))),
-                                  sequence))
+    mutate(unflipped_seq = ifelse(mismatch, sequence_rc, sequence))
 
+ref %>% 
+    select(-mismatch, -sequence_rc) %>% 
+    write.table('../../ref/exac/exac_ref_formatted_converted_flipped.txt', 
+                sep = '\t', quote = F, row.names = F)
 
 
 

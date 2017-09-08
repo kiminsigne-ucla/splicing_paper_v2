@@ -21,15 +21,16 @@ data <- read.table('../../processed_data/exac/exac_data_clean.txt',
 # extract conservation for each SNP
 ###############################################################################
 # output bed file of SNP positions to get conservation
-write.table(file = '../../processed_data/exac/snp_positions.bed', 
+write.table(file = '../../processed_data/exac/snp_positions_hg38.bed', 
             x = data %>% 
-                select(chr, snp_position_hg38, snp_position_end_hg38, id) %>% 
+                select(chr, snp_position_hg38_0based_start, 
+                       snp_position_hg38_0based_end, id) %>% 
                 na.omit(), 
             sep = '\t', col.names = F, row.names = F, quote = F)
 
 system(paste('bash',
              '../run_phastCons.sh',
-             '../../processed_data/exac/snp_positions.bed',
+             '../../processed_data/exac/snp_positions_hg38.bed',
              '../../processed_data/exac/snp_position_cons_scores.bed'))
 
 # read in phastCons
@@ -50,11 +51,20 @@ ref <- read.table('../../ref/exac/exac_ref_formatted_converted.txt',
 # write BED file of SNP positions
 write.table(ref %>%
                 mutate(chr = gsub('chr', '', chr),
-                       # ExAC built on hg19, supply region so tabix works properly
+                       # ExAC built on hg19, supply 1-based region so tabix works properly
                        snp_region = paste0(chr, ':', snp_position, '-',  snp_position + 1)) %>% 
                 select(snp_region) ,
             file = '../../processed_data/exac/tabix_input_snp_regions.txt',
             quote = F, row.names = F, col.names = F, sep = '\t')
+
+# write SNP file for 0-based hg37 coordinates
+write.table(file = '../../processed_data/exac/snp_positions_hg37.bed', 
+            x = data %>% 
+                na.omit() %>% 
+                mutate(chr = paste0('chr', chr),
+                       snp_position_0based_start = snp_position - 1) %>% 
+                select(chr, snp_position_0based_start, snp_position, id),
+            sep = '\t', col.names = F, row.names = F, quote = F)
 
 # system(paste('while read line; do tabix',
 #              '../../ref/exac/ExAC.r0.3.1.sites.vep.vcf.gz',
@@ -92,13 +102,12 @@ exac_annot <- exac_annot %>%
     # give each alternate allele its own entry
     mutate(alt_allele = strsplit(alt_allele, split = ','),
            AF = strsplit(AF, split = ',')) %>%
-    rename(annot = Consequence) %>% 
-    distinct(chr, position, ref_allele, alt_allele, annot, .keep_all = T) %>%
+    distinct(chr, position, ref_allele, alt_allele, Consequence, .keep_all = T) %>%
     # make sure alt allele matches allele the annotation is describing
     filter(alt_allele == Allele) %>% 
     mutate(AF = as.numeric(AF)) %>%
     # rearrange
-    select(chr:Allele, annot, IMPACT:AF)
+    select(chr:Allele, annot = Consequence, IMPACT:AF)
 
 
 # join exac data
@@ -111,10 +120,10 @@ data <- data %>%
 ###############################################################################
 # re-score variants using Ensembl VEP
 ###############################################################################
-# write VCF file for Ensembl VEP
+# write VCF file for Ensembl VEP (1-based)
 data %>% 
     filter(category == 'mutant') %>% 
-    dplyr::select(chr, snp_position_hg38, id, ref_allele, alt_allele) %>% 
+    dplyr::select(chr, snp_position_hg38_1based, id, ref_allele, alt_allele) %>% 
     write.table(file = '../../ref/exac/exac.vcf', 
                 sep='\t', quote = F, row.names = F, col.names = F)
 
@@ -130,7 +139,7 @@ updated_ids <- read.table('../../ref/exon_ids_updated.txt',
 # exons can fall in more than one transcript, annotations are dependent on both
 # transcript and exon ID
 exon_data <- data %>%
-    select(id, chr, snp_position_hg38, ref_allele, alt_allele, 
+    select(id, chr, snp_position_hg38_1based, ref_allele, alt_allele, 
            exon_id_old = ensembl_id) %>% 
     left_join(select(updated_ids, exon_id_old, exon_id_new = new_exon_id,
                      ensembl_gene_id, ensembl_transcript_id, is_constitutive, 
@@ -210,7 +219,7 @@ data <- data %>%
 ###############################################################################
 # FATHMM-MKL annotation
 ###############################################################################
-# http://fathmm.biocompute.org.uk/fathmmMKL.htm
+# http://fathmm.biocompute.org.uk/fathmmMKL.html
 # based on hg37
 data %>% 
     filter(category == 'mutant') %>%
@@ -231,11 +240,11 @@ data <- data %>%
 ###############################################################################
 # fitCons annotation
 ###############################################################################
-#hg38 fitCons
+# hg19 fitCons, 0-based bed file
 #http://compgen.cshl.edu/fitCons/0downloads/tracks/i6/scores/
-# system(paste('bigWigAverageOverBed ../../ref/fc-i6-0.bw', 
-#              '../../processed_data/exac/snp_positions.bed',
-#              '../../processed_data/exac/snp_fitCons_scores.bed'))
+system(paste('bigWigAverageOverBed ../../ref/fc-i6-0.bw',
+             '../../processed_data/exac/snp_positions_hg37.bed',
+             '../../processed_data/exac/snp_fitCons_scores.bed'))
 
 fitcons <- read.table('../../processed_data/exac/snp_fitCons_scores.bed',
                       sep = '\t', header = F,
@@ -260,10 +269,11 @@ data <- data %>%
 ###############################################################################
 # LINSIGHT annotation
 ###############################################################################
-#http://compgen.cshl.edu/~yihuang/LINSIGHT/
-# system(paste('bigWigAverageOverBed ../../ref/LINSIGHT.bw', 
-#              '../../processed_data/exac/snp_positions.bed',
-#              '../../processed_data/exac/snp_linsight_score.bed'))
+# http://compgen.cshl.edu/~yihuang/LINSIGHT/
+# hg19/hg37
+system(paste('bigWigAverageOverBed ../../ref/linsight.bw',
+             '../../processed_data/exac/snp_positions_hg37.bed',
+             '../../processed_data/exac/snp_linsight_score.bed'))
 
 linsight <- read.table('../../processed_data/exac/snp_linsight_score.bed',
                        sep = '\t', header = F,
