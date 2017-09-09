@@ -167,8 +167,8 @@ index_tile_with_legend <- data %>%
     theme(axis.text = element_blank(), 
           axis.ticks = element_blank(), 
           axis.line = element_blank(),
-          axis.title.y = element_text(margin = margin(0,0,-65,-65), size = 20),
-          axis.title.x =  element_text(margin = margin(0,0,-45,-65), size = 20),
+          axis.title.y = element_blank(), 
+          axis.title.x = element_blank(),
           plot.margin = unit(c(0, 0, 0, 0), "in"))
 
 # save legend separately
@@ -334,13 +334,14 @@ nat_cons_tile <- exac_nat_cons %>%
           axis.ticks = element_blank(), 
           legend.position = 'none',
           axis.line = element_blank(),
-          axis.title.y = element_text(margin = margin(0, 0, -65, -65), size = 20),
-          axis.title.x =  element_text(margin = margin(0, 0, -45, -65), size = 20),
-          plot.margin = unit(c(0, 0, 0, 0), "in")) +
+          axis.title.y = element_blank(), 
+          axis.title.x = element_blank(),
+          plot.margin = unit(c(0, 0, 0, 0), "in")
+          ) +
     labs(y = '', x = '', fill = '') +
     viridis::scale_fill_viridis()
 
-ggsave(paste0("../../figs/exac/exac_phastCons_nat_tile", plot_format), 
+ggsave(paste0("../../figs/exac/exac_phastCons_nat_tile", ".svg"), 
        width = 11, height = 0.8, units = 'in')
 
 ###############################################################################
@@ -362,15 +363,13 @@ snp_density_tile <- ref %>%
     theme(axis.text = element_blank(), axis.ticks = element_blank(), 
           legend.position = 'none',
           axis.line = element_blank(),
-          # axis.title.y = element_blank(),
-          # axis.title.x = element_blank(),
-          axis.title.y = element_text(margin = margin(0,0,-65,-65), size = 20),
-          axis.title.x =  element_text(margin = margin(0,0,-45,-65), size = 20),
+          axis.title.y = element_blank(),
+          axis.title.x = element_blank(),
           plot.margin = unit(c(0,0,0,0),'in')) +
     viridis::scale_fill_viridis() +
     labs(x = '', y = '', fill = '')
 
-ggsave(paste0('../../figs/exac/exac_snv_density', plot_format),
+ggsave(paste0('../../figs/exac/exac_snv_density', ".svg"),
     width = 11, height = 0.8, units = 'in')
 
 

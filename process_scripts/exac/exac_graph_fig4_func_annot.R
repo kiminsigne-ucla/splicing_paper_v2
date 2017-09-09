@@ -37,11 +37,11 @@ lof_cons <- lof %>%
 
 data_cons$label_renamed <- factor(data_cons$label, 
                                   levels=c("upstr_intron", "exon", "downstr_intron"), 
-                                  labels=c("Intron\nUpstr.", "Exon", "Intron\nDownstr."))
+                                  labels=c("Intron\nupstr.", "Exon", "Intron\ndownstr."))
 
 lof_cons$label_renamed <- factor(lof_cons$label, 
                                  levels=c("upstr_intron", "exon", "downstr_intron"), 
-                                 labels=c("Intron\nUpstr.", "Exon", "Intron\nDownstr.") )
+                                 labels=c("Intron\nupstr.", "Exon", "Intron\ndownstr.") )
 
 data_cons_count <- data_cons %>%
     group_by(label_renamed, cons_bin) %>%
@@ -57,7 +57,7 @@ cons_count <- full_join(data_cons_count, lof_cons_count,
            label_cons = paste(label_renamed, "\n", cons_bin, "\nconserv.", sep = " "))
 
 cons_count$cons_bin <- factor(cons_count$cons_bin, levels=c("low","high"), 
-                              labels=c("Low Conservation", "High Conservation"))
+                              labels=c("Low conservation", "High conservation"))
 
 fig4a <- cons_count %>% 
     ggplot(aes(label_renamed, propFreq)) +
@@ -65,16 +65,20 @@ fig4a <- cons_count %>%
     ylab("% loss-of-splicing SNVs") +
     xlab("") +
     facet_wrap(~ cons_bin) +
-    geom_hline(yintercept = 1050/29531*100, linetype = "dashed", color = "grey10") + 
+    geom_hline(yintercept = 1050/29531*100, linetype = "dashed", color = "grey50") + 
     scale_y_continuous(expand = c(0,0)) +
     expand_limits(y = 25) +
-    theme(strip.text = element_text(size = 16),
-          strip.background = element_rect(fill="lightgrey"),
+    theme_bw() + 
+    theme(strip.text = element_text(size = 18),
+          strip.background = element_blank(),
+          panel.grid.major = element_blank(),
+          panel.grid.minor = element_blank(),
+          panel.border = element_rect(fill = NA, colour = "black"),
           axis.title.y = element_text(size = 20),
-          axis.text = element_text(size = 16))
+          axis.text = element_text(size = 16, color = "black"))
 
 ggsave(paste0("../../figs/exac/exac_fig4A_phastCons_comparison_prop", plot_format), 
-       width = 6, height = 4.5, units = 'in')
+       width = 6, height = 4.5, units = 'in', dpi = 300)
 
 ###############################################################################
 # absolute counts for LoF SNPs, by conservation
@@ -87,14 +91,18 @@ fig4b <- cons_count %>%
     facet_wrap(~ cons_bin) +
     scale_y_continuous(expand = c(0,0)) +
     expand_limits(y = 425) +
-    theme(strip.text = element_text(size = 16),
-          strip.background = element_rect(fill="lightgrey"),
+    theme_bw() + 
+    theme(strip.text = element_text(size = 18),
+          strip.background = element_blank(),
+          panel.grid.major = element_blank(),
+          panel.grid.minor = element_blank(),
+          panel.border = element_rect(fill = NA, colour = "black"),
           axis.title.y = element_text(size = 18),
-          axis.text = element_text(size = 16))
+          axis.text = element_text(size = 16, color = "black"))
 
 
 ggsave(paste0("../../figs/exac/exac_fig4B_phastCons_abs_num", plot_format), 
-       width = 6, height = 4.5, units = 'in')
+       width = 6, height = 4.5, units = 'in', dpi = 300)
 
 ###############################################################################
 # Figure 4C, Allele Frequency 
@@ -115,14 +123,22 @@ fig4c <- data %>%
                            breaks=seq(0,1, by = 0.25), 
                            colors=pal(321), 
                            expression(index["WT "])) +
-    geom_violin(alpha = 0) +
+    geom_violin(alpha = 0, color = "grey35") +
     labs(x = " ", y = expression(paste(Delta, ' inclusion index'))) +
+    theme_bw() + 
     theme(legend.position = 'none', 
+          panel.grid.major = element_blank(),
+          panel.grid.minor = element_blank(),
+          panel.border = element_rect(fill = NA, colour = "black"),
           axis.title.y = element_text(size = 18),
-          axis.text = element_text(size = 16)) 
+          axis.text = element_text(size = 16, color = "black")) 
 
 ggsave(paste0("../../figs/exac/exac_fig4C_allele_frequency_binned", plot_format), 
-       width = 5.5, height = 4, units = 'in')
+       width = 5.5, height = 4, units = 'in', dpi = 300)
+
+plot_grid(fig4a, fig4b, nrow = 1, scale = 0.9, align = 'v')
+ggsave(paste0("../../figs/exac/fig4a_b", plot_format), width = 12, height = 5, units = 'in', dpi = 300)
+
 
 ###############################################################################
 # Figure 4D, probability of gene being loss-of-function intolerant 
@@ -151,14 +167,20 @@ ratio.df <-data.frame( fraction_of_strong_LoF_genes = c(intolerant_ratio, tolera
 
 ratio.df %>%
     ggplot(aes(tolerance, fraction_of_strong_LoF_genes)) + 
-    geom_col(width = 0.5, position = position_dodge(width = 1.8)) + 
+    geom_col(width = 0.4, position = position_dodge(width = 1.8)) + 
     ylab("Fraction loss-of-splicing SNVs") + xlab("pLI") + ylim(0,0.05) +
-    geom_hline(yintercept = 1050/29531, linetype = "dashed", color = "grey10") +
+    geom_hline(yintercept = 1050/29531, linetype = "dashed", color = "grey40") +
     scale_y_continuous(expand = c(0, 0)) + 
-    coord_equal(1/0.015)
+    coord_equal(1/0.015) +
+    theme(panel.grid.major = element_blank(),
+          panel.grid.minor = element_blank(),
+          # panel.border = element_rect(fill = NA, colour = "black"),
+          axis.title.y = element_text(size = 12, color = "black"),
+          axis.title.x = element_text(size = 18, color = "black"),
+          axis.text = element_text(size = 12, color = "black")) 
 
 fisher.test(df, alternative = 'less')
 
 ggsave(paste0("../../figs/exac/exac_fig4D_pLI_enrichment", plot_format), 
-       width = 2.8, height = 4, units = 'in')
+       width = 2.5, height = 4, units = 'in', dpi = 300)
 
