@@ -115,13 +115,13 @@ fig4c <- data %>%
                            breaks=seq(0,1, by = 0.25), 
                            colors=pal(321), 
                            expression(index["WT "])) +
-    geom_boxplot(alpha = 0) +
+    geom_violin(alpha = 0) +
     labs(x = " ", y = expression(paste(Delta, ' inclusion index'))) +
     theme(legend.position = 'none', 
           axis.title.y = element_text(size = 18),
           axis.text = element_text(size = 16)) 
 
-ggsave(paste0("../../figs/exac/exac_fig4c_allele_frequency_binned", plot_format), 
+ggsave(paste0("../../figs/exac/exac_fig4C_allele_frequency_binned", plot_format), 
        width = 5.5, height = 4, units = 'in')
 
 ###############################################################################
@@ -159,6 +159,6 @@ ratio.df %>%
 
 fisher.test(df, alternative = 'less')
 
-ggsave(paste0("../../figs/exac/exac_fig3D_pLI_enrichment", plot_format), 
+ggsave(paste0("../../figs/exac/exac_fig4D_pLI_enrichment", plot_format), 
        width = 2.8, height = 4, units = 'in')
 
