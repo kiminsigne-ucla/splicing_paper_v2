@@ -11,7 +11,7 @@ load_pkgs(pkgs)
 
 options(stringsAsFactors = F, warn = -1, warnings = -1)
 
-plot_format <- '.tiff'
+plot_format <- '.png'
 
 # custom color palette
 source("../color_palette.R")
