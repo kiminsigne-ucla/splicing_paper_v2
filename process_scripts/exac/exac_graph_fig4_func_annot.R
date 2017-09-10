@@ -11,13 +11,13 @@ load_pkgs(pkgs)
 
 options(stringsAsFactors = F, warn = -1, warnings = -1)
 
-plot_format <- '.png'
+plot_format <- '.tiff'
 
 # custom color palette
 source("../color_palette.R")
 # Specify new color palette
 steps <- c("blue2", "cyan", "white", "yellow", "red2")
-pal <- color.palette(steps, c(160,1,1,160), space = "rgb")
+pal <- color.palette(steps, c(160, 1, 1, 160), space = "rgb")
 
 data <- read.table('../../processed_data/exac/exac_func_annot.txt',
                    sep = '\t', header = T)
@@ -61,16 +61,18 @@ cons_count$cons_bin <- factor(cons_count$cons_bin, levels=c("low","high"),
                               labels=c("Low conservation", "High conservation"))
 
 
-png(paste0("../../figs/exac/exac_fig4A_phastCons_comparison_prop", plot_format),
-    width = 6, height = 5, units = 'in', res = 300)
+tiff(paste0("../../figs/exac/exac_fig4A_phastCons_comparison_prop", plot_format),
+    width = 6, height = 5, units = 'in', res = 600)
+
+area.color <- c("one", "two", "one", "one", "two", "one")
 
 p <- cons_count %>% 
-    ggplot(aes(label_renamed, propFreq)) +
+    ggplot(aes(label_renamed, propFreq, fill = area.color)) +
     geom_histogram(stat = 'identity', width = 0.5) +
     ylab("% loss-of-splicing SNVs") +
     xlab("") +
     facet_wrap(~ cons_bin) +
-    geom_hline(yintercept = 1050/29531*100, linetype = "dashed", color = "grey20") + 
+    geom_hline(yintercept = 3.6, linetype = "dashed", color = "grey20") + 
     scale_y_continuous(breaks = c(0, 3.6, 10, 15, 20, 25), expand = c(0,0)) +
     expand_limits(y = 26.5) +
     theme_bw() + 
@@ -82,7 +84,9 @@ p <- cons_count %>%
           panel.border = element_rect(fill = NA, color = "grey20"),
           axis.title.y = element_text(size = 20),
           axis.text.y = element_text(size = 14, color = "grey20"),
-          axis.text.x = element_text(size = 18, color = "black"))
+          axis.text.x = element_text(size = 18, color = "black"),
+          legend.position = 'none') +
+  scale_fill_manual(values=c("#b90c0d", "black", "#b90c0d", "#b90c0d", "black", "#b90c0d"))
 
 # The heights that need changing are in positions one less than the plot panels
 pos =  c(subset(g$layout, grepl("panel", g$layout$name), select = t))
@@ -102,11 +106,11 @@ dev.off()
 # absolute counts for LoF SNPs, by conservation
 ###############################################################################
 
-png(paste0("../../figs/exac/exac_fig4B_phastCons_abs_num", plot_format),
-    width = 6, height = 5, units = 'in', res = 300)
+tiff(paste0("../../figs/exac/exac_fig4B_phastCons_abs_num", plot_format),
+    width = 6, height = 5, units = 'in', res = 600)
 
 p <- cons_count %>% 
-    ggplot(aes(label_renamed, `SNP count (loss-of-splicing)`)) +
+    ggplot(aes(label_renamed, `SNP count (loss-of-splicing)`, fill = area.color)) +
     geom_histogram(stat = 'identity', width = 0.5) +
     ylab("Number loss-of-splicing SNVs") +
     xlab("") +
@@ -121,7 +125,9 @@ p <- cons_count %>%
           panel.border = element_rect(fill = NA, colour = "grey20"),
           axis.title.y = element_text(size = 18, vjust = 2.75),
           axis.text.y = element_text(size = 14, color = "grey20"),
-          axis.text.x = element_text(size = 18, color = "black"))
+          axis.text.x = element_text(size = 18, color = "black"),
+          legend.position = 'none') +
+  scale_fill_manual(values=c("#b90c0d", "black", "#b90c0d", "#b90c0d", "black", "#b90c0d"))
 
 pos =  c(subset(g$layout, grepl("panel", g$layout$name), select = t))
 for(i in pos) g$heights[i-1] = unit(0.4,"cm")
@@ -167,7 +173,7 @@ fig4c <- data %>%
           axis.text.x = element_text(size = 16, color = "black")) 
 
 ggsave(paste0("../../figs/exac/exac_fig4C_allele_frequency_binned", plot_format), 
-       width = 5.5, height = 4, units = 'in', dpi = 300)
+       width = 5.5, height = 4, units = 'in', dpi = 600)
 
 ###############################################################################
 # Figure 4D, probability of gene being loss-of-function intolerant 
@@ -212,5 +218,5 @@ ratio.df %>%
 fisher.test(df, alternative = 'less')
 
 ggsave(paste0("../../figs/exac/exac_fig4D_pLI_enrichment", plot_format), 
-       width = 2.5, height = 4, units = 'in', dpi = 300)
+       width = 2.5, height = 4, units = 'in', dpi = 600)
 

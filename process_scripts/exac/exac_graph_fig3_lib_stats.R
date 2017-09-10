@@ -47,11 +47,11 @@ gg1 <-
     theme(
         plot.margin = unit(c(1,0,0,0), units = "lines"),
         panel.grid = element_blank(),
-        plot.title = element_text(size=16, face="bold", margin = margin(50, 0, 0, 50)),
-        axis.title.y = element_text(size=18),
-        axis.title.x = element_text(size=20),
+        plot.title = element_text(size = 16, face="bold", margin = margin(50, 0, 0, 50)),
+        axis.title.y = element_text(size = 20),
+        axis.title.x = element_text(size = 20),
         axis.line = element_line(colour = "grey20", size = 0.25),
-        axis.text.y = element_text(colour="grey20",size=18,angle=0,hjust=.5,vjust=.5) ,
+        axis.text.y = element_text(colour = "grey20", size = 18, angle = 0, hjust = .5, vjust = .5) ,
         axis.text.x = element_blank(),
         axis.ticks.x= element_blank(),
         legend.background = element_rect(),
@@ -78,10 +78,10 @@ delta.psi.jitter <- function(data, x, y) {
             plot.margin = unit(c(0.0,0.5,0.2,0.2), units = "lines"),
             panel.grid = element_blank(),
             plot.title = element_text(size = 16, margin = margin(0, 0, 10, 10)),
-            axis.title.y = element_text(size = 18),
+            axis.title.y = element_text(size = 20, vjust = 20),
             axis.title.x = element_text(size = 20),
-            axis.text.y = element_text(colour = "grey20",size = 18,angle = 0,
-                                       hjust = 0.5,vjust = 0.5 ),
+            axis.text.y = element_text(colour = "grey20",size = 18, angle = 0,
+                                       hjust = 0.5, vjust = 0.5),
             axis.line = element_line(colour = "grey20", size = 0.25),
             axis.text.x = element_text(colour = "grey20", size = 24, angle = 0,
                                        hjust = 0.5, margin = margin(5, 0, 0, 0)),
@@ -98,7 +98,7 @@ gg2 <- data_snps %>%
     theme(axis.text.x = element_blank() ) + 
     xlab("Wild-type exon ID") + 
     theme(legend.position = "none") +
-    geom_hline(yintercept = dpsi_threshold, linetype = "dashed", color = "grey10") 
+    geom_hline(yintercept = dpsi_threshold, linetype = "dashed", color = "grey20") 
 
 # combine into one graph
 g <- rbind(ggplotGrob(gg1), ggplotGrob(gg2), size = 'last')
@@ -108,9 +108,9 @@ grid.newpage()
 grid.draw(g)
 
 ggsave( 
-    paste0('../../figs/exac/exac_rank_order_splicing_3A', plot_format), 
+    paste0('../../figs/exac/exac_rank_order_splicing_3A', '.tiff'), 
     plot = g,
-    width = 4, height = 6, units = 'in'
+    width = 4, height = 6, units = 'in', dpi = 600
 )
 
 ###############################################################################
@@ -186,7 +186,7 @@ dev.off()
 
 index_tile <- index_tile_with_legend + theme(legend.position = 'none')
 
-ggsave(paste0('../../figs/exac/exac_index_tile', plot_format),
+ggsave(paste0('../../figs/exac/exac_index_tile', ".svg"),
     width = 11, height = 0.8, units = 'in')
 
 

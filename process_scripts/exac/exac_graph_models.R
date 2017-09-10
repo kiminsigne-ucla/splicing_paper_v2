@@ -50,8 +50,8 @@ pr_curve_all %>%
           axis.text = element_text(size = 14, color = 'grey20')) +
     geom_hline(yintercept = 3.6, linetype = 'dashed', color = 'grey40') 
 
-ggsave(paste0('../../figs/exac/exac_fig4E_exac_pr_curves', plot_format), 
-       height = 4, width = 6, units = 'in', dpi = 300)
+ggsave(paste0('../../figs/exac/exac_fig4E_exac_pr_curves', '.tiff'), 
+       height = 4, width = 6, units = 'in', dpi = 600)
 
 # split by intron/exon
 ggplot(pr_curve_info, aes(recall, precision)) + geom_line(aes(color = method)) +

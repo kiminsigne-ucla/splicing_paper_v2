@@ -13,7 +13,7 @@ pkgs <- c('dplyr', 'tidyr', 'ggplot2', 'cowplot', 'ggExtra', 'grid', 'Unicode')
 load_pkgs(pkgs)
 
 options(stringsAsFactors = F, warn = -1, warnings = -1)
-plot_format <- '.tiff'
+plot_format <- '.png'
 
 data <- read.table('../../processed_data/splicemod/splicemod_data_clean.txt', sep = '\t', header = T, 
                    colClasses = c('sub_id' = 'character'))
@@ -27,10 +27,14 @@ gg <- data %>%
     geom_smooth(method = 'lm', color = 'blue') +
     scale_color_manual(values = c('black', '#0033CC')) +
     labs(x = 'inclusion index (Rep. 1)', y = 'inclusion index (Rep. 2)') +
-    theme(legend.position = 'None', text = element_text(size = 20), axis.text = element_text(size = 16)) +
-    annotate('text', x = 0.05, y = 0.895, size = 7, label = paste("italic(r)"), parse=TRUE) +
+    theme(legend.position = 'None', text = element_text(size = 20), 
+          axis.title.y = element_text(vjust = +2),
+          axis.title.x = element_text(vjust = -2), 
+          axis.text.y = element_text(size = 14),
+          axis.text.x = element_text(size = 14)) +
+    annotate('text', x = 0.05, y = 0.895, size = 7, label = paste("italic(r)"), parse = TRUE) +
     annotate('text', x = 0.22, y = 0.90, size = 7, label = paste("=", corr))
-ggsave(paste0('../../figs/splicemod/smn1/splicemod_smn1_replicates', plot_format), gg, width = 5, height = 5, dpi = 300)
+ggsave(paste0('../../figs/splicemod/smn1/splicemod_smn1_replicates', '.tiff'), gg, width = 5, height = 5, dpi = 600)
 
 # Index across DHFR replicates
 corr <- signif(cor(data$index_R1_dhfr, data$index_R2_dhfr, use = 'p'), 3)
@@ -39,10 +43,14 @@ gg <- data %>%
     geom_smooth(method = 'lm', color = 'blue') +
     scale_color_manual(values = c('black', '#0033CC')) +
     labs(x = 'inclusion index (Rep. 1)', y = 'inclusion index (Rep. 2)') +
-    theme(legend.position = 'None', text = element_text(size = 20), axis.text = element_text(size = 16)) +
-    annotate('text', x = 0.05, y = 0.895, size = 7, label = paste("italic(r)"), parse=TRUE) +
+    theme(legend.position = 'None', text = element_text(size = 20), 
+          axis.title.y = element_text(vjust = +2),
+          axis.title.x = element_text(vjust = -2), 
+          axis.text.y = element_text(size = 14),
+          axis.text.x = element_text(size = 14)) +
+    annotate('text', x = 0.05, y = 0.895, size = 7, label = paste("italic(r)"), parse = TRUE) +
     annotate('text', x = 0.22, y = 0.90, size = 7, label = paste("=", corr))
-ggsave(paste0('../../figs/splicemod/dhfr/splicemod_dhfr_replicates', plot_format), gg, width = 5, height = 5, dpi = 300)
+ggsave(paste0('../../figs/splicemod/dhfr/splicemod_dhfr_replicates', '.tiff'), gg, width = 5, height = 5, dpi = 600)
 
 # Index across SMN1 and DHFR
 corr <- signif(cor(data$index_smn1, data$index_dhfr, use = 'p'), 3)
@@ -50,14 +58,18 @@ gg <- ggplot(data %>% filter(replicability_dhfr == 'high', replicability_smn1 ==
     # scale_color_manual(values = c('black', 'grey')) +
     geom_smooth(method = 'lm', color = 'blue') + 
     labs(x = 'inclusion index (SMN1)', y = 'inclusion index (DHFR)') +
-    theme(text = element_text(size = 20), axis.text = element_text(size = 16),
+    theme(text = element_text(size = 20), 
+          axis.title.y = element_text(vjust = +2),
+          axis.title.x = element_text(vjust = -2), 
+          axis.text.y = element_text(size = 14),
+          axis.text.x = element_text(size = 14),
           legend.position = 'none') +
     annotate('text', x = 0.05, y = 0.895, size = 7, label = paste("italic(r)"), parse=TRUE) +
     annotate('text', x = 0.22, y = 0.90, size = 7, label = paste("=", corr))
-ggsave(paste0('../../figs/splicemod/splicemod_smn1_dhfr_replicates', plot_format), gg, width = 5, height = 5, dpi = 300)
+ggsave(paste0('../../figs/splicemod/splicemod_smn1_dhfr_replicates', '.tiff'), gg, width = 5, height = 5, dpi = 600)
 
 ###############################################################################
-# Read distribution across bins
+# Read distribution across GFP bins
 ###############################################################################
 bin_labels <- c('GFP+', 'GFPint', 'GFP-')   
 # SMN1
@@ -92,7 +104,7 @@ gg2 <- data %>%
           plot.margin = unit(c(0,0,0, 0.5), "in")) +
     labs(y = 'index')
 
-png(paste0('../../figs/splicemod/smn1/splicemod_smn1_bin_dist.png'),
+tiff(paste0('../../figs/splicemod/smn1/splicemod_smn1_bin_dist.tiff'),
     width = 13, height = 4, units = 'in', res = 300)
 g <- rbind(ggplotGrob(gg2), ggplotGrob(gg1), size = 'last')
 id <- g$layout$t[g$layout$name == "panel"]
@@ -145,7 +157,7 @@ dev.off()
 
 
 ###############################################################################
-# Histogram of inclusion index (naturals)
+# Histogram of inclusion index (wild-type human exons)
 ###############################################################################
 
 # SMN1
@@ -161,12 +173,13 @@ gg <- data %>%
   geom_histogram(binwidth = 0.02) +
   geom_vline(xintercept = 0.79, color = 'red') +
   xlab('inclusion index') +
-  annotate('text', x = 0.115, y = 558, size = 9, label = paste("italic(n)"), parse=TRUE) +
+  annotate('text', x = 0.085, y = 558, size = 9, label = paste("italic(n)"), parse = TRUE) +
   annotate('text', x = 0.27, y = 560, size = 9, label = paste("=", smn1_natCount)) +
   scale_y_continuous(expand = c(0,0)) +
   expand_limits(y = 650) +
-  theme(axis.title = element_text(size = 22),
-        axis.text = element_text(size = 16))
+  theme(axis.title.y = element_text(size = 22, vjust = 30),
+        axis.title.x = element_text(size = 22, vjust = -40),
+        axis.text.x = element_text(size = 16, color = 'grey20'))
 ggsave(paste0('../../figs/splicemod/smn1/splicemod_smn1_index_hist', plot_format), gg, width = 5, height = 5, dpi = 100)
 
 gg <- data %>%
@@ -176,13 +189,15 @@ gg <- data %>%
   # geom_vline(xintercept = 0.79, color = 'red') +
   # geom_rect(aes(xmin = 0.8, xmax = 1.02, ymin = 0, ymax = 675), alpha = 0.1, fill = "lightgray") +
   xlab('inclusion index') +
-  annotate('text', x = 0.115, y = 588, size = 9, label = paste("italic(n)"), parse=TRUE) +
+  annotate('text', x = 0.115, y = 588, size = 9, label = paste("italic(n)"), parse = TRUE) +
   annotate('text', x = 0.33, y = 590, size = 9, label = paste("=", dhfr_natCount)) +
   scale_y_continuous(expand = c(0,0)) +
   expand_limits(y = 700) +
-  theme(axis.title = element_text(size = 22),
-        axis.text = element_text(size = 18))
-ggsave(paste0('../../figs/splicemod/dhfr/splicemod_dhfr_index_hist', plot_format), gg, width = 5, height = 5, dpi = 100)
+  theme(axis.title.y = element_text(size = 22, vjust = 30),
+        axis.title.x = element_text(size = 22, vjust = -40),
+        axis.text.y = element_text(size = 14, color = 'grey20'),
+        axis.text.x = element_text(size = 14, color = 'grey20'))
+ggsave(paste0('../../figs/splicemod/dhfr/splicemod_dhfr_index_hist', '.tiff'), gg, width = 5, height = 5, dpi = 600)
 
 
 # DHFR
