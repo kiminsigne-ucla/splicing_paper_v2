@@ -13,7 +13,7 @@ pkgs <- c('dplyr', 'tidyr', 'ggplot2', 'cowplot', 'gridExtra', 'grid')
 load_pkgs(pkgs)
 
 options(stringsAsFactors = F, warn = -1, warnings = -1)
-plot_format <- '.tiff'
+plot_format <- '.png'
 
 axis_title_x <- 16
 axis_title_y <- 16
@@ -412,6 +412,16 @@ ggsave(paste0('../../figs/splicemod/dhfr/splicemod_dhfr_all_categories_no_x_axis
 ggsave(paste0('../../figs/splicemod/dhfr/splicemod_dhfr_all_categories', plot_format), 
        gg, width = 12, height = 5, dpi = 300)
 
+# explore no splice vs weak splice
+# score differential
+data %>%
+  filter(category == 'no_spl_a' | category == 'no_spl_d' | category == 'weak_spl_a' | category == 'weak_spl_d') %>%
+  ggplot(aes(index_smn1, (new_score - orig_score), color = category)) + geom_point()
+
+# number of changes
+data %>% filter(category == 'no_spl_a' | category == 'no_spl_d' | category == 'weak_spl_a' | category == 'weak_spl_d') %>%
+  ggplot(aes(num_changes, index_smn1, color = category)) + geom_jitter() + facet_grid (~ category)
+
 
 ###############################################################################
 # Exonic motifs
@@ -534,19 +544,6 @@ gg <- data %>%
 
 ggsave(paste0('../../figs/splicemod/dhfr/splicemod_dhfr_Ke11', plot_format),
        gg, width = 3, height = 3, dpi = 300, scale = 1.3)
-
-
-data %>% filter(category == 'no_spl_a' |
-                  category == 'no_spl_d' |
-                  category == 'weak_spl_a' |
-                  category == 'weak_spl_d') %>%
-  ggplot(aes(index_smn1, (new_score - orig_score), color = category)) + geom_point()
-
-data %>% filter(category == 'no_spl_a' |
-                  category == 'no_spl_d' |
-                  category == 'weak_spl_a' |
-                  category == 'weak_spl_d') %>%
-  ggplot(aes(num_changes, index_smn1, color = category)) + geom_jitter() + facet_grid (~category)
 
 # # splicemod exon mutation categories
 # esr_labels <- c('weaken\nESEs', 'destroy\nstrongest\nESE', 'weaken\nESSs', 'destroy\nstrongest\nESS')
