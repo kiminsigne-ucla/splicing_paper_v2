@@ -12,6 +12,7 @@ load_pkgs(pkgs)
 options(stringsAsFactors = F, warn = -1, warnings = -1)
 
 plot_format <- '.png'
+resolution <- 300
 
 # custom color palette
 source("../color_palette.R")
@@ -62,7 +63,7 @@ cons_count$cons_bin <- factor(cons_count$cons_bin, levels=c("low","high"),
 
 
 tiff(paste0("../../figs/exac/exac_fig4A_phastCons_comparison_prop", plot_format),
-    width = 6, height = 5, units = 'in', res = 600)
+    width = 6, height = 5, units = 'in', res = resolution)
 
 area.color <- c("one", "two", "one", "one", "two", "one")
 
@@ -107,7 +108,7 @@ dev.off()
 ###############################################################################
 
 tiff(paste0("../../figs/exac/exac_fig4B_phastCons_abs_num", plot_format),
-    width = 6, height = 5, units = 'in', res = 600)
+    width = 6, height = 5, units = 'in', res = resolution)
 
 p <- cons_count %>% 
     ggplot(aes(label_renamed, `SNP count (loss-of-splicing)`, fill = area.color)) +
@@ -173,7 +174,7 @@ fig4c <- data %>%
           axis.text.x = element_text(size = 16, color = "black")) 
 
 ggsave(paste0("../../figs/exac/exac_fig4C_allele_frequency_binned", plot_format), 
-       width = 5.5, height = 4, units = 'in', dpi = 600)
+       width = 5.5, height = 4, units = 'in', dpi = resolution)
 
 ###############################################################################
 # Figure 4D, probability of gene being loss-of-function intolerant 
@@ -218,5 +219,5 @@ ratio.df %>%
 fisher.test(df, alternative = 'less')
 
 ggsave(paste0("../../figs/exac/exac_fig4D_pLI_enrichment", plot_format), 
-       width = 2.5, height = 4, units = 'in', dpi = 600)
+       width = 2.5, height = 4, units = 'in', dpi = resolution)
 
