@@ -61,9 +61,11 @@ data <- data %>%
   ungroup()
 
 ###############################################################################
-# MaxEnt splice donor score fold-change (SMN1)
+# MaxEnt 
 ###############################################################################
+# MaxEnt splice donor score fold-change
 # SMN1
+
 gg <- data %>%
   filter(don_score_fold_change != 0) %>%
   mutate(don_fold_change_bin = cut(don_score_fold_change, c(-12, -2, -1, 0, 1))) %>%
@@ -98,11 +100,11 @@ gg_no_legend <- gg + theme(legend.position = 'none')
 
 ggsave(paste0('../../figs/splicemod/smn1/splicemod_smn1_donor_fc', plot_format), 
        gg_no_legend, width = 2.4, height = 3, dpi = 300, scale = 1.3)
+
        
-###############################################################################
-# MaxEnt splice acceptor score fold-change (SMN1)
-###############################################################################
+# MaxEnt splice donor score fold-change
 # SMN1
+
 gg <- data %>%
   filter(acc_score_fold_change != 0) %>%
   mutate(acc_fold_change_bin = cut(acc_score_fold_change, c(-184, -2, -1, 0, 1))) %>%
@@ -120,9 +122,8 @@ gg <- data %>%
 ggsave(paste0('../../figs/splicemod/smn1/splicemod_smn1_acceptor_fc', plot_format), 
        gg, width = 2.4, height = 3, dpi = 300, scale = 1.3)
 
-###############################################################################
-# MaxEnt BOTH (SMN1)
-###############################################################################
+
+# MaxEnt both splice acceptor and donor score fold-change
 # SMN1
 
 gg <- data %>% 
@@ -161,10 +162,9 @@ ggsave(paste0('../../figs/splicemod/smn1/splicemod_smn1_don_acc', plot_format),
        gg, width = 4.6, height = 3, dpi = 600, scale = 1.3)
 
 
-###############################################################################
-# MaxEnt splice donor score fold-change (DHFR)
-###############################################################################
+# MaxEnt splice donor score fold-change
 # DHFR
+
 gg <- data %>%
   filter(don_score_fold_change != 0) %>%
   mutate(don_fold_change_bin = cut(don_score_fold_change, c(-12, -2, -1, 0, 1))) %>%
@@ -186,16 +186,14 @@ gg <- data %>%
 ggsave(paste0('../../figs/splicemod/dhfr/splicemod_dhfr_donor_fc', plot_format), 
        gg, width = 2.4, height = 3, dpi = 300, scale = 1.3)
 
-###############################################################################
 # Legend
-###############################################################################
 
 gg <- data %>%
   filter(acc_score_fold_change != 0) %>%
   mutate(acc_fold_change_bin = cut(acc_score_fold_change, c(-184, -2, -1, 0, 1))) %>%
   filter(!is.na(acc_fold_change_bin)) %>%
   ggplot(aes(acc_fold_change_bin, dpsi_smn1)) + 
-  geom_jitter(alpha = jitter_alpha , aes(color = nat_index_smn1)) + 
+  geom_jitter(alpha = jitter_alpha, aes(color = nat_index_smn1)) + 
   scale_x_discrete(labels = c('<= -2', '(-2, -1]', '(-1, -0)', '(0, 1]')) +
   geom_boxplot(alpha = 0) + 
   scale_colour_gradientn(limits = c(-0.005, 1), 
@@ -214,58 +212,33 @@ gg <- data %>%
 ggsave(paste0('../../figs/splicemod/legend', plot_format), 
        gg, width = 3, height = 6, dpi = 300, scale = 1.3)
 
-###############################################################################
-# MaxEnt splice acceptor score fold-change (DHFR)
-###############################################################################
-# SMN1
+
+# MaxEnt splice acceptor score fold-change
+# DHFR
+
 gg <- data %>%
   filter(acc_score_fold_change != 0) %>%
   mutate(acc_fold_change_bin = cut(acc_score_fold_change, c(-184, -2, -1, 0, 1))) %>%
   filter(!is.na(acc_fold_change_bin)) %>%
-  ggplot(aes(acc_fold_change_bin, dpsi_smn1)) + 
-  geom_jitter(alpha = jitter_alpha , aes(color = nat_index_smn1)) + 
+  ggplot(aes(acc_fold_change_bin, dpsi_dhfr)) + 
+  geom_jitter(alpha = jitter_alpha, aes(color = nat_index_dhfr)) + 
   scale_x_discrete(labels = c('<= -2', '(-2, -1]', '(-1, -0)', '(0, 1]')) +
   geom_boxplot(alpha = 0) + 
   scale_colour_gradientn(limits = c(-0.005, 1), 
                          breaks = seq(0, 1, by = 0.25), 
                          colors = pal(321)) +
   labs(x = 'fold change MaxEnt splice acceptor score',
-       y = expression(paste(Delta, ' inclusion index (SMN1)')),
+       y = expression(paste(Delta, ' inclusion index (DHFR)')),
        color = expression(index["WT "])) +
   theme(axis.text = element_text(size = axis_text), 
         text = element_text(size = general_text),
         legend.position = 'none')
 
-ggsave(paste0('../../figs/splicemod/smn1/splicemod_smn1_acceptor_fc', plot_format), 
+ggsave(paste0('../../figs/splicemod/smn1/splicemod_dhfr_acceptor_fc', plot_format), 
        gg, width = 3, height = 3, dpi = 300, scale = 1.3)
 
-# DHFR
-gg2 <- data %>%
-  filter(acc_score_fold_change != 0) %>%
-  mutate(acc_fold_change_bin = cut(acc_score_fold_change, c(-184, -2, -1, 0, 1))) %>%
-  filter(!is.na(acc_fold_change_bin)) %>%
-  ggplot(aes(acc_fold_change_bin, dpsi_dhfr)) + 
-  geom_jitter(alpha = jitter_alpha , aes(color = nat_index_dhfr)) + 
-  scale_x_discrete(labels = c('<= -2', '(-2, -1]', '(-1, -0)', '(0, 1]')) +
-  geom_boxplot(alpha = 0) + 
-       
-  scale_colour_gradientn(limits = c(-0.005, 1), 
-                         breaks = seq(0, 1, by = 0.25), 
-                         colors = pal(321)) +
-  labs(x = 'fold change MaxEnt splice acceptor score', 
-       y = expression(paste(Delta, ' inclusion index (SMN1)')),
-       color = expression(index["WT "])) +
-  theme(axis.text = element_text(size = axis_text), 
-        text = element_text(size = general_text),
-        legend.position = 'none')
 
-ggsave(paste0('../../figs/splicemod/dhfr/splicemod_dhfr_acceptor_fc', plot_format),
-       gg, width = 2.4, height = 3, dpi = 300, scale = 1.3)
-              
-              
-###############################################################################
-# MaxEnt BOTH (DHFR)
-###############################################################################
+# MaxEnt both splice acceptor and donor score fold-change
 # DHFR
 
 gg <- data %>% 
@@ -299,11 +272,11 @@ gg <- data %>%
         text = element_text(size = general_text),
         legend.position = 'none') 
 
-ggsave(paste0('../../figs/splicemod/smn1/splicemod_dhfr_don_acc', plot_format), 
+ggsave(paste0('../../figs/splicemod/dhfr/splicemod_dhfr_don_acc', plot_format), 
        gg, width = 4.6, height = 3, dpi = 300, scale = 1.3)
               
 
-# facet
+# facet (SMN1)
 data %>% 
   gather(key = 'splice_site', value = 'fold_change', 
          don_score_fold_change, acc_score_fold_change) %>% 
@@ -332,7 +305,7 @@ data %>%
         text = element_text(size = general_text),
         legend.position = 'none')
 
-# facet
+# facet (DHFR)
 data %>% 
   gather(key = 'splice_site', value = 'fold_change', 
          don_score_fold_change, acc_score_fold_change) %>% 
@@ -344,8 +317,8 @@ data %>%
                                   levels = c('(-184,-2]', '(-2,-1]',
                                              '(-1,0]', '(0,1]'))) %>% 
   # select(acc_score_fold_change, don_score_fold_change, splice_site, fold_change_bin)
-  ggplot(aes(fold_change_bin, dpsi_smn1)) + 
-  geom_jitter(alpha = jitter_alpha, aes(color = nat_index_smn1)) + 
+  ggplot(aes(fold_change_bin, dpsi_dhfr)) + 
+  geom_jitter(alpha = jitter_alpha, aes(color = nat_index_dhfr)) + 
   geom_boxplot(alpha = 0) +
   facet_grid(~ splice_site,
              labeller = as_labeller(c('acc_score_fold_change' = 'SA',
@@ -355,14 +328,14 @@ data %>%
                          colors = pal(321)) +
   scale_x_discrete(labels = c('<= -2', '(-2, -1]', '(-1, -0)', '(0, 1]')) +
   labs(x = 'fold-change MaxEnt score', 
-       y = expression(paste(Delta, ' inclusion index (SMN1)')),
+       y = expression(paste(Delta, ' inclusion index (DHFR)')),
        color = expression(index["WT "])) +
   theme(axis.text = element_text(size = axis_text), 
         text = element_text(size = general_text),
         legend.position = 'none')
 
 ###############################################################################
-# All splicemod categories
+# Splicemod categories
 ###############################################################################
 esr_categories <- c('rmv_Ke2011_ESE', 'clst_Ke2011_ESE', 'rmv_Ke2011_ESS', 'clst_Ke2011_ESS')
 esr_labels <- c('weaken ESEs', 'destroy strongest ESE', 'weaken ESSs', 'destroy strongest ESS')
@@ -371,7 +344,6 @@ splice_site_categories <- c( 'weak_spl_a', 'weak_spl_d', 'p_weak_spl', 'no_spl_a
                              'same_splice_a', 'same_splice_d',
                              'rmv_me_splice_acceptor', 'rmv_me_splice_donor', 
                              'csplice_a', 'csplice_d')
-
 splice_site_labels <- c('weaken acceptor', 'weaken donor', 'weaken donor + acceptor', 'destroy acceptor', 'destroy donor',
                         'same score acceptor', 'same score donor',
                         'weaken spurious acceptor', 'weaken spurious donor',
@@ -387,8 +359,8 @@ random_intron_categories <- c('rnd_intron_1nt', 'rnd_intron_2nt', 'rnd_intron_3n
 random_intron_labels <- c('random 1nt intron', 'random 2nt intron', 'random 3nt intron', 'random 5nt intron',
                           'aggressive intron', 'aggr. + random intron', 'aggr. intron + exon')
 
-random_exon_categories <- c('rnd_exon_1nt', 'rnd_exon_2nt', 'rnd_exon_3nt', 'rnd_exon_5nt', 'aggr_exon'
-)
+random_exon_categories <- c('rnd_exon_1nt', 'rnd_exon_2nt', 'rnd_exon_3nt', 'rnd_exon_5nt', 
+                            'aggr_exon')
 random_exon_labels <- c('random 1nt exon', 'random 2nt exon', 'random 3nt exon', 'random 5nt exon',
                         'aggressive exon (only syn. mut.)')
 
@@ -401,7 +373,9 @@ gg <- data %>%
   mutate(category_fctr = factor(category,
                                 levels = c(splice_site_categories, esr_categories, random_exon_categories,
                                            intron_categories, random_intron_categories, other_categories))) %>% 
-  ggplot(aes(x = category_fctr, y = dpsi_smn1)) + geom_jitter(alpha = jitter_alpha , aes(color = nat_index_smn1)) + geom_boxplot(alpha=0) +
+  ggplot(aes(x = category_fctr, y = dpsi_smn1)) + 
+  geom_jitter(alpha = jitter_alpha, aes(color = nat_index_smn1)) + 
+  geom_boxplot(alpha = 0) +
   scale_colour_gradientn(limits = c(-0.005, 1), breaks = seq(0, 1, by = 0.25), colors = pal(321)) + 
   scale_x_discrete(labels = c(splice_site_labels, esr_labels, random_exon_labels, intron_labels, random_intron_labels, other_labels)) +
   theme(axis.title.y = element_text(size = axis_title_y), axis.text.x = element_text(angle = 45, hjust = 1), 
@@ -422,7 +396,9 @@ gg <- data %>%
   mutate(category_fctr = factor(category,
                                 levels = c(splice_site_categories, esr_categories, random_exon_categories,
                                            intron_categories, random_intron_categories, other_categories))) %>% 
-  ggplot(aes(x = category_fctr, y = dpsi_dhfr)) + geom_jitter(alpha = jitter_alpha , aes(color = nat_index_dhfr)) + geom_boxplot(alpha=0) +
+  ggplot(aes(x = category_fctr, y = dpsi_dhfr)) + 
+  geom_jitter(alpha = jitter_alpha, aes(color = nat_index_dhfr)) + 
+  geom_boxplot(alpha = 0) +
   scale_colour_gradientn(limits = c(-0.005, 1), breaks = seq(0, 1, by = 0.25), colors = pal(321)) + 
   scale_x_discrete(labels = c(splice_site_labels, esr_labels, random_exon_labels, intron_labels, random_intron_labels, other_labels)) +
   theme(axis.title.y = element_text(size = axis_title_y), axis.text.x = element_text(angle = 45, hjust = 1), legend.position = 'none') +
@@ -434,22 +410,12 @@ gg_no_x_axis <- gg + theme(axis.text.x = element_blank())
 ggsave(paste0('../../figs/splicemod/dhfr/splicemod_dhfr_all_categories_no_x_axis', plot_format), 
        gg_no_x_axis, width = 12, height = 3, dpi = 300)
 ggsave(paste0('../../figs/splicemod/dhfr/splicemod_dhfr_all_categories', plot_format), 
-       gg_no_x_axis, width = 12, height = 5, dpi = 300)
+       gg, width = 12, height = 5, dpi = 300)
+
 
 ###############################################################################
-# Exonic changes
+# Exonic motifs
 ###############################################################################
-
-# # splicemod exon mutation categories
-# esr_labels <- c('weaken\nESEs', 'destroy\nstrongest\nESE', 'weaken\nESSs', 'destroy\nstrongest\nESS')
-# data %>% 
-#     filter(category %in% esr_categories) %>% 
-#     ggplot(aes(x = category, y = dpsi_smn1)) + geom_jitter(alpha = 0.75, aes(color = nat_index_dhfr)) + 
-#     geom_boxplot(alpha = 0) +
-#     scale_colour_gradientn(limits = c(-0.005, 1), breaks = seq(0, 1, by = 0.25), colors = pal(321)) + 
-#     scale_x_discrete(limits = esr_categories, labels = esr_labels) +
-#     labs(x = '', y = expression(paste(Delta, ' exon inclusion index (SMN1)')),
-#          color = 'exon\ninclusion\nindex (WT)')
 
 # calculate change in average HAL score
 data <- data %>% 
@@ -458,7 +424,9 @@ data <- data %>%
   mutate(delta_avg_HAL_score = avg_HAL_score - avg_HAL_score[sub_id == '000']) %>% 
   ungroup()
 
+###########
 # HAL
+###########
 data <- data %>%
   mutate(HAL_bin = case_when(.$delta_avg_HAL_score < 0 ~ 'down',
                              .$delta_avg_HAL_score > 0 ~ 'up',
@@ -467,7 +435,7 @@ data <- data %>%
 # SMN1
 gg <- data %>%
   filter(HAL_bin != 'same', seq_type == 'mut') %>%
-  ggplot(aes(HAL_bin, dpsi_smn1)) + geom_jitter(alpha = jitter_alpha , aes(color = nat_index_smn1)) + 
+  ggplot(aes(HAL_bin, dpsi_smn1)) + geom_jitter(alpha = jitter_alpha, aes(color = nat_index_smn1)) + 
   geom_violin(alpha = 0) +
   scale_colour_gradientn(limits = c(-0.005, 1), breaks = seq(0, 1, by = 0.25), colors = pal(321)) + 
   labs(x = expression(paste(Delta, ' average exonic hexamer score (HAL)')), 
@@ -480,7 +448,6 @@ gg <- data %>%
          axis.title.y = element_text(size = axis_title_y),
          axis.text.x = element_text(size = 18), 
          legend.position = 'none')
-
 
 ggsave(paste0('../../figs/splicemod/smn1/splicemod_smn1_hal', plot_format),
        gg, width = 2.5, height = 3, dpi = 300, scale = 1.3)
@@ -511,7 +478,10 @@ ggsave(paste0('../../figs/splicemod/dhfr/splicemod_dhfr_hal', plot_format),
 #     ungroup() %>% 
 #     mutate(avg_HAL_score_fc = (avg_HAL_score - avg_HAL_score_nat) / abs(correct_don_score_nat))
 
+
+###########
 # Ke 2011
+###########
 data <- data %>% 
   group_by(ensembl_id) %>% 
   mutate(delta_Ke2011_avg_score = Ke2011_avg_score - Ke2011_avg_score[sub_id == '000'],
@@ -532,7 +502,7 @@ data <- data %>%
 # SMN1
 gg <- data %>%
   filter(Ke_bin != 'same', seq_type == 'mut') %>%
-  ggplot(aes(Ke_bin, dpsi_smn1)) + geom_jitter(alpha = jitter_alpha , aes(color = nat_index_smn1)) + 
+  ggplot(aes(Ke_bin, dpsi_smn1)) + geom_jitter(alpha = jitter_alpha, aes(color = nat_index_smn1)) + 
   geom_violin(alpha=0) +
   scale_colour_gradientn(limits = c(-0.005, 1), breaks = seq(0, 1, by = 0.25), colors = pal(321)) +
   labs(x = expression(paste(Delta, ' Ke 2011 average exonic hexamer score')), 
@@ -550,7 +520,7 @@ ggsave(paste0('../../figs/splicemod/smn1/splicemod_smn1_Ke11', plot_format),
 # DHFR
 gg <- data %>%
   filter(Ke_bin != 'same', seq_type == 'mut') %>%
-  ggplot(aes(Ke_bin, dpsi_dhfr)) + geom_jitter(alpha = jitter_alpha , aes(color = nat_index_dhfr)) + 
+  ggplot(aes(Ke_bin, dpsi_dhfr)) + geom_jitter(alpha = jitter_alpha, aes(color = nat_index_dhfr)) + 
   geom_violin(alpha=0) +
   scale_colour_gradientn(limits = c(-0.005, 1), breaks = seq(0, 1, by = 0.25), colors = pal(321)) +
   labs(x = expression(paste(Delta, ' Ke 2011 average exonic hexamer score')), 
@@ -572,9 +542,19 @@ data %>% filter(category == 'no_spl_a' |
                   category == 'weak_spl_d') %>%
   ggplot(aes(index_smn1, (new_score - orig_score), color = category)) + geom_point()
 
-
 data %>% filter(category == 'no_spl_a' |
                   category == 'no_spl_d' |
                   category == 'weak_spl_a' |
                   category == 'weak_spl_d') %>%
   ggplot(aes(num_changes, index_smn1, color = category)) + geom_jitter() + facet_grid (~category)
+
+# # splicemod exon mutation categories
+# esr_labels <- c('weaken\nESEs', 'destroy\nstrongest\nESE', 'weaken\nESSs', 'destroy\nstrongest\nESS')
+# data %>% 
+#     filter(category %in% esr_categories) %>% 
+#     ggplot(aes(x = category, y = dpsi_smn1)) + geom_jitter(alpha = 0.75, aes(color = nat_index_dhfr)) + 
+#     geom_boxplot(alpha = 0) +
+#     scale_colour_gradientn(limits = c(-0.005, 1), breaks = seq(0, 1, by = 0.25), colors = pal(321)) + 
+#     scale_x_discrete(limits = esr_categories, labels = esr_labels) +
+#     labs(x = '', y = expression(paste(Delta, ' exon inclusion index (SMN1)')),
+#          color = 'exon\ninclusion\nindex (WT)')
