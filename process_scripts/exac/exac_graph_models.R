@@ -46,8 +46,8 @@ pr_curve_all %>%
           legend.key = element_rect(size = 5),
           legend.key.size = unit(1.25, 'lines'),
           legend.text = element_text(size = 16), 
-          axis.title = element_text(size = 20),
-          axis.text = element_text(size = 16, color = 'grey20')) +
+          axis.title = element_text(size = 18),
+          axis.text = element_text(size = 14, color = 'grey20')) +
     geom_hline(yintercept = 3.6, linetype = 'dashed', color = 'grey40') 
 
 ggsave(paste0('../../figs/exac/exac_fig4E_exac_pr_curves', plot_format), 

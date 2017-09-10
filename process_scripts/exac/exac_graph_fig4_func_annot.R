@@ -169,10 +169,6 @@ fig4c <- data %>%
 ggsave(paste0("../../figs/exac/exac_fig4C_allele_frequency_binned", plot_format), 
        width = 5.5, height = 4, units = 'in', dpi = 300)
 
-plot_grid(g, g2, nrow = 1,align = 'v')
-ggsave(paste0("../../figs/exac/fig4a_b", plot_format), width = 12, height = 5, units = 'in', dpi = 300)
-
-
 ###############################################################################
 # Figure 4D, probability of gene being loss-of-function intolerant 
 ###############################################################################
