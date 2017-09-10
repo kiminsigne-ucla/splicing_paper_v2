@@ -115,7 +115,7 @@ p <- cons_count %>%
     expand_limits(y = 450) +
     theme_bw() + 
     theme(strip.text = element_text(size = 20),
-          strip.background = element_rect(fill="#E0E0E0", color = "white"),
+          strip.background = element_rect(fill = "#E0E0E0", color = "white"),
           panel.grid.major = element_blank(),
           panel.grid.minor = element_blank(),
           panel.border = element_rect(fill = NA, colour = "grey20"),

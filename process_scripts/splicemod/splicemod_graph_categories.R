@@ -43,8 +43,6 @@ updated_ref <- read.csv('../../ref/splicemod/splicemod_ref_rescored.txt',
 data <- data %>% 
   left_join(select(updated_ref, id, exon_seq:correct_don_score), by = 'id')
 
-
-
 # calculate change in donor/acceptor score between mutant and natural
 data <- data %>% 
   group_by(ensembl_id) %>% 
@@ -80,7 +78,7 @@ gg <- data %>%
   labs(x = 'fold change MaxEnt splice donor score', 
        y = expression(paste(Delta, ' inclusion index (SMN1)')),
        color = expression(index["WT "])) +
-  theme(axis.text = element_text(size = axis_text), 
+  theme(axis.text = element_text(size = axis_text, color = "grey20"), 
         text = element_text(size = general_text))
        
 # grab legend
@@ -90,18 +88,17 @@ g_legend <- function(a.gplot){
   legend <- tmp$grobs[[leg]]
   legend
 }
-legend <- g_legend(gg)
-tiff(paste0('../../figs/splicemod/nat_index_legend', plot_format), width = 350, 350)
-grid.newpage()
-grid.draw(legend)
-dev.off()
+# legend <- g_legend(gg)
+# tiff(paste0('../../figs/splicemod/nat_index_legend', plot_format), width = 350, 350)
+# grid.newpage()
+# grid.draw(legend)
+# dev.off()
 
 gg_no_legend <- gg + theme(legend.position = 'none')
 
 ggsave(paste0('../../figs/splicemod/smn1/splicemod_smn1_donor_fc', plot_format), 
        gg_no_legend, width = 2.4, height = 3, dpi = 300, scale = 1.3)
 
-       
 # MaxEnt splice donor score fold-change
 # SMN1
 
@@ -116,12 +113,11 @@ gg <- data %>%
   labs(x = 'fold change\nMaxEnt splice acceptor score', 
        y = expression(paste(Delta, ' inclusion index')),
        color = expression(index["WT "])) +
-  theme(axis.text = element_text(size = axis_text), text = element_text(size = general_text),
+  theme(axis.text = element_text(size = axis_text, color = "grey20"), text = element_text(size = general_text),
         legend.position = 'none')
 
 ggsave(paste0('../../figs/splicemod/smn1/splicemod_smn1_acceptor_fc', plot_format), 
        gg, width = 2.4, height = 3, dpi = 300, scale = 1.3)
-
 
 # MaxEnt both splice acceptor and donor score fold-change
 # SMN1
@@ -150,17 +146,16 @@ gg <- data %>%
   labs(x = 'MaxEnt score (fold change)', 
        y = expression(paste(Delta, ' inclusion index')),
        color = expression(index["WT "])) +
-  theme(strip.background = element_rect(fill="lightgrey"),
-        strip.text = element_text(size = 16),
-        axis.title.y = element_text(size = 16), 
-        axis.title.x = element_text(size = 16), 
-        axis.text = element_text(size = axis_text), 
+  theme(strip.text = element_text(size = 16),
+        strip.background = element_rect(fill = "#E0E0E0", color = "white"),
+        axis.title.y = element_text(size = 18), 
+        axis.title.x = element_text(size = 18, vjust = -2), 
+        axis.text = element_text(size = axis_text, color = "grey20"), 
         text = element_text(size = general_text),
         legend.position = 'none') 
-
+        
 ggsave(paste0('../../figs/splicemod/smn1/splicemod_smn1_don_acc', plot_format), 
        gg, width = 4.6, height = 3, dpi = 600, scale = 1.3)
-
 
 # MaxEnt splice donor score fold-change
 # DHFR
@@ -179,14 +174,14 @@ gg <- data %>%
   labs(x = 'fold change MaxEnt splice donor score', 
        y = expression(paste(Delta, ' inclusion index (SMN1)')),
        color = expression(index["WT "])) +
-  theme(axis.text = element_text(size = axis_text), 
+  theme(axis.text = element_text(size = axis_text, color = "grey20"), 
         text = element_text(size = general_text),
         legend.position = 'none')
 
 ggsave(paste0('../../figs/splicemod/dhfr/splicemod_dhfr_donor_fc', plot_format), 
        gg, width = 2.4, height = 3, dpi = 300, scale = 1.3)
 
-# Legend
+# Legend for Figure
 
 gg <- data %>%
   filter(acc_score_fold_change != 0) %>%
@@ -199,15 +194,14 @@ gg <- data %>%
   scale_colour_gradientn(limits = c(-0.005, 1), 
                          breaks = seq(0, 1, by = 0.25), 
                          colors = pal(321)) +
-  labs(x = 'fold change MaxEnt splice acceptor score',
-       y = expression(paste(Delta, ' inclusion index (SMN1)')),
+  labs(x = '', y = '',
        color = expression(index["WT "])) +
-  theme(axis.text = element_text(size = axis_text), 
+  theme(axis.text = element_text(size = axis_text, color = "grey20"), 
         text = element_text(size = general_text),
-        legend.key.width=unit(1,"cm"),
-        legend.key.height=unit(1.8,"cm"),
-        legend.text=element_text(size=28),
-        legend.title=element_text(size=32))
+        legend.key.width = unit(1,"cm"),
+        legend.key.height = unit(1.8,"cm"),
+        legend.text = element_text(size=28),
+        legend.title = element_text(size=32))
 
 ggsave(paste0('../../figs/splicemod/legend', plot_format), 
        gg, width = 3, height = 6, dpi = 300, scale = 1.3)
@@ -230,13 +224,12 @@ gg <- data %>%
   labs(x = 'fold change MaxEnt splice acceptor score',
        y = expression(paste(Delta, ' inclusion index (DHFR)')),
        color = expression(index["WT "])) +
-  theme(axis.text = element_text(size = axis_text), 
+  theme(axis.text = element_text(size = axis_text, color = "grey20"), 
         text = element_text(size = general_text),
         legend.position = 'none')
 
 ggsave(paste0('../../figs/splicemod/smn1/splicemod_dhfr_acceptor_fc', plot_format), 
        gg, width = 3, height = 3, dpi = 300, scale = 1.3)
-
 
 # MaxEnt both splice acceptor and donor score fold-change
 # DHFR
@@ -266,16 +259,16 @@ gg <- data %>%
        y = expression(paste(Delta, ' inclusion index')),
        color = expression(index["WT "])) +
   theme(strip.text = element_text(size = 16),
-        axis.title.y = element_text(size = 16), 
-        axis.title.x = element_text(size = 16), 
-        axis.text = element_text(size = axis_text), 
+        strip.background = element_rect(fill = "#E0E0E0", color = "white"),
+        axis.title.y = element_text(size = 18), 
+        axis.title.x = element_text(size = 18, vjust = -2), 
+        axis.text = element_text(size = axis_text, color = "grey20"), 
         text = element_text(size = general_text),
         legend.position = 'none') 
 
 ggsave(paste0('../../figs/splicemod/dhfr/splicemod_dhfr_don_acc', plot_format), 
        gg, width = 4.6, height = 3, dpi = 300, scale = 1.3)
               
-
 # facet (SMN1)
 data %>% 
   gather(key = 'splice_site', value = 'fold_change', 
@@ -301,7 +294,7 @@ data %>%
   labs(x = 'fold-change MaxEnt score', 
        y = expression(paste(Delta, ' inclusion index (SMN1)')),
        color = expression(index["WT "])) +
-  theme(axis.text = element_text(size = axis_text), 
+  theme(axis.text = element_text(size = axis_text, color = "grey20"), 
         text = element_text(size = general_text),
         legend.position = 'none')
 
@@ -330,7 +323,7 @@ data %>%
   labs(x = 'fold-change MaxEnt score', 
        y = expression(paste(Delta, ' inclusion index (DHFR)')),
        color = expression(index["WT "])) +
-  theme(axis.text = element_text(size = axis_text), 
+  theme(axis.text = element_text(size = axis_text, color = "grey20"), 
         text = element_text(size = general_text),
         legend.position = 'none')
 
@@ -354,15 +347,15 @@ intron_categories <- c('clst_Vlkr07_AICS', 'clst_Vlkr07_DICS',
 intron_labels <- c('weaken intronic conserved (acceptor side)', 'weaken intronic conserved (donor side)', 
                    'destroy intronic conserved (acceptor side)', 'destroy intronic conserved (donor side)')
 
-random_intron_categories <- c('rnd_intron_1nt', 'rnd_intron_2nt', 'rnd_intron_3nt', 'rnd_intron_5nt', 
-                              'aggr_intron', 'p_aggr_intr', 'aggr_both')
-random_intron_labels <- c('random 1nt intron', 'random 2nt intron', 'random 3nt intron', 'random 5nt intron',
-                          'aggressive intron', 'aggr. + random intron', 'aggr. intron + exon')
-
 random_exon_categories <- c('rnd_exon_1nt', 'rnd_exon_2nt', 'rnd_exon_3nt', 'rnd_exon_5nt', 
                             'aggr_exon')
 random_exon_labels <- c('random 1nt exon', 'random 2nt exon', 'random 3nt exon', 'random 5nt exon',
                         'aggressive exon (only syn. mut.)')
+
+random_intron_categories <- c('rnd_intron_1nt', 'rnd_intron_2nt', 'rnd_intron_3nt', 'rnd_intron_5nt', 
+                              'aggr_intron', 'p_aggr_intr', 'aggr_both')
+random_intron_labels <- c('random 1nt intron', 'random 2nt intron', 'random 3nt intron', 'random 5nt intron',
+                          'aggressive intron', 'aggr. + random intron', 'aggr. intron + exon')
 
 other_categories <- c('cnsrv_1nt', 'cnsrv_3nt', 'RBPmats', 'variation')
 other_labels <- c('conserved 1nt', 'conservered 3nt', 'destroy RBP motifs', 'dbSNPs')
@@ -378,7 +371,7 @@ gg <- data %>%
   geom_boxplot(alpha = 0) +
   scale_colour_gradientn(limits = c(-0.005, 1), breaks = seq(0, 1, by = 0.25), colors = pal(321)) + 
   scale_x_discrete(labels = c(splice_site_labels, esr_labels, random_exon_labels, intron_labels, random_intron_labels, other_labels)) +
-  theme(axis.title.y = element_text(size = axis_title_y), axis.text.x = element_text(angle = 45, hjust = 1), 
+  theme(axis.title.y = element_text(size = axis_title_y), axis.text.x = element_text(angle = 45, hjust = 1, color = "grey20"), 
         legend.position = 'none') +
   labs(x = '', y = expression(paste(Delta, ' inclusion index')),
        color = expression(index["WT "]))
@@ -401,7 +394,7 @@ gg <- data %>%
   geom_boxplot(alpha = 0) +
   scale_colour_gradientn(limits = c(-0.005, 1), breaks = seq(0, 1, by = 0.25), colors = pal(321)) + 
   scale_x_discrete(labels = c(splice_site_labels, esr_labels, random_exon_labels, intron_labels, random_intron_labels, other_labels)) +
-  theme(axis.title.y = element_text(size = axis_title_y), axis.text.x = element_text(angle = 45, hjust = 1), legend.position = 'none') +
+  theme(axis.title.y = element_text(size = axis_title_y), axis.text.x = element_text(angle = 45, hjust = 1, color = "grey20"), legend.position = 'none') +
   labs(x = '', y = expression(paste(Delta, ' inclusion index (DHFR)')),
        color = expression(index["WT "]))
 
@@ -418,10 +411,9 @@ data %>%
   filter(category == 'no_spl_a' | category == 'no_spl_d' | category == 'weak_spl_a' | category == 'weak_spl_d') %>%
   ggplot(aes(index_smn1, (new_score - orig_score), color = category)) + geom_point()
 
-# number of changes
+# number of changes per category
 data %>% filter(category == 'no_spl_a' | category == 'no_spl_d' | category == 'weak_spl_a' | category == 'weak_spl_d') %>%
   ggplot(aes(num_changes, index_smn1, color = category)) + geom_jitter() + facet_grid (~ category)
-
 
 ###############################################################################
 # Exonic motifs
@@ -434,9 +426,10 @@ data <- data %>%
   mutate(delta_avg_HAL_score = avg_HAL_score - avg_HAL_score[sub_id == '000']) %>% 
   ungroup()
 
-###########
-# HAL
-###########
+################################
+# HAL (hexamer additive linear)
+# PMID: 26496609
+################################
 data <- data %>%
   mutate(HAL_bin = case_when(.$delta_avg_HAL_score < 0 ~ 'down',
                              .$delta_avg_HAL_score > 0 ~ 'up',
@@ -446,17 +439,18 @@ data <- data %>%
 gg <- data %>%
   filter(HAL_bin != 'same', seq_type == 'mut') %>%
   ggplot(aes(HAL_bin, dpsi_smn1)) + geom_jitter(alpha = jitter_alpha, aes(color = nat_index_smn1)) + 
-  geom_violin(alpha = 0) +
+  geom_violin(alpha = 0, color = "grey35") +
   scale_colour_gradientn(limits = c(-0.005, 1), breaks = seq(0, 1, by = 0.25), colors = pal(321)) + 
   labs(x = expression(paste(Delta, ' average exonic hexamer score (HAL)')), 
        y = expression(paste(Delta, ' inclusion index')),
        color = expression(index["WT "])) +
   ggsignif::geom_signif(comparisons = list(c('down', 'up')),
                         test = 't.test', map_signif_level = T) +
-  stat_summary(fun.y=mean, geom="point", size=2, color="black") +
-  theme( axis.title.x = element_text(size = axis_title_x), 
-         axis.title.y = element_text(size = axis_title_y),
-         axis.text.x = element_text(size = 18), 
+  stat_summary(fun.y = mean, geom = "point", size = 2, color = "black") +
+  theme( axis.title.x = element_text(size = axis_title_x, vjust = -2), 
+         axis.title.y = element_text(size = 18, vjust = 40),
+         axis.text.y = element_text(color = "grey20"), 
+         axis.text.x = element_text(size = 18, color = "grey20"), 
          legend.position = 'none')
 
 ggsave(paste0('../../figs/splicemod/smn1/splicemod_smn1_hal', plot_format),
@@ -465,18 +459,19 @@ ggsave(paste0('../../figs/splicemod/smn1/splicemod_smn1_hal', plot_format),
 # DHFR
 gg <- data %>%
   filter(HAL_bin != 'same', seq_type == 'mut') %>%
-  ggplot(aes(HAL_bin, dpsi_dhfr)) + geom_jitter(alpha = jitter_alpha , aes(color = nat_index_dhfr)) + 
-  geom_violin(alpha = 0) +
+  ggplot(aes(HAL_bin, dpsi_dhfr)) + geom_jitter(alpha = jitter_alpha, aes(color = nat_index_dhfr)) + 
+  geom_violin(alpha = 0, color = "grey35") +
   scale_colour_gradientn(limits = c(-0.005, 1), breaks = seq(0, 1, by = 0.25), colors = pal(321)) + 
   labs(x = expression(paste(Delta, ' average exonic hexamer score (HAL)')), 
        y = expression(paste(Delta, ' inclusion index')),
        color = expression(index["WT "])) +
   ggsignif::geom_signif(comparisons = list(c('down', 'up')),
                         test = 't.test', map_signif_level = T) +
-  stat_summary(fun.y=mean, geom="point", size=2, color="black") +
-  theme(axis.title.x = element_text(size = axis_title_x), 
-        axis.title.y = element_text(size = axis_title_y),
-        axis.text.x = element_text(size = 18),  
+  stat_summary(fun.y = mean, geom = "point", size = 2, color = "black") +
+  theme(axis.title.x = element_text(size = axis_title_x, vjust = 2), 
+        axis.title.y = element_text(size = 18, vjust = 40),
+        axis.text.y = element_text(color = "grey20"), 
+        axis.text.x = element_text(size = 18, color = "grey20"),  
         legend.position = 'none')
 
 ggsave(paste0('../../figs/splicemod/dhfr/splicemod_dhfr_hal', plot_format),
@@ -488,10 +483,10 @@ ggsave(paste0('../../figs/splicemod/dhfr/splicemod_dhfr_hal', plot_format),
 #     ungroup() %>% 
 #     mutate(avg_HAL_score_fc = (avg_HAL_score - avg_HAL_score_nat) / abs(correct_don_score_nat))
 
-
-###########
-# Ke 2011
-###########
+########################
+# Ke 2011 ESE/ESS 6-mer
+# PMID: 21659425
+########################
 data <- data %>% 
   group_by(ensembl_id) %>% 
   mutate(delta_Ke2011_avg_score = Ke2011_avg_score - Ke2011_avg_score[sub_id == '000'],
@@ -509,19 +504,22 @@ data <- data %>%
          Ke_ESS_bin = case_when(.$delta_Ke2011_ESS_avg_score < 0 ~ 'down',
                                 .$delta_Ke2011_ESS_avg_score > 0 ~ 'up',
                                 .$delta_Ke2011_ESS_avg_score == 0 ~ 'same'))
+
 # SMN1
 gg <- data %>%
   filter(Ke_bin != 'same', seq_type == 'mut') %>%
   ggplot(aes(Ke_bin, dpsi_smn1)) + geom_jitter(alpha = jitter_alpha, aes(color = nat_index_smn1)) + 
-  geom_violin(alpha=0) +
+  geom_violin(alpha = 0, color = "grey35") +
   scale_colour_gradientn(limits = c(-0.005, 1), breaks = seq(0, 1, by = 0.25), colors = pal(321)) +
-  labs(x = expression(paste(Delta, ' Ke 2011 average exonic hexamer score')), 
+  labs(x = expression(paste(Delta, ' average exonic hexamer score\n(Ke 2011)')), 
        y = expression(paste(Delta, ' inclusion index')),
        color = expression(index["WT "])) +
   ggsignif::geom_signif(comparisons = list(c('down', 'up')),
                         test = 't.test', map_signif_level = T) +
-  stat_summary(fun.y=mean, geom="point", size=2, color="black") +
-  theme(axis.title = element_text(size = general_text), axis.text = element_text(size = axis_text), 
+  stat_summary(fun.y = mean, geom = "point", size = 2, color="black") +
+  theme(axis.title.x = element_text(size = axis_title_x, vjust = 2), 
+        axis.title.y = element_text(size = 18, vjust = 40),
+        axis.text = element_text(size = axis_text, color = "grey20"), 
         legend.position = 'none')
 
 ggsave(paste0('../../figs/splicemod/smn1/splicemod_smn1_Ke11', plot_format),
@@ -531,21 +529,23 @@ ggsave(paste0('../../figs/splicemod/smn1/splicemod_smn1_Ke11', plot_format),
 gg <- data %>%
   filter(Ke_bin != 'same', seq_type == 'mut') %>%
   ggplot(aes(Ke_bin, dpsi_dhfr)) + geom_jitter(alpha = jitter_alpha, aes(color = nat_index_dhfr)) + 
-  geom_violin(alpha=0) +
+  geom_violin(alpha = 0, color = "grey35") +
   scale_colour_gradientn(limits = c(-0.005, 1), breaks = seq(0, 1, by = 0.25), colors = pal(321)) +
-  labs(x = expression(paste(Delta, ' Ke 2011 average exonic hexamer score')), 
+  labs(x = expression(paste(Delta, ' average exonic hexamer score\n(Ke 2011)')), 
        y = expression(paste(Delta, ' inclusion index')),
        color = expression(index["WT "])) +
   ggsignif::geom_signif(comparisons = list(c('down', 'up')),
                         test = 't.test', map_signif_level = T) +
-  stat_summary(fun.y=mean, geom="point", size=2, color="black") +
-  theme(axis.title = element_text(size = general_text), axis.text = element_text(size = axis_text), 
+  stat_summary(fun.y = mean, geom = "point", size = 2, color="black") +
+  theme(axis.title.x = element_text(size = axis_title_x, vjust = 2), 
+        axis.title.y = element_text(size = 18, vjust = 40),
+        axis.text = element_text(size = axis_text, color = "grey20"), 
         legend.position = 'none')
 
 ggsave(paste0('../../figs/splicemod/dhfr/splicemod_dhfr_Ke11', plot_format),
        gg, width = 3, height = 3, dpi = 300, scale = 1.3)
 
-# # splicemod exon mutation categories
+# # splicemod ESE/ESS
 # esr_labels <- c('weaken\nESEs', 'destroy\nstrongest\nESE', 'weaken\nESSs', 'destroy\nstrongest\nESS')
 # data %>% 
 #     filter(category %in% esr_categories) %>% 
