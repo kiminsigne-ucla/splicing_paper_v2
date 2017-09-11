@@ -126,7 +126,8 @@ ggsave(paste0('../../figs/exac/exac_v1_v2_replicates', plot_format), gg,
        width = 6, height = 6, dpi = 300)
 
 # read in updated ref
-ref <- read.table('../../ref/exac/exac_ref_formatted_converted.txt', sep='\t', header=T)
+ref <- read.table('../../ref/exac/exac_ref_formatted_converted_flipped.txt', 
+                  sep='\t', header=T)
 
 # combine with data
 data_all <- left_join(data_all, ref, by = 'id') %>% 
