@@ -6,17 +6,19 @@ load_pkgs <- function(pkgs){
     }
 }
 
-pkgs <- c('dplyr', 'tidyr', 'ggplot2', 'cowplot', 'grid')
+pkgs <- c('dplyr', 'tidyr', 'ggplot2', 'cowplot', 'grid', 'gtable')
 load_pkgs(pkgs)
 
 options(stringsAsFactors = F, warn = -1, warnings = -1)
 
 plot_format <- '.png'
+resolution <- 300
+
 # custom color palette
 source("../color_palette.R")
 # Specify new color palette
 steps <- c("blue2", "cyan", "white", "yellow", "red2")
-pal <- color.palette(steps, c(160,1,1,160), space = "rgb")
+pal <- color.palette(steps, c(160, 1, 1, 160), space = "rgb")
 
 data <- read.table('../../processed_data/exac/exac_func_annot.txt',
                    sep = '\t', header = T)
@@ -37,11 +39,11 @@ lof_cons <- lof %>%
 
 data_cons$label_renamed <- factor(data_cons$label, 
                                   levels=c("upstr_intron", "exon", "downstr_intron"), 
-                                  labels=c("Intron\nUpstr.", "Exon", "Intron\nDownstr."))
+                                  labels=c("Intron\nupstr.", "Exon", "Intron\ndownstr."))
 
 lof_cons$label_renamed <- factor(lof_cons$label, 
                                  levels=c("upstr_intron", "exon", "downstr_intron"), 
-                                 labels=c("Intron\nUpstr.", "Exon", "Intron\nDownstr.") )
+                                 labels=c("Intron\nupstr.", "Exon", "Intron\ndownstr.") )
 
 data_cons_count <- data_cons %>%
     group_by(label_renamed, cons_bin) %>%
@@ -57,44 +59,89 @@ cons_count <- full_join(data_cons_count, lof_cons_count,
            label_cons = paste(label_renamed, "\n", cons_bin, "\nconserv.", sep = " "))
 
 cons_count$cons_bin <- factor(cons_count$cons_bin, levels=c("low","high"), 
-                              labels=c("Low Conservation", "High Conservation"))
+                              labels=c("Low conservation", "High conservation"))
 
-fig4a <- cons_count %>% 
-    ggplot(aes(label_renamed, propFreq)) +
+
+tiff(paste0("../../figs/exac/exac_fig4A_phastCons_comparison_prop", plot_format),
+    width = 6, height = 5, units = 'in', res = resolution)
+
+area.color <- c("one", "two", "one", "one", "two", "one")
+
+p <- cons_count %>% 
+    ggplot(aes(label_renamed, propFreq, fill = area.color)) +
     geom_histogram(stat = 'identity', width = 0.5) +
     ylab("% loss-of-splicing SNVs") +
     xlab("") +
     facet_wrap(~ cons_bin) +
-    geom_hline(yintercept = 1050/29531*100, linetype = "dashed", color = "grey10") + 
-    scale_y_continuous(expand = c(0,0)) +
-    expand_limits(y = 25) +
-    theme(strip.text = element_text(size = 16),
-          strip.background = element_rect(fill="lightgrey"),
+    geom_hline(yintercept = 3.6, linetype = "dashed", color = "grey20") + 
+    scale_y_continuous(breaks = c(0, 3.6, 10, 15, 20, 25), expand = c(0,0)) +
+    expand_limits(y = 26.5) +
+    theme_bw() + 
+    theme(strip.text = element_text(size = 20),
+          strip.background = element_rect(fill = "#E0E0E0", color = "white"),
+          panel.grid.major = element_blank(),
+          panel.grid.minor = element_blank(),
+          panel.spacing = unit(1, "lines"),
+          panel.border = element_rect(fill = NA, color = "grey20"),
           axis.title.y = element_text(size = 20),
-          axis.text = element_text(size = 16))
+          axis.text.y = element_text(size = 14, color = "grey20"),
+          axis.text.x = element_text(size = 18, color = "black"),
+          legend.position = 'none') +
+  scale_fill_manual(values=c("#b90c0d", "black", "#b90c0d", "#b90c0d", "black", "#b90c0d"))
 
-ggsave(paste0("../../figs/exac/exac_fig4A_phastCons_comparison_prop", plot_format), 
-       width = 6, height = 4.5, units = 'in')
+# The heights that need changing are in positions one less than the plot panels
+pos =  c(subset(g$layout, grepl("panel", g$layout$name), select = t))
+for(i in pos) g$heights[i-1] = unit(0.4,"cm")
+
+g <- ggplotGrob(p)
+
+# The grobs that need their heights changed:
+grobs = which(grepl("strip", g$layout$name))
+for(i in grobs) g$grobs[[i]]$heights <-  unit(1.375, "cm")      
+grid.newpage()
+grid.draw(g)
+
+dev.off()
 
 ###############################################################################
 # absolute counts for LoF SNPs, by conservation
 ###############################################################################
-fig4b <- cons_count %>% 
-    ggplot(aes(label_renamed, `SNP count (loss-of-splicing)`)) +
+
+tiff(paste0("../../figs/exac/exac_fig4B_phastCons_abs_num", plot_format),
+    width = 6, height = 5, units = 'in', res = resolution)
+
+p <- cons_count %>% 
+    ggplot(aes(label_renamed, `SNP count (loss-of-splicing)`, fill = area.color)) +
     geom_histogram(stat = 'identity', width = 0.5) +
     ylab("Number loss-of-splicing SNVs") +
     xlab("") +
     facet_wrap(~ cons_bin) +
     scale_y_continuous(expand = c(0,0)) +
-    expand_limits(y = 425) +
-    theme(strip.text = element_text(size = 16),
-          strip.background = element_rect(fill="lightgrey"),
-          axis.title.y = element_text(size = 18),
-          axis.text = element_text(size = 16))
+    expand_limits(y = 450) +
+    theme_bw() + 
+    theme(strip.text = element_text(size = 20),
+          strip.background = element_rect(fill = "#E0E0E0", color = "white"),
+          panel.grid.major = element_blank(),
+          panel.grid.minor = element_blank(),
+          panel.border = element_rect(fill = NA, colour = "grey20"),
+          axis.title.y = element_text(size = 18, vjust = 2.75),
+          axis.text.y = element_text(size = 14, color = "grey20"),
+          axis.text.x = element_text(size = 18, color = "black"),
+          legend.position = 'none') +
+  scale_fill_manual(values=c("#b90c0d", "black", "#b90c0d", "#b90c0d", "black", "#b90c0d"))
 
+pos =  c(subset(g$layout, grepl("panel", g$layout$name), select = t))
+for(i in pos) g$heights[i-1] = unit(0.4,"cm")
 
-ggsave(paste0("../../figs/exac/exac_fig4B_phastCons_abs_num", plot_format), 
-       width = 6, height = 4.5, units = 'in')
+g2 <- ggplotGrob(p)
+
+# The grobs that need their heights changed:
+grobs = which(grepl("strip", g$layout$name))
+for(i in grobs) g2$grobs[[i]]$heights <-  unit(1.375, "cm")      
+grid.newpage()
+grid.draw(g2)
+
+dev.off()
 
 ###############################################################################
 # Figure 4C, Allele Frequency 
@@ -115,14 +162,19 @@ fig4c <- data %>%
                            breaks=seq(0,1, by = 0.25), 
                            colors=pal(321), 
                            expression(index["WT "])) +
-    geom_boxplot(alpha = 0) +
+    geom_violin(alpha = 0, color = "grey35") +
     labs(x = " ", y = expression(paste(Delta, ' inclusion index'))) +
+    theme_bw() + 
     theme(legend.position = 'none', 
-          axis.title.y = element_text(size = 18),
-          axis.text = element_text(size = 16)) 
+          panel.grid.major = element_blank(),
+          panel.grid.minor = element_blank(),
+          panel.border = element_rect(fill = NA, color = "grey20"),
+          axis.title.y = element_text(size = 18, vjust = 12),
+          axis.text.y = element_text(size = 14, color = "grey20"),
+          axis.text.x = element_text(size = 16, color = "black")) 
 
-ggsave(paste0("../../figs/exac/exac_fig4c_allele_frequency_binned", plot_format), 
-       width = 5.5, height = 4, units = 'in')
+ggsave(paste0("../../figs/exac/exac_fig4C_allele_frequency_binned", plot_format), 
+       width = 5.5, height = 4, units = 'in', dpi = resolution)
 
 ###############################################################################
 # Figure 4D, probability of gene being loss-of-function intolerant 
@@ -151,14 +203,21 @@ ratio.df <-data.frame( fraction_of_strong_LoF_genes = c(intolerant_ratio, tolera
 
 ratio.df %>%
     ggplot(aes(tolerance, fraction_of_strong_LoF_genes)) + 
-    geom_col(width = 0.5, position = position_dodge(width = 1.8)) + 
+    geom_col(width = 0.375, position = position_dodge(width = 1.8)) + 
     ylab("Fraction loss-of-splicing SNVs") + xlab("pLI") + ylim(0,0.05) +
-    geom_hline(yintercept = 1050/29531, linetype = "dashed", color = "grey10") +
+    geom_hline(yintercept = 1050/29531, linetype = "dashed", color = "grey40") +
     scale_y_continuous(expand = c(0, 0)) + 
-    coord_equal(1/0.015)
+    coord_equal(1/0.015) +
+    theme(panel.grid.major = element_blank(),
+          panel.grid.minor = element_blank(),
+          # panel.border = element_rect(fill = NA, colour = "black"),
+          axis.title.y = element_text(size = 12, color = "grey20"),
+          axis.title.x = element_text(size = 18, color = "black"),
+          axis.text.y = element_text(size = 10, color = "grey20"),
+          axis.text.x = element_text(size = 12, color = "grey20")) 
 
 fisher.test(df, alternative = 'less')
 
-ggsave(paste0("../../figs/exac/exac_fig3D_pLI_enrichment", plot_format), 
-       width = 2.8, height = 4, units = 'in')
+ggsave(paste0("../../figs/exac/exac_fig4D_pLI_enrichment", plot_format), 
+       width = 2.5, height = 4, units = 'in', dpi = resolution)
 
