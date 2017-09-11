@@ -55,10 +55,10 @@ gg1 <-
         axis.text.x = element_blank(),
         axis.ticks.x= element_blank(),
         legend.background = element_rect(),
-        legend.title = element_text(size=18, face="bold"),
+        legend.title = element_text(size = 18, face="bold"),
         legend.key.size = unit(8, "mm"),
         legend.key.width = unit(4, "mm"),
-        legend.text = element_text(size=18),
+        legend.text = element_text(size = 18),
         legend.position = 'none')
 
 
