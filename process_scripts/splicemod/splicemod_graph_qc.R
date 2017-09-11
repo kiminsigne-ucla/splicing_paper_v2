@@ -208,7 +208,7 @@ gg <- data %>%
            label = paste("=", smn1_natCount)) +
   scale_y_continuous(expand = c(0,0)) +
   expand_limits(y = 650) +
-  theme(axis.title.y = element_text(size = 22, vjust = 30),
+  theme(axis.title.y = element_text(size = 22, vjust = 50),
         axis.title.x = element_text(size = 22, vjust = -40),
         axis.text.x = element_text(size = 16, color = 'grey20'))
 ggsave(paste0('../../figs/splicemod/smn1/splicemod_smn1_index_hist', 

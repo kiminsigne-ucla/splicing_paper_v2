@@ -82,8 +82,9 @@ gg <- data %>%
   geom_jitter(alpha = jitter_alpha, aes(color = nat_index_smn1)) + 
   geom_boxplot(alpha = 0) +
   facet_grid(~ splice_site,
-             labeller = as_labeller(c('acc_score_fold_change' = 'Splice Acceptor',
-                                      'don_score_fold_change' = 'Splice Donor'))) +
+             labeller = 
+               as_labeller(c('acc_score_fold_change' = 'Splice Acceptor',
+                             'don_score_fold_change' = 'Splice Donor'))) +
   scale_colour_gradientn(limits = c(-0.005, 1), 
                          breaks = seq(0, 1, by = 0.25), 
                          colors = pal(321)) +
@@ -99,7 +100,8 @@ gg <- data %>%
         text = element_text(size = general_text),
         legend.position = 'none') 
         
-ggsave(paste0('../../figs/splicemod/smn1/splicemod_smn1_don_acc', plot_format_main), 
+ggsave(paste0('../../figs/splicemod/smn1/splicemod_smn1_don_acc', 
+              plot_format_main), 
        gg, width = 4.6, height = 3, dpi = hi_res, scale = 1.3)
 
 # MaxEnt: splice acceptor and donor score fold-change)
@@ -121,8 +123,9 @@ gg <- data %>%
   geom_jitter(alpha = jitter_alpha, aes(color = nat_index_dhfr)) + 
   geom_boxplot(alpha = 0) +
   facet_grid(~ splice_site,
-             labeller = as_labeller(c('acc_score_fold_change' = 'Splice Acceptor',
-                                      'don_score_fold_change' = 'Splice Donor'))) +
+             labeller = 
+               as_labeller(c('acc_score_fold_change' = 'Splice Acceptor',
+                             'don_score_fold_change' = 'Splice Donor'))) +
   scale_colour_gradientn(limits = c(-0.005, 1), 
                          breaks = seq(0, 1, by = 0.25), 
                          colors = pal(321)) +
@@ -138,7 +141,8 @@ gg <- data %>%
         text = element_text(size = general_text),
         legend.position = 'none') 
 
-ggsave(paste0('../../figs/splicemod/dhfr/splicemod_dhfr_don_acc', plot_format), 
+ggsave(paste0('../../figs/splicemod/dhfr/splicemod_dhfr_don_acc', 
+              plot_format), 
        gg, width = 4.6, height = 3, dpi = hi_res, scale = 1.3)
               
 ###############################################################################
@@ -243,14 +247,14 @@ gg <- data %>%
   theme(axis.title.y = element_text(size = 16), 
         axis.text.x = element_text(angle = 45, hjust = 1, color = "grey20"), 
         legend.position = 'none') +
-  labs(x = '', y = expression(paste(Delta, ' inclusion index (DHFR)')),
+  labs(x = '', y = expression(paste(Delta, ' inclusion index')),
        color = expression(index["WT "]))
 
 gg_no_x_axis <- gg + theme(axis.text.x = element_blank())
 
 ggsave(paste0('../../figs/splicemod/dhfr/',
-              'splicemod_dhfr_all_categories_no_x_axis', plot_format_main), 
-       gg_no_x_axis, width = 12, height = 3, dpi = hi_res)
+              'splicemod_dhfr_all_categories_no_x_axis', plot_format), 
+       gg_no_x_axis, width = 12, height = 3, dpi = lo_res)
 ggsave(paste0('../../figs/splicemod/dhfr/',
               'splicemod_dhfr_all_categories', plot_format), 
        gg, width = 12, height = 5, dpi = lo_res)
