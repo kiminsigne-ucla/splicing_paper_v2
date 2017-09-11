@@ -157,8 +157,8 @@ if __name__ == '__main__':
 
 	exac_data['exon_seq'] = exac_data.apply(lambda x : 
 		extract_exon_seq(x['strand'], x['intron1_len'], 
-			x['exon_len'], x['intron2_len'], x['sequence'], 
-			extend=5, rc=True), axis=1)
+			x['exon_len'], x['intron2_len'], x['unflipped_sequence'], 
+			extend=5, rc=False), axis=1)
 
 	# HAL only valid for exonic mutations, so let's subset our data and make 
 	# our predictions.
