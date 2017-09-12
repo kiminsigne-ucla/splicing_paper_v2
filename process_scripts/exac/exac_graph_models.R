@@ -43,7 +43,7 @@ pr_curve_all %>%
     scale_y_log10(breaks = c(3.6, 10, 100), limits = c(2,100)) +
     annotation_logticks(sides = 'l') +
     labs(x = 'Recall (%)', y = 'Precision (%)', color = '') +
-    theme(legend.position = c(0.60, 0.80),
+    theme(legend.position = c(0.80, 0.80),
           legend.key = element_rect(size = 5),
           legend.key.size = unit(1.25, 'lines'),
           legend.text = element_text(size = 16), 
@@ -52,7 +52,7 @@ pr_curve_all %>%
     geom_hline(yintercept = 3.6, linetype = 'dashed', color = 'grey40') 
 
 ggsave(paste0('../../figs/exac/exac_fig4E_exac_pr_curves', '.tiff'), 
-       height = 4, width = 6, units = 'in', dpi = 600)
+       height = 4, width = 5, units = 'in', dpi = 600)
 
 # split by intron/exon
 ggplot(pr_curve_info, aes(recall, precision)) + geom_line(aes(color = method)) +
