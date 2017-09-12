@@ -11,8 +11,8 @@ load_pkgs(pkgs)
 
 options(stringsAsFactors = F, warn = -1, warnings = -1)
 
-plot_format <- '.png'
-resolution <- 300
+plot_format <- '.tiff'
+hi_res <- 600
 
 # custom color palette
 source("../color_palette.R")
@@ -63,7 +63,7 @@ cons_count$cons_bin <- factor(cons_count$cons_bin, levels=c("low","high"),
 
 
 tiff(paste0("../../figs/exac/exac_fig4A_phastCons_comparison_prop", plot_format),
-    width = 6, height = 5, units = 'in', res = resolution)
+    width = 6, height = 5, units = 'in', res = hi_res)
 
 area.color <- c("one", "two", "one", "one", "two", "one")
 
@@ -87,7 +87,7 @@ p <- cons_count %>%
           axis.text.y = element_text(size = 14, color = "grey20"),
           axis.text.x = element_text(size = 18, color = "black"),
           legend.position = 'none') +
-  scale_fill_manual(values=c("#b90c0d", "black", "#b90c0d", "#b90c0d", "black", "#b90c0d"))
+  scale_fill_manual(values=c("#C00015", "#0A0DB3", "#C00015", "#C00015", "#0A0DB3", "#C00015"))
 
 # The heights that need changing are in positions one less than the plot panels
 pos =  c(subset(g$layout, grepl("panel", g$layout$name), select = t))
@@ -108,7 +108,7 @@ dev.off()
 ###############################################################################
 
 tiff(paste0("../../figs/exac/exac_fig4B_phastCons_abs_num", plot_format),
-    width = 6, height = 5, units = 'in', res = resolution)
+    width = 6, height = 5, units = 'in', res = hi_res)
 
 p <- cons_count %>% 
     ggplot(aes(label_renamed, `SNP count (loss-of-splicing)`, fill = area.color)) +
@@ -128,7 +128,7 @@ p <- cons_count %>%
           axis.text.y = element_text(size = 14, color = "grey20"),
           axis.text.x = element_text(size = 18, color = "black"),
           legend.position = 'none') +
-  scale_fill_manual(values=c("#b90c0d", "black", "#b90c0d", "#b90c0d", "black", "#b90c0d"))
+  scale_fill_manual(values=c("#C00015", "#0A0DB3", "#C00015", "#C00015", "#0A0DB3", "#C00015"))
 
 pos =  c(subset(g$layout, grepl("panel", g$layout$name), select = t))
 for(i in pos) g$heights[i-1] = unit(0.4,"cm")
@@ -174,7 +174,7 @@ fig4c <- data %>%
           axis.text.x = element_text(size = 16, color = "black")) 
 
 ggsave(paste0("../../figs/exac/exac_fig4C_allele_frequency_binned", plot_format), 
-       width = 5.5, height = 4, units = 'in', dpi = resolution)
+       width = 5.5, height = 4, units = 'in', dpi = hi_res)
 
 ###############################################################################
 # Figure 4D, probability of gene being loss-of-function intolerant 
@@ -196,18 +196,17 @@ df <- matrix(c(num_intolerant_lof, num_tolerant_lof,
               dimnames = list(c('pLI >= 0.90', 'pLI < 0.90'),
                               c('dPSI <= -0.50', 'dPSI > -0.50')))
 
-intolerant_ratio =  num_intolerant_lof / (num_intolerant_lof + num_intolerant_not_lof)
-tolerant_ratio = num_tolerant_lof / (num_tolerant_not_lof + num_tolerant_lof)
-ratio.df <-data.frame( fraction_of_strong_LoF_genes = c(intolerant_ratio, tolerant_ratio), tolerance = c("intolerant", "tolerant"))
-# colnames(ratio.df) <- c("ratio")
+intolerant_percent =  num_intolerant_lof / (num_intolerant_lof + num_intolerant_not_lof) * 100
+tolerant_percent = num_tolerant_lof / (num_tolerant_not_lof + num_tolerant_lof) * 100
+percent.df <-data.frame( fraction_of_strong_LoF_genes = c(intolerant_percent, tolerant_percent), tolerance = c("intolerant", "tolerant"))
 
-ratio.df %>%
+percent.df %>%
     ggplot(aes(tolerance, fraction_of_strong_LoF_genes)) + 
-    geom_col(width = 0.375, position = position_dodge(width = 1.8)) + 
-    ylab("Fraction loss-of-splicing SNVs") + xlab("pLI") + ylim(0,0.05) +
-    geom_hline(yintercept = 1050/29531, linetype = "dashed", color = "grey40") +
+    geom_col(width = 0.5) + 
+    ylab("% loss-of-splicing SNVs") + xlab("pLI") + ylim(0,5) +
+    geom_hline(yintercept = 1050/29531*100, linetype = "dashed", color = "grey40") +
     scale_y_continuous(expand = c(0, 0)) + 
-    coord_equal(1/0.015) +
+    # coord_equal(1/1.125) +
     theme(panel.grid.major = element_blank(),
           panel.grid.minor = element_blank(),
           # panel.border = element_rect(fill = NA, colour = "black"),
@@ -219,5 +218,5 @@ ratio.df %>%
 fisher.test(df, alternative = 'less')
 
 ggsave(paste0("../../figs/exac/exac_fig4D_pLI_enrichment", plot_format), 
-       width = 2.5, height = 4, units = 'in', dpi = resolution)
+       width = 2.5, height = 4, units = 'in', dpi = hi_res)
 
