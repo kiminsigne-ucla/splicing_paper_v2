@@ -38,7 +38,7 @@ ref <- read.table('../../ref/exac/exac_ref_all.txt', sep = '\t',
     extract(length, c("intron1_len","exon_len","intron2_len"),
             "([[:alnum:]]+).([[:alnum:]]+).([[:alnum:]]+)", convert = T)
 
-ref <- ref %>% 
+ctrl <- ref %>% 
     # the BRK controls have different formatting for reference alleles, 
     # separate these and deal with separately
     filter(endsWith(id, 'BRK')) %>% 

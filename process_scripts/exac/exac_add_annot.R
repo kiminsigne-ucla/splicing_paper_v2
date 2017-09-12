@@ -77,10 +77,9 @@ write.table(ref %>%
 # write SNP file for 0-based hg19 coordinates
 write.table(file = '../../processed_data/exac/snp_positions_hg19.bed', 
             x = data %>% 
-                na.omit() %>% 
-                mutate(chr = paste0('chr', chr),
-                       snp_position_0based_start = snp_position - 1) %>% 
-                select(chr, snp_position_0based_start, snp_position, id),
+                mutate(snp_position_0based_start = snp_position - 1) %>% 
+                select(chr, snp_position_0based_start, snp_position, id) %>% 
+                na.omit(),
             sep = '\t', col.names = F, row.names = F, quote = F)
 
 # system(paste('while read line; do tabix',
