@@ -296,8 +296,8 @@ gg <- data %>%
   stat_summary(fun.y = mean, geom = "point", size = 2, color = "black") +
   theme( axis.title.x = element_text(size = 16, vjust = -2, hjust = 1), 
          axis.title.y = element_text(size = 18, vjust = 40),
-         axis.text.y = element_text(color = "grey20"), 
          axis.text.x = element_text(size = 18, color = "grey20"), 
+         axis.text.y = element_text(color = "grey20"), 
          legend.position = 'none')
 
 ggsave(paste0('../../figs/splicemod/smn1/splicemod_smn1_hal', 
