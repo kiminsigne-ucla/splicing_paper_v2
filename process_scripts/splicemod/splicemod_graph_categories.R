@@ -17,7 +17,7 @@ options(stringsAsFactors = F, warn = -1, warnings = -1)
 plot_format_main <- '.tiff'
 plot_format <- '.png'
 hi_res <- 600
-lo_res <- 100
+lo_res <- 300
 axis_text <- 12
 general_text <- 12
 jitter_alpha <- 0.50
@@ -292,7 +292,7 @@ gg <- data %>%
        y = expression(paste(Delta, ' inclusion index')),
        color = expression(index["WT "])) +
   ggsignif::geom_signif(comparisons = list(c('down', 'up')),
-                        test = 't.test', map_signif_level = T) +
+                        test = 't.test', map_signif_level = T, tip_length = 0) +
   stat_summary(fun.y = mean, geom = "point", size = 2, color = "black") +
   theme( axis.title.x = element_text(size = 16, vjust = -2, hjust = 1), 
          axis.title.y = element_text(size = 18, vjust = 40),
@@ -312,13 +312,13 @@ gg <- data %>%
   geom_violin(alpha = 0, color = "grey35") +
   scale_colour_gradientn(limits = c(-0.005, 1), 
                          breaks = seq(0, 1, by = 0.25), colors = pal(321)) + 
-  labs(x = expression(paste(Delta, ' avg. exonic hexamer score')), 
+  labs(x = expression(paste(Delta, ' avg. exonic hexamer score (HAL)')), 
        y = expression(paste(Delta, ' inclusion index')),
        color = expression(index["WT "])) +
   ggsignif::geom_signif(comparisons = list(c('down', 'up')),
-                        test = 't.test', map_signif_level = T) +
+                        test = 't.test', map_signif_level = T, tip_length = 0) +
   stat_summary(fun.y = mean, geom = "point", size = 2, color = "black") +
-  theme(axis.title.x = element_text(size = 16, vjust = -2, hjust = 1), 
+  theme(axis.title.x = element_text(size = 14, vjust = -2, hjust = 1), 
         axis.title.y = element_text(size = 18, vjust = 40),
         axis.text.y = element_text(color = "grey20"), 
         axis.text.x = element_text(size = 18, color = "grey20"),  
@@ -361,13 +361,13 @@ gg <- data %>%
   geom_violin(alpha = 0, color = "grey35") +
   scale_colour_gradientn(limits = c(-0.005, 1), 
                          breaks = seq(0, 1, by = 0.25), colors = pal(321)) +
-  labs(x = expression(paste(Delta, ' avg. exonic hexamer score\n(Ke 2011)')), 
+  labs(x = expression(paste(Delta, ' avg. exonic hexamer score (Ke)')), 
        y = expression(paste(Delta, ' inclusion index')),
        color = expression(index["WT "])) +
   ggsignif::geom_signif(comparisons = list(c('down', 'up')),
-                        test = 't.test', map_signif_level = T) +
-  stat_summary(fun.y = mean, geom = "point", size = 2, color="black") +
-  theme(axis.title.x = element_text(size = 16, vjust = -2, hjust = 1), 
+                        test = 't.test', map_signif_level = T, tip_length = 0) +
+  stat_summary(fun.y = mean, geom = "point", size = 2, color = "black") +
+  theme(axis.title.x = element_text(size = 15, vjust = -2, hjust = 1.5), 
         axis.title.y = element_text(size = 18, vjust = 40),
         axis.text.y = element_text(color = "grey20"), 
         axis.text.x = element_text(size = 18, color = "grey20"),  
@@ -384,13 +384,13 @@ gg <- data %>%
   geom_violin(alpha = 0, color = "grey35") +
   scale_colour_gradientn(limits = c(-0.005, 1), 
                          breaks = seq(0, 1, by = 0.25), colors = pal(321)) +
-  labs(x = expression(paste(Delta, 'avg. exonic hexamer score\n(Ke 2011)')), 
+  labs(x = expression(paste(Delta, ' avg. exonic hexamer score (Ke)')), 
        y = expression(paste(Delta, ' inclusion index')),
        color = expression(index["WT "])) +
   ggsignif::geom_signif(comparisons = list(c('down', 'up')),
-                        test = 't.test', map_signif_level = T) +
-  stat_summary(fun.y = mean, geom = "point", size = 2, color="black") +
-  theme(axis.title.x = element_text(size = 16, vjust = -2, hjust = 1), 
+                        test = 't.test', map_signif_level = T, tip_length = 0) +
+  stat_summary(fun.y = mean, geom = "point", size = 2, color = "black") +
+  theme(axis.title.x = element_text(size = 15, vjust = -2, hjust = 1.5), 
         axis.title.y = element_text(size = 18, vjust = 40),
         axis.text.y = element_text(color = "grey20"), 
         axis.text.x = element_text(size = 18, color = "grey20"),  
