@@ -14,6 +14,7 @@ options(stringsAsFactors = F, warn = -1, warnings = -1)
 plot_format <- '.png'
 plot_format_main <- '.tiff'
 hi_res <- 600
+lo_res <- 300
 
 color_cadd = '#FF9912'
 color_dann = '#941494'
@@ -65,7 +66,8 @@ pr_curve_all %>%
           axis.title.x = element_text(size = 19, vjust = -1.5),
           axis.text = element_text(size = 14, color = 'grey20')) +
     geom_hline(yintercept = 3.6, linetype = 'dashed', color = 'grey40') +
-    scale_color_manual(values=c(color_cadd, color_dann, color_fathmm, color_fitcons, color_linsight, color_spanr))
+    scale_color_manual(values=c(color_cadd, color_dann, color_fathmm, 
+                                color_fitcons, color_linsight, color_spanr))
 
 ggsave(paste0('../../figs/exac/exac_fig4E_exac_pr_curves_with_legend', plot_format_main), 
        height = 4, width = 4, units = 'in', dpi = hi_res)
@@ -93,7 +95,8 @@ ggsave(paste0('../../figs/exac/exac_fig4E_exac_pr_curves_no_legend', plot_format
 pr_curve_info %>%
   filter(method != 'fathmm_noncoding') %>%# pick one FATHMM score method
     ggplot(aes(recall, precision)) + geom_line(aes(color = method)) +
-    scale_y_log10(breaks = c(0.01, 0.1, 1, 10, 100), limits = c(0.001, 10)) + 
+    # scale_y_log10() +
+    scale_y_log10(breaks = c(0.01, 0.1, 1, 10, 100)) +
     annotation_logticks(sides = 'l') +
     facet_grid(~ type) +
     scale_color_manual(values=c(color_cadd, color_dann, color_fathmm, 
@@ -121,8 +124,11 @@ roc_curve_intron <- read.table('../../processed_data/exac/exac_models_roc_curves
 roc_curve_info_main <- bind_rows(roc_curve_all, roc_curve_exon) %>% 
     bind_rows(roc_curve_intron) %>%
   filter(method != 'fathmm_noncoding') %>%
-  mutate(method = factor(method, labels = c('CADD', 'DANN', 'FATHMM-MKL', 'fitCons', 'HAL', 'LINSIGHT', 'SPANR')),
-         type = factor(type, levels = c('exon', 'intron', 'all'), labels = c('Exonic SNV', 'Intronic SNV', 'All SNV'))) 
+  mutate(method = factor(method, labels = c('CADD', 'DANN', 'FATHMM-MKL', 
+                                            'fitCons', 'HAL', 'LINSIGHT', 
+                                            'SPANR')),
+         type = factor(type, levels = c('exon', 'intron', 'all'), 
+                       labels = c('Exonic SNV', 'Intronic SNV', 'All SNV'))) 
                                                                                      
 roc_curve_all %>% 
     filter(method != 'fathmm_noncoding') %>% # pick one FATHMM score method
