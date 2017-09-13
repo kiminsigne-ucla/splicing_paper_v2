@@ -367,14 +367,14 @@ gg <- data %>%
   ggsignif::geom_signif(comparisons = list(c('down', 'up')),
                         test = 't.test', map_signif_level = T, tip_length = 0) +
   stat_summary(fun.y = mean, geom = "point", size = 2, color = "black") +
-  theme(axis.title.x = element_text(size = 15, vjust = -2, hjust = 1.5), 
+  theme(axis.title.x = element_text(size = 15, vjust = -2, hjust = 1), 
         axis.title.y = element_text(size = 18, vjust = 40),
         axis.text.y = element_text(color = "grey20"), 
         axis.text.x = element_text(size = 18, color = "grey20"),  
         legend.position = 'none')
 
 ggsave(paste0('../../figs/splicemod/smn1/splicemod_smn1_Ke11', plot_format),
-       gg, width = 3, height = 3, dpi = lo_res, scale = 1.3)
+       gg, width = 2.5, height = 3, dpi = lo_res, scale = 1.3)
 
 # DHFR intron backbone
 gg <- data %>%
@@ -390,14 +390,14 @@ gg <- data %>%
   ggsignif::geom_signif(comparisons = list(c('down', 'up')),
                         test = 't.test', map_signif_level = T, tip_length = 0) +
   stat_summary(fun.y = mean, geom = "point", size = 2, color = "black") +
-  theme(axis.title.x = element_text(size = 15, vjust = -2, hjust = 1.5), 
+  theme(axis.title.x = element_text(size = 15, vjust = -2, hjust = 1), 
         axis.title.y = element_text(size = 18, vjust = 40),
         axis.text.y = element_text(color = "grey20"), 
         axis.text.x = element_text(size = 18, color = "grey20"),  
         legend.position = 'none')
 
 ggsave(paste0('../../figs/splicemod/dhfr/splicemod_dhfr_Ke11', plot_format),
-       gg, width = 3, height = 3, dpi = lo_res, scale = 1.3)
+       gg, width = 2.5, height = 3, dpi = lo_res, scale = 1.3)
 
 ########################
 # Legend for Figure
