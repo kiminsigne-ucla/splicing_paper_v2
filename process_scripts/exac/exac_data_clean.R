@@ -169,7 +169,8 @@ data <- data_all %>%
            v2_dpsi_R1 = v2_index_R1 - nat_v2_index_R1,
            v2_dpsi_R2 = v2_index_R2 - nat_v2_index_R2,
            nat_v1_index = (nat_v1_index_R1 + nat_v1_index_R2) / 2, 
-           nat_v2_index = (nat_v2_index_R1 + nat_v2_index_R2) / 2 ) %>% 
+           nat_v2_index = (nat_v2_index_R1 + nat_v2_index_R2) / 2,
+           nat_seq = unflipped_seq[sub_id == '000']) %>% 
     filter(abs(nat_v2_index_R1 - nat_v2_index_R2) <= rep_agreement) %>%
     ungroup()
 

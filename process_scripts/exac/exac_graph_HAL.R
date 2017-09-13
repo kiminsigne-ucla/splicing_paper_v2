@@ -70,3 +70,4 @@ specificity <- (num_true_neg / (num_true_neg + num_false_pos)) * 100
 print(paste0('precision:', precision))
 print(paste0('recall/sensitivity:', recall))
 print(paste0('specificity:', specificity))
+

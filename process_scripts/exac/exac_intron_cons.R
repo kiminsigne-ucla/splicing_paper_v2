@@ -21,8 +21,10 @@ data <- read.table('../../processed_data/exac/exac_data_clean.txt',
 intron_coords <- data %>% 
     filter(category == 'mutant') %>% 
     distinct(ensembl_id, .keep_all = T) %>% 
-    mutate(intron1_start = start_hg38, intron1_end = start_hg38 + intron1_len - 1,
-           intron2_start = start_hg38 + intron1_len + exon_len, intron2_end = end_hg38) %>% 
+    mutate(intron1_start = start_hg38_0based, 
+           intron1_end = start_hg38_0based + intron1_len - 1,
+           intron2_start = start_hg38_0based + intron1_len + exon_len, 
+           intron2_end = end_hg38_0based) %>% 
     select(id, ensembl_id, chr, strand, intron1_len, intron2_len, intron1_start:intron2_end)
 
 intron_coords %>% 
@@ -127,7 +129,7 @@ ggplot(data, aes(downstr_intron_mean_cons, downstr_intron_100_mean_cons)) +
 data %>% 
     filter(category == 'natural') %>% 
     distinct(ensembl_id, .keep_all = T) %>% 
-    mutate(exon_start_hg38 = start_hg38 + intron1_len,
+    mutate(exon_start_hg38 = start_hg38_0based + intron1_len,
            exon_end_hg38 = exon_start_hg38 + exon_len - 1,
            acc_intron_coord = ifelse(strand == '+',
                                      paste(exon_start_hg38 - 21, exon_start_hg38 - 1, sep = '-'),
