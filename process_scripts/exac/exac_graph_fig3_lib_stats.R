@@ -6,11 +6,13 @@ load_pkgs <- function(pkgs){
     }
 }
 
-pkgs <- c('dplyr', 'tidyr', 'ggplot2', 'cowplot', 'forcats', 'gridExtra', 'grid')
+pkgs <- c('dplyr', 'tidyr', 'ggplot2', 'cowplot', 'forcats', 'gridExtra', 'grid', 'Unicode')
 load_pkgs(pkgs)
 
 options(stringsAsFactors = F, warn = -1, warnings = -1)
 
+hi_res <- 600
+plot_format_main <- '.tiff'
 plot_format <- '.png'
 
 # custom color palette
@@ -43,29 +45,33 @@ gg1 <-
     data_num_mut_per_exon %>% 
     ggplot(aes(x = ensembl_id, y = num_muts_per_exon, group = 1)) + geom_line() + 
     labs(x = '', y = 'SNV count') +
-    theme_classic() + 
     theme(
-        plot.margin = unit(c(1,0,0,0), units = "lines"),
-        panel.grid = element_blank(),
-        plot.title = element_text(size = 16, face="bold", margin = margin(50, 0, 0, 50)),
-        axis.title.y = element_text(size = 20),
+        plot.title = element_text(size = 16, face = "bold", margin = margin(50, 0, 0, 50)),
         axis.title.x = element_text(size = 20),
-        axis.line = element_line(colour = "grey20", size = 0.25),
-        axis.text.y = element_text(colour = "grey20", size = 18, angle = 0, hjust = .5, vjust = .5) ,
+        axis.title.y = element_text(size = 20),
+        axis.line = element_line(colour = "grey50", size = 0.1),
         axis.text.x = element_blank(),
-        axis.ticks.x= element_blank(),
+        axis.text.y = element_text(colour = "black", size = 13, angle = 0, hjust = .5, vjust = .5),
+        axis.ticks.x = element_blank(),
+        axis.ticks.y = element_line(colour = "grey50"),
         legend.background = element_rect(),
-        legend.title = element_text(size = 18, face="bold"),
+        legend.title = element_text(size = 18, face = "bold"),
         legend.key.size = unit(8, "mm"),
         legend.key.width = unit(4, "mm"),
-        legend.text = element_text(size = 18),
-        legend.position = 'none')
-
+        legend.text = element_text(size = 18, color = 'grey20'),
+        legend.position = 'none',
+        plot.margin = unit(c(1,0,0,0), units = "lines"),
+        panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank()) +
+    annotate('text', x = 1125, y = 35, size = 6.5, 
+             label = paste("italic(n)"), parse = TRUE) +
+    annotate('text', x = 1730, y = 35.6, size = 6.5, 
+             label = paste("=", data_snps %>% nrow()))
 
 # jitter formatting function
 delta.psi.jitter <- function(data, x, y) {
     ggplot(data, aes_string(x = x, y = y), na.rm = TRUE) + 
-        geom_jitter(aes(color = nat_v2_index), alpha = 0.10) + 
+        geom_jitter(aes(color = nat_v2_index), alpha = 0.2) + 
         scale_colour_gradientn(limits = c(-0.005,1), 
                                breaks = seq(0, 1, by = 0.25), 
                                colors = pal(321),
@@ -73,19 +79,20 @@ delta.psi.jitter <- function(data, x, y) {
         scale_y_continuous(limits = c(-1, 1), breaks = seq(-1, 1, by = 0.5)) + 
         xlab("") + 
         ylab(expression(paste(Delta, ' inclusion index'))) +
-        theme_classic() + 
         theme(
-            plot.margin = unit(c(0.0,0.5,0.2,0.2), units = "lines"),
-            panel.grid = element_blank(),
             plot.title = element_text(size = 16, margin = margin(0, 0, 10, 10)),
+            axis.title.x = element_text(size = 18),
             axis.title.y = element_text(size = 20, vjust = 20),
-            axis.title.x = element_text(size = 20),
-            axis.text.y = element_text(colour = "grey20",size = 18, angle = 0,
+            axis.text.y = element_text(colour = "grey20", 
+                                       size = 13, angle = 0,
                                        hjust = 0.5, vjust = 0.5),
-            axis.line = element_line(colour = "grey20", size = 0.25),
-            axis.text.x = element_text(colour = "grey20", size = 24, angle = 0,
-                                       hjust = 0.5, margin = margin(5, 0, 0, 0)),
-            axis.ticks.x = element_blank()
+            axis.line = element_line(colour = "grey50", size = 0.1),
+            axis.ticks.x = element_blank(),
+            axis.ticks.y = element_line(colour = "grey50"),
+            plot.margin = unit(c(0.0,0.5,0.2,0.2), units = "lines"),
+            panel.grid.major = element_blank(),
+            panel.grid.minor = element_blank()
+            # legend.position = 'none'
         )  
 }
 
@@ -95,22 +102,41 @@ gg2 <- data_snps %>%
     inner_join(data_num_mut_per_exon, by = 'ensembl_id') %>% 
     mutate(ensembl_id = fct_reorder(ensembl_id, num_muts_per_exon, .desc = T)) %>%
     delta.psi.jitter("ensembl_id", "v2_dpsi") + 
-    theme(axis.text.x = element_blank() ) + 
+    theme(axis.text.x = element_blank()) +
     xlab("Wild-type exon ID") + 
-    theme(legend.position = "none") +
     geom_hline(yintercept = dpsi_threshold, linetype = "dashed", color = "grey20") 
 
+gg2_no_legend <- gg2 + theme(legend.position = 'none')
+
+########################
+# Legend for Figure
+########################
+# grab legend
+g_legend <- function(a.gplot){
+  tmp <- ggplot_gtable(ggplot_build(a.gplot))
+  leg <- which(sapply(tmp$grobs, function(x) x$name) == "guide-box")
+  legend <- tmp$grobs[[leg]]
+  legend
+}
+
+legend <- g_legend(gg2)
+tiff(paste0('../../figs/exac/legend_3a', plot_format_main), 
+     width = 20, height = 40, units = 'mm', res = hi_res)
+grid.newpage()
+grid.draw(legend)
+dev.off()
+
 # combine into one graph
-g <- rbind(ggplotGrob(gg1), ggplotGrob(gg2), size = 'last')
+g <- rbind(ggplotGrob(gg1), ggplotGrob(gg2_no_legend), size = 'last')
 id <- g$layout$t[g$layout$name == "panel"]
 g$heights[id] <- unit(c(0.6, 2.4), 'null')
 grid.newpage()
 grid.draw(g)
 
 ggsave( 
-    paste0('../../figs/exac/exac_rank_order_splicing_3A', '.tiff'), 
+    paste0('../../figs/exac/exac_rank_order_splicing_3A', plot_format_main), 
     plot = g,
-    width = 4, height = 6, units = 'in', dpi = 600
+    width = 3, height = 6, units = 'in', dpi = hi_res
 )
 
 ###############################################################################
@@ -125,9 +151,12 @@ data <- data %>%
     mutate(rel_pos_binned = cut(rel_position_scaled, 
                                 breaks = seq(-0.80, 1.80, 0.01)))
 
-group.colors <- c("5' intron" = "#b90c0d", # orange 
-                  "exon" = "black",#838383",   # belize
-                  "3' intron" = "#b90c0d") #b90c0d") # orangefac364
+color_intron = "#b90c0d"
+color_exon = "black"
+
+group.colors <- c("5' intron" = color_intron,  
+                  "exon" = color_exon,  
+                  "3' intron" = color_intron) 
 
 index_boxplot <- data %>% 
     filter(category == "mutant") %>% 
@@ -137,8 +166,10 @@ index_boxplot <- data %>%
                  outlier.colour = "black", notch = FALSE) +
     theme(legend.position = "none",
           axis.text.x = element_blank(), 
-          axis.title.y = element_text(margin = margin(0, 0, -65, -65), size = 20),
-          axis.title.x =  element_text(margin = margin(0, 0, -45, -65), size = 20),
+          axis.title.y = element_text(margin = 
+                                        margin(0, 0, -65, -65), size = 20),
+          axis.title.x =  element_text(margin = 
+                                         margin(0, 0, -45, -65), size = 20),
           axis.text.y = element_text(colour = "grey20", size = 16),
           axis.line.x = element_blank(),
           axis.ticks.x = element_blank()) +
@@ -179,14 +210,14 @@ g_legend <- function(a.gplot){
     legend
 }
 legend <- g_legend(index_tile_with_legend)
-tiff('../../figs/exac/fig3b_legend.tiff', width = 350)
+tiff('../../figs/exac/legend_3b.tiff', width = 25, height = 27.5, units = 'mm', res = hi_res)
 grid.newpage()
 grid.draw(legend)
 dev.off()
 
 index_tile <- index_tile_with_legend + theme(legend.position = 'none')
 
-ggsave(paste0('../../figs/exac/exac_index_tile', ".svg"),
+ggsave(paste0('../../figs/exac/exac_index_tile', '.svg'),
     width = 11, height = 0.8, units = 'in')
 
 
@@ -341,7 +372,7 @@ nat_cons_tile <- exac_nat_cons %>%
     labs(y = '', x = '', fill = '') +
     viridis::scale_fill_viridis()
 
-ggsave(paste0("../../figs/exac/exac_phastCons_nat_tile", ".svg"), 
+ggsave(paste0("../../figs/exac/exac_phastCons_nat_tile", '.svg'), 
        width = 11, height = 0.8, units = 'in')
 
 ###############################################################################
@@ -369,7 +400,7 @@ snp_density_tile <- ref %>%
     viridis::scale_fill_viridis() +
     labs(x = '', y = '', fill = '')
 
-ggsave(paste0('../../figs/exac/exac_snv_density', ".svg"),
+ggsave(paste0('../../figs/exac/exac_snv_density', '.svg'),
     width = 11, height = 0.8, units = 'in')
 
 

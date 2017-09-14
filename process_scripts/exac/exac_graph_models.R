@@ -11,8 +11,9 @@ load_pkgs(pkgs)
 
 options(stringsAsFactors = F, warn = -1, warnings = -1)
 
-plot_format <- '.png'
+dir <- '../../figs/exac/'
 plot_format_main <- '.tiff'
+plot_format <- '.png'
 hi_res <- 600
 lo_res <- 300
 
@@ -27,16 +28,19 @@ color_hal = '#000080'
 ###############################################################################
 # precision-recall curves
 ###############################################################################
-pr_curve_all <- read.table('../../processed_data/exac/exac_models_pr_curves_all.txt', 
+pr_curve_all <- 
+  read.table('../../processed_data/exac/exac_models_pr_curves_all.txt', 
                            sep = '\t', header = T) %>% 
     filter(method != 'hal') %>% # only scores exonic variants
     mutate(type = 'all')
 
-pr_curve_exon <- read.table('../../processed_data/exac/exac_models_pr_curves_exon.txt', 
+pr_curve_exon <- 
+  read.table('../../processed_data/exac/exac_models_pr_curves_exon.txt', 
                             sep = '\t', header = T) %>% 
     mutate(type = 'exon')
 
-pr_curve_intron <- read.table('../../processed_data/exac/exac_models_pr_curves_intron.txt', 
+pr_curve_intron <- 
+  read.table('../../processed_data/exac/exac_models_pr_curves_intron.txt', 
                               sep = '\t', header = T) %>% 
     mutate(type = 'intron')
 
@@ -46,7 +50,8 @@ pr_curve_info <- bind_rows(pr_curve_all, pr_curve_exon) %>%
 # all variants
 pr_curve_all %>% 
     filter(method != 'fathmm_noncoding') %>% # pick one FATHMM score method
-    mutate(method = factor(method, labels = c('CADD', 'DANN', 'FATHMM-MKL', 'fitCons', 
+    mutate(method = factor(method, 
+                           labels = c('CADD', 'DANN', 'FATHMM-MKL', 'fitCons', 
                                               'LINSIGHT', 'SPANR'))) %>% 
     ggplot(aes(recall, precision)) + 
     geom_line(aes(color = method), size = 1.25) + 
@@ -55,26 +60,23 @@ pr_curve_all %>%
     annotation_logticks(sides = 'l') +
     labs(x = 'Recall (%)', y = 'Precision (%)', color = '') +
     theme(
-          # legend.position = c(0.50, 0.80),
           legend.position = 'none',
-          legend.key = element_rect(size = 5),
-          legend.key.size = unit(0.6, 'lines'),
-          legend.key.height = unit(0.2, "inch"),
-          legend.key.width = unit(0.3, "inch"),
-          legend.text = element_text(size = 14), 
-          axis.title.y = element_text(size = 19, vjust = -1.5),
           axis.title.x = element_text(size = 19, vjust = -1.5),
+          axis.title.y = element_text(size = 19, vjust = -1.5),
           axis.text = element_text(size = 14, color = 'grey20')) +
     geom_hline(yintercept = 3.6, linetype = 'dashed', color = 'grey40') +
-    scale_color_manual(values=c(color_cadd, color_dann, color_fathmm, 
+    scale_color_manual(values = c(color_cadd, color_dann, color_fathmm, 
                                 color_fitcons, color_linsight, color_spanr))
 
-ggsave(paste0('../../figs/exac/exac_fig4E_exac_pr_curves_with_legend', plot_format_main), 
+ggsave(paste0(dir, 'exac_fig4E_exac_pr_curves_with_legend', 
+              plot_format_main), 
        height = 4, width = 4, units = 'in', dpi = hi_res)
+       
 
 pr_curve_all %>% 
   filter(method != 'fathmm_noncoding') %>% # pick one FATHMM score method
-  mutate(method = factor(method, labels = c('CADD', 'DANN', 'FATHMM-MKL', 'fitCons', 
+  mutate(method = factor(method, 
+                         labels = c('CADD', 'DANN', 'FATHMM-MKL', 'fitCons', 
                                             'LINSIGHT', 'SPANR'))) %>% 
   ggplot(aes(recall, precision)) + 
   geom_line(aes(color = method), size = 1.25) + 
@@ -86,14 +88,21 @@ pr_curve_all %>%
         axis.text = element_text(size = 14, color = 'grey20'), 
         legend.position = 'none') +
   geom_hline(yintercept = 3.6, linetype = 'dashed', color = 'grey40') +
-  scale_color_manual(values=c(color_cadd, color_dann, color_fathmm, color_fitcons, color_linsight, color_spanr))
+  scale_color_manual(values = c(color_cadd, color_dann, color_fathmm, 
+                                color_fitcons, color_linsight, color_spanr))
 
-ggsave(paste0('../../figs/exac/exac_fig4E_exac_pr_curves_no_legend', plot_format_main), 
-       height = 4, width = 4, units = 'in', dpi = hi_res)
+ggsave(paste0('../../figs/exac/exac_fig4E_exac_pr_curves_no_legend', 
+       plot_format_main), height = 4, width = 4, units = 'in', dpi = hi_res)
 
 # split by intron/exon
 pr_curve_info %>%
   filter(method != 'fathmm_noncoding') %>%# pick one FATHMM score method
+  mutate(method = factor(method, labels = c('CADD', 'DANN', 'FATHMM-MKL', 
+                                            'fitCons', 'HAL', 'LINSIGHT', 
+                                            'SPANR')),
+         type   = factor(type, levels = c('exon', 'intron', 'all'), 
+                         labels = c('Exonic SNV', 'Intronic SNV', 'All SNV'))) 
+
     ggplot(aes(recall, precision)) + geom_line(aes(color = method)) +
     # scale_y_log10() +
     scale_y_log10(breaks = c(0.01, 0.1, 1, 10, 100)) +
@@ -102,38 +111,41 @@ pr_curve_info %>%
     scale_color_manual(values=c(color_cadd, color_dann, color_fathmm, 
                                 color_fitcons, color_hal, color_linsight, color_spanr))
 
-ggsave(paste0('../../figs/exac/exac_fig4E_exac_pr_curves_type', plot_format), 
+ggsave(paste0(dir, 'exac_fig4E_exac_pr_curves_type', plot_format), 
        height = 4.5, width = 12, units = 'in', dpi = lo_res)
 
 ###############################################################################
 # ROC curves
 ###############################################################################
-roc_curve_all <- read.table('../../processed_data/exac/exac_models_roc_curves_all.txt', 
+roc_curve_all <- 
+  read.table('../../processed_data/exac/exac_models_roc_curves_all.txt', 
                             sep = '\t', header = T) %>% 
     filter(method != 'hal') %>% 
     mutate(type = 'all')
 
-roc_curve_exon <- read.table('../../processed_data/exac/exac_models_roc_curves_exon.txt', 
+roc_curve_exon <- 
+  read.table('../../processed_data/exac/exac_models_roc_curves_exon.txt', 
                              sep = '\t', header = T) %>% 
     mutate(type = 'exon')
 
-roc_curve_intron <- read.table('../../processed_data/exac/exac_models_roc_curves_intron.txt', 
+roc_curve_intron <- 
+  read.table('../../processed_data/exac/exac_models_roc_curves_intron.txt', 
                                sep = '\t', header = T) %>% 
     mutate(type = 'intron')
 
 roc_curve_info_main <- bind_rows(roc_curve_all, roc_curve_exon) %>% 
     bind_rows(roc_curve_intron) %>%
-  filter(method != 'fathmm_noncoding') %>%
-  mutate(method = factor(method, labels = c('CADD', 'DANN', 'FATHMM-MKL', 
+    filter(method != 'fathmm_noncoding') %>%
+    mutate(method = factor(method, labels = c('CADD', 'DANN', 'FATHMM-MKL', 
                                             'fitCons', 'HAL', 'LINSIGHT', 
                                             'SPANR')),
-         type = factor(type, levels = c('exon', 'intron', 'all'), 
+           type   = factor(type, levels = c('exon', 'intron', 'all'), 
                        labels = c('Exonic SNV', 'Intronic SNV', 'All SNV'))) 
                                                                                      
 roc_curve_all %>% 
     filter(method != 'fathmm_noncoding') %>% # pick one FATHMM score method
-    mutate(method = factor(method, labels = c('CADD', 'DANN', 'FATHMM-MKL', 'fitCons', 
-                                              'LINSIGHT', 'SPANR'))) %>% 
+    mutate(method = factor(method, labels = c('CADD', 'DANN', 'FATHMM-MKL', 
+                                              'fitCons', 'LINSIGHT', 'SPANR'))) %>% 
     ggplot(aes(false_positive_rate, true_positive_rate)) + 
     geom_line(aes(color = method)) +
     labs(color = '', x = 'False positive rate', y = 'True positive rate')
@@ -143,11 +155,10 @@ roc_curve_all %>%
 ggplot(roc_curve_info_main, aes(false_positive_rate, true_positive_rate)) + 
     geom_line(aes(color = method), size = 1.25) +
     geom_abline(intercept = 0, linetype = 'dashed', color = 'grey50') +
-    facet_grid(~type) +
+    facet_grid( ~ type) +
     theme(strip.text = element_text(size = 18.5),
-          strip.background = element_rect(fill = "#E0E0E0", color = "white"),
-          panel.grid.major = element_blank(),
-          panel.grid.minor = element_blank(),
+          strip.background = element_rect(fill = "#E8E8E8", color = "white"),
+          panel.grid = element_blank(),
           panel.spacing = unit(1, "lines"),
           panel.border = element_rect(fill = NA, color = "grey50"),
           axis.title.y = element_text(size = 19, vjust = 2.75),
@@ -165,23 +176,23 @@ ggplot(roc_curve_info_main, aes(false_positive_rate, true_positive_rate)) +
     ) +
     labs(x = 'False positive rate', y = 'True positive rate') +
     scale_color_manual(values = c(color_cadd, color_dann, color_fathmm, 
-                                  color_fitcons, color_hal, color_linsight, color_spanr)) +
+                                  color_fitcons, color_hal, 
+                                  color_linsight, color_spanr)) +
     scale_y_continuous(breaks = c(0, 0.2, 0.4, 0.6, 0.8, 1.0)) +
     scale_x_continuous(breaks = c(0, 0.2, 0.4, 0.6, 0.8, 1.0)) +
     guides(colour = guide_legend(override.aes = list(size = 3)))
     
 
-ggsave(paste0('../../figs/exac/exac_fig4E_exac_roc_curves_type_no_legend', plot_format_main), 
+ggsave(paste0(dir, 'exac_fig4E_exac_roc_curves_type_no_legend', plot_format_main), 
        height = 4, width = 10, units = 'in', dpi = hi_res)
 
 ggplot(roc_curve_info_main, aes(false_positive_rate, true_positive_rate)) + 
   geom_line(aes(color = method), size = 1.25) +
   geom_abline(intercept = 0, linetype = 'dashed', color = 'grey50') +
-  facet_grid(~type) +
+  facet_grid( ~ type) +
   theme(strip.text = element_text(size = 18.5),
-        strip.background = element_rect(fill = "#E0E0E0", color = "white"),
-        panel.grid.major = element_blank(),
-        panel.grid.minor = element_blank(),
+        strip.background = element_rect(fill = "#E8E8E8", color = "white"),
+        panel.grid = element_blank(),
         panel.spacing = unit(1, "lines"),
         panel.border = element_rect(fill = NA, color = "grey50"),
         axis.title.y = element_text(size = 19, vjust = 2.75),
@@ -199,11 +210,12 @@ ggplot(roc_curve_info_main, aes(false_positive_rate, true_positive_rate)) +
   ) +
   labs(x = 'False positive rate', y = 'True positive rate') +
   scale_color_manual(values = c(color_cadd, color_dann, color_fathmm, 
-                                color_fitcons, color_hal, color_linsight, color_spanr)) +
+                                color_fitcons, color_hal, 
+                                color_linsight, color_spanr)) +
   scale_y_continuous(breaks = c(0, 0.2, 0.4, 0.6, 0.8, 1.0)) +
   scale_x_continuous(breaks = c(0, 0.2, 0.4, 0.6, 0.8, 1.0)) +
   guides(colour = guide_legend(override.aes = list(size = 3)))
 
 
-ggsave(paste0('../../figs/exac/exac_fig4E_exac_roc_curves_type_legend', plot_format_main), 
+ggsave(paste0(dir, 'exac_fig4E_exac_roc_curves_type_legend', plot_format_main),
        height = 4, width = 12, units = 'in', dpi = hi_res)

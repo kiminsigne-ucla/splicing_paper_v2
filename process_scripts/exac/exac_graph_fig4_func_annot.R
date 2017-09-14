@@ -6,7 +6,7 @@ load_pkgs <- function(pkgs){
     }
 }
 
-pkgs <- c('dplyr', 'tidyr', 'ggplot2', 'cowplot', 'grid', 'gtable')
+pkgs <- c('dplyr', 'tidyr', 'ggplot2', 'cowplot', 'grid', 'gtable', 'ggsignif')
 load_pkgs(pkgs)
 
 options(stringsAsFactors = F, warn = -1, warnings = -1)
@@ -112,6 +112,7 @@ cons_count %>%
           axis.title.y = element_text(size = 19, vjust = 2.75),
           axis.text.y = element_text(size = 14, color = "grey20"),
           axis.text.x = element_text(size = 18, color = "black"),
+          axis.ticks.x = element_blank(),
           legend.position = c(0.4,0.9),
           legend.title = element_blank(),
           legend.text = element_text(size = 16),
@@ -147,7 +148,7 @@ df <- matrix(c(num_intolerant_lof, num_tolerant_lof,
 
 intolerant_percent =  num_intolerant_lof / (num_intolerant_lof + num_intolerant_not_lof) * 100
 tolerant_percent = num_tolerant_lof / (num_tolerant_not_lof + num_tolerant_lof) * 100
-percent.df <-data.frame( fraction_of_strong_LoF_genes = c(intolerant_percent, tolerant_percent), tolerance = c("intolerant", "tolerant"))
+percent.df <-data.frame( fraction_of_strong_LoF_genes = c(intolerant_percent, tolerant_percent), tolerance = c('intolerant', 'tolerant'))
 
 percent.df %>%
   ggplot(aes(tolerance, fraction_of_strong_LoF_genes)) + 
@@ -155,9 +156,9 @@ percent.df %>%
   ylab("% of loss-of-splicing variants") + xlab("pLI") + ylim(0,5) +
   geom_hline(yintercept = 1050/29531*100, linetype = "dashed", color = "grey40") +
   scale_y_continuous(expand = c(0, 0)) + 
-  expand_limits(y = 4.5) +
+  expand_limits(y = 4.8) +
   # coord_equal(1/1.125) +
-  theme_bw() + 
+  theme_bw() +
   theme(legend.position = 'none', 
         panel.grid.major = element_blank(),
         panel.grid.minor = element_blank(),
@@ -166,7 +167,7 @@ percent.df %>%
         axis.title.x = element_text(size = 20, color = "black", vjust = -0.5),
         axis.ticks.x = element_blank(),
         axis.text.y = element_text(size = 12, color = "grey20"),
-        axis.text.x = element_text(size = 13, color = "grey20")) 
+        axis.text.x = element_text(size = 13, color = "black")) 
 
 fisher.test(df, alternative = 'less')
 
@@ -203,7 +204,7 @@ fig4d <- data %>%
           axis.title.y = element_text(size = 17, vjust = 12),
           axis.title.x = element_text(size = 17, vjust = -0.5),
           axis.ticks.x = element_blank(),
-          axis.text.y = element_text(size = 12, color = "grey30"),
+          axis.text.y = element_text(size = 10, color = "grey20"),
           axis.text.x = element_text(size = 14, color = "grey10", angle = 45, vjust = 0.55)) 
 
 ggsave(paste0("../../figs/exac/exac_fig4D_allele_frequency_binned", plot_format), 

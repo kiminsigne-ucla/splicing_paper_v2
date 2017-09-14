@@ -18,8 +18,6 @@ plot_format_main <- '.tiff'
 plot_format <- '.png'
 hi_res <- 600
 lo_res <- 300
-axis_text <- 12
-general_text <- 12
 jitter_alpha <- 0.50
 
 # custom color palette
@@ -93,16 +91,24 @@ gg <- data %>%
        y = expression(paste(Delta, ' inclusion index')),
        color = expression(index["WT "])) +
   theme(strip.text = element_text(size = 16),
-        strip.background = element_rect(fill = "#E0E0E0", color = "white"),
+        strip.background = element_rect(fill = "#E8E8E8", color = "white"),
+        axis.title.x = element_text(size = 16, vjust = -2), 
         axis.title.y = element_text(size = 18), 
-        axis.title.x = element_text(size = 18, vjust = -2), 
-        axis.text = element_text(size = axis_text, color = "grey20"), 
-        text = element_text(size = general_text),
+        axis.text = element_text(size = 12, color = "grey20"), 
+        axis.ticks.x = element_blank(),
+        axis.ticks.y = element_line(color = "grey50"),
+        axis.line.x = element_line(color = "grey50"),
+        axis.line.y = element_line(color = "grey50"),
+        text = element_text(size = 12),
+        plot.margin = unit(c(0,0,3,0),"mm"),
         legend.position = 'none') 
-        
+
 ggsave(paste0('../../figs/splicemod/smn1/splicemod_smn1_don_acc', 
-              plot_format_main), 
-       gg, width = 4.6, height = 3, dpi = hi_res, scale = 1.3)
+              plot_format_main), gg, 
+       width = 4.6, height = 3, dpi = hi_res, scale = 1.3)
+ggsave(paste0('../../figs/splicemod/smn1/splicemod_smn1_don_acc', 
+              plot_format), gg, 
+       width = 4.6, height = 3, dpi = lo_res, scale = 1.3)
 
 # MaxEnt: splice acceptor and donor score fold-change)
 # DHFR intron backbone
@@ -134,17 +140,22 @@ gg <- data %>%
        y = expression(paste(Delta, ' inclusion index')),
        color = expression(index["WT "])) +
   theme(strip.text = element_text(size = 16),
-        strip.background = element_rect(fill = "#E0E0E0", color = "white"),
+        strip.background = element_rect(fill = "#E8E8E8", color = "white"),
+        axis.title.x = element_text(size = 16, vjust = -2), 
         axis.title.y = element_text(size = 18), 
-        axis.title.x = element_text(size = 18, vjust = -2), 
-        axis.text = element_text(size = axis_text, color = "grey20"), 
-        text = element_text(size = general_text),
+        axis.ticks.x = element_blank(),
+        axis.ticks.y = element_line(color = "grey50"),
+        axis.line.x = element_line(color = "grey50"),
+        axis.line.y = element_line(color = "grey50"),
+        axis.text = element_text(size = 12, color = "grey20"), 
+        text = element_text(size = 12),
+        plot.margin = unit(c(0,0,3,0),"mm"),
         legend.position = 'none') 
 
 ggsave(paste0('../../figs/splicemod/dhfr/splicemod_dhfr_don_acc', 
               plot_format), 
-       gg, width = 4.6, height = 3, dpi = hi_res, scale = 1.3)
-              
+       gg, width = 4.6, height = 3, dpi = lo_res, scale = 1.3)
+
 ###############################################################################
 # Splicemod categories
 ###############################################################################
@@ -210,9 +221,13 @@ gg <- data %>%
   scale_x_discrete(labels = c(splice_site_labels, esr_labels, 
                               random_exon_labels, intron_labels, 
                               random_intron_labels, other_labels)) +
-  theme(axis.title.y = element_text(size = 16),
-        axis.text.y = element_text(size = 12, color = "grey20"), 
-        axis.text.x = element_text(angle = 45, hjust = 1, color = "grey20"), 
+  theme(axis.title.y = element_text(size = 18, vjust = 1),
+        axis.text.x = element_text(angle = 45, hjust = 1, color = "grey20"),
+        axis.text.y = element_text(size = 10, color = "grey20"),
+        axis.ticks.x = element_blank(),
+        axis.ticks.y = element_line(color = "grey50"),
+        axis.line.x = element_line(color = "grey50"),
+        axis.line.y = element_line(color = "grey50"),
         legend.position = 'none') +
   labs(x = '', y = expression(paste(Delta, ' inclusion index')),
        color = expression(index["WT "]))
@@ -222,6 +237,9 @@ gg_no_x_axis <- gg + theme(axis.text.x = element_blank())
 ggsave(paste0('../../figs/splicemod/smn1/', 
               'splicemod_smn1_all_categories_no_x_axis', plot_format_main), 
        gg_no_x_axis, width = 12, height = 3, dpi = hi_res)
+ggsave(paste0('../../figs/splicemod/smn1/', 
+              'splicemod_smn1_all_categories_no_x_axis', plot_format), 
+       gg_no_x_axis, width = 12, height = 3, dpi = lo_res)
 ggsave(paste0('../../figs/splicemod/smn1/',
               'splicemod_smn1_all_categories', plot_format), 
        gg, width = 12, height = 5, dpi = lo_res)
@@ -244,14 +262,22 @@ gg <- data %>%
   scale_x_discrete(labels = c(splice_site_labels, esr_labels, 
                               random_exon_labels, intron_labels, 
                               random_intron_labels, other_labels)) +
-  theme(axis.title.y = element_text(size = 16), 
+  theme(axis.title.y = element_text(size = 18, vjust = -1), 
         axis.text.x = element_text(angle = 45, hjust = 1, color = "grey20"), 
+        axis.text.y = element_text(size = 10, color = "grey20"), 
+        axis.ticks.x = element_blank(),
+        axis.ticks.y = element_line(color = "grey50"),
+        axis.line.x = element_line(color = "grey50"),
+        axis.line.y = element_line(color = "grey50"),
         legend.position = 'none') +
   labs(x = '', y = expression(paste(Delta, ' inclusion index')),
        color = expression(index["WT "]))
 
 gg_no_x_axis <- gg + theme(axis.text.x = element_blank())
 
+ggsave(paste0('../../figs/splicemod/dhfr/',
+              'splicemod_dhfr_all_categories_no_x_axis', plot_format_main), 
+       gg_no_x_axis, width = 12, height = 3, dpi = lo_res)
 ggsave(paste0('../../figs/splicemod/dhfr/',
               'splicemod_dhfr_all_categories_no_x_axis', plot_format), 
        gg_no_x_axis, width = 12, height = 3, dpi = lo_res)
@@ -292,12 +318,18 @@ gg <- data %>%
        y = expression(paste(Delta, ' inclusion index')),
        color = expression(index["WT "])) +
   ggsignif::geom_signif(comparisons = list(c('down', 'up')),
-                        test = 't.test', map_signif_level = T, tip_length = 0) +
+                        test = 't.test', map_signif_level = T, 
+                        tip_length = 0) +
   stat_summary(fun.y = mean, geom = "point", size = 2, color = "black") +
   theme( axis.title.x = element_text(size = 16, vjust = -2, hjust = 1), 
          axis.title.y = element_text(size = 18, vjust = 40),
+         axis.ticks.x = element_blank(),
+         axis.ticks.y = element_line(color = "grey50"),
+         axis.line.x = element_line(color = "grey50"),
+         axis.line.y = element_line(color = "grey50"),
          axis.text.x = element_text(size = 18, color = "grey20"), 
          axis.text.y = element_text(color = "grey20"), 
+         plot.margin = unit(c(1,1,1,1.5),"mm"),
          legend.position = 'none')
 
 ggsave(paste0('../../figs/splicemod/smn1/splicemod_smn1_hal', 
@@ -316,12 +348,18 @@ gg <- data %>%
        y = expression(paste(Delta, ' inclusion index')),
        color = expression(index["WT "])) +
   ggsignif::geom_signif(comparisons = list(c('down', 'up')),
-                        test = 't.test', map_signif_level = T, tip_length = 0) +
+                        test = 't.test', map_signif_level = T, 
+                        tip_length = 0) +
   stat_summary(fun.y = mean, geom = "point", size = 2, color = "black") +
   theme(axis.title.x = element_text(size = 14, vjust = -2, hjust = 1), 
         axis.title.y = element_text(size = 18, vjust = 40),
-        axis.text.y = element_text(color = "grey20"), 
         axis.text.x = element_text(size = 18, color = "grey20"),  
+        axis.text.y = element_text(color = "grey20"), 
+        axis.ticks.x = element_blank(),
+        axis.ticks.y = element_line(color = "grey50"),
+        axis.line.x = element_line(color = "grey50"),
+        axis.line.y = element_line(color = "grey50"),
+        plot.margin = unit(c(1,1,1,1.5),"mm"),
         legend.position = 'none')
 
 ggsave(paste0('../../figs/splicemod/dhfr/splicemod_dhfr_hal', 
@@ -365,12 +403,18 @@ gg <- data %>%
        y = expression(paste(Delta, ' inclusion index')),
        color = expression(index["WT "])) +
   ggsignif::geom_signif(comparisons = list(c('down', 'up')),
-                        test = 't.test', map_signif_level = T, tip_length = 0) +
+                        test = 't.test', 
+                        map_signif_level = T, tip_length = 0) +
   stat_summary(fun.y = mean, geom = "point", size = 2, color = "black") +
   theme(axis.title.x = element_text(size = 15, vjust = -2, hjust = 1), 
         axis.title.y = element_text(size = 18, vjust = 40),
-        axis.text.y = element_text(color = "grey20"), 
+        axis.ticks.x = element_blank(),
+        axis.ticks.y = element_line(color = "grey50"),
+        axis.line.x = element_line(color = "grey50"),
+        axis.line.y = element_line(color = "grey50"),
         axis.text.x = element_text(size = 18, color = "grey20"),  
+        axis.text.y = element_text(color = "grey20"),
+        plot.margin = unit(c(1,1,1,1),"mm"),
         legend.position = 'none')
 
 ggsave(paste0('../../figs/splicemod/smn1/splicemod_smn1_Ke11', plot_format),
@@ -388,12 +432,18 @@ gg <- data %>%
        y = expression(paste(Delta, ' inclusion index')),
        color = expression(index["WT "])) +
   ggsignif::geom_signif(comparisons = list(c('down', 'up')),
-                        test = 't.test', map_signif_level = T, tip_length = 0) +
+                        test = 't.test', 
+                        map_signif_level = T, tip_length = 0) +
   stat_summary(fun.y = mean, geom = "point", size = 2, color = "black") +
   theme(axis.title.x = element_text(size = 15, vjust = -2, hjust = 1), 
         axis.title.y = element_text(size = 18, vjust = 40),
-        axis.text.y = element_text(color = "grey20"), 
+        axis.ticks.x = element_blank(),
+        axis.ticks.y = element_line(color = "grey50"),
+        axis.line.x = element_line(color = "grey50"),
+        axis.line.y = element_line(color = "grey50"),
         axis.text.x = element_text(size = 18, color = "grey20"),  
+        axis.text.y = element_text(color = "grey20"),
+        plot.margin = unit(c(1,1,1,1),"mm"),
         legend.position = 'none')
 
 ggsave(paste0('../../figs/splicemod/dhfr/splicemod_dhfr_Ke11', plot_format),
@@ -420,16 +470,17 @@ gg <- data %>%
   scale_x_discrete(labels = c('<= -2', '(-2, -1]', '(-1, -0)', '(0, 1]')) +
   geom_boxplot(alpha = 0) + 
   scale_colour_gradientn(limits = c(-0.005, 1), 
-                         breaks = seq(0, 1, by = 0.25), 
+                         breaks = c(0.2, 0.4, 0.6, 0.8, 1), 
                          colors = pal(321)) +
   labs(x = '', y = '',
        color = expression(index["WT "])) +
-  theme(axis.text = element_text(size = axis_text, color = "grey20"), 
-        text = element_text(size = general_text),
-        legend.key.width = unit(1,"cm"),
-        legend.key.height = unit(1.8,"cm"),
-        legend.text = element_text(size = 24),
-        legend.title = element_text(size = 32))
+  theme(axis.text = element_text(size = 12, color = "grey20"), 
+        text = element_text(size = 12),
+        legend.key.width = unit(1, "cm"),
+        legend.key.height = unit(1.8, "cm"),
+        legend.text = element_text(size = 24, color = "grey20"),
+        legend.title = element_text(size = 32),
+        plot.margin = unit(c(0,0,0,0),"mm"))
 
 legend <- g_legend(gg)
 tiff(paste0('../../figs/splicemod/both/legend', plot_format_main), 
@@ -437,3 +488,11 @@ tiff(paste0('../../figs/splicemod/both/legend', plot_format_main),
 grid.newpage()
 grid.draw(legend)
 dev.off()
+
+legend <- g_legend(gg)
+png(paste0('../../figs/splicemod/both/legend', plot_format), 
+     width = 40, height = 125, units = 'mm', res = lo_res)
+grid.newpage()
+grid.draw(legend)
+dev.off()
+

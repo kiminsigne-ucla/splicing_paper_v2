@@ -16,7 +16,7 @@ options(stringsAsFactors = F, warn = -1, warnings = -1)
 plot_format_main <- '.tiff'
 plot_format <- '.png'
 hi_res <- 600
-lo_res <- 100
+lo_res <- 300
 
 data <- read.table('../../processed_data/splicemod/splicemod_data_clean.txt', 
                    sep = '\t', header = T, 
@@ -30,13 +30,20 @@ gg <- data %>%
     ggplot(aes(index_R1_smn1, index_R2_smn1)) + 
     geom_point(alpha = 0.10, aes(color = replicability_smn1)) +
     geom_smooth(method = 'lm', color = 'blue') +
+    scale_x_continuous(breaks = c(0, 0.2, 0.4, 0.6, 0.8, 1)) +
+    scale_y_continuous(breaks = c(0, 0.2, 0.4, 0.6, 0.8, 1)) +
     scale_color_manual(values = c('black', '#0033CC')) +
     labs(x = 'inclusion index (Rep. 1)', y = 'inclusion index (Rep. 2)') +
-    theme(legend.position = 'None', text = element_text(size = 20), 
-          axis.title.y = element_text(vjust = +4),
-          axis.title.x = element_text(vjust = -2), 
-          axis.text.y = element_text(size = 14),
-          axis.text.x = element_text(size = 14)) +
+    theme(legend.position = 'none',
+          axis.title.x = element_text(size = 20, vjust = -2), 
+          axis.title.y = element_text(size = 20, vjust = +4),
+          axis.text.x = element_text(size = 14, color = 'grey20'),
+          axis.text.y = element_text(size = 14, color = 'grey20'),
+          axis.ticks.x = element_line(color = 'grey50'),
+          axis.ticks.y = element_line(color = 'grey50'),
+          axis.line.x = element_line(color = 'grey50'),
+          axis.line.y = element_line(color = 'grey50'),
+          plot.margin = unit(c(2,2,3,3),"mm")) +
     annotate('text', x = 0.05, y = 0.895, size = 7, 
              label = paste("italic(r)"), parse = TRUE) +
     annotate('text', x = 0.22, y = 0.90, size = 7, 
@@ -51,12 +58,19 @@ gg <- data %>%
     geom_point(alpha = 0.10, aes(color = replicability_dhfr)) +
     geom_smooth(method = 'lm', color = 'blue') +
     scale_color_manual(values = c('black', '#0033CC')) +
+    scale_x_continuous(breaks = c(0, 0.2, 0.4, 0.6, 0.8, 1)) +
+    scale_y_continuous(breaks = c(0, 0.2, 0.4, 0.6, 0.8, 1)) +
     labs(x = 'inclusion index (Rep. 1)', y = 'inclusion index (Rep. 2)') +
-    theme(legend.position = 'None', text = element_text(size = 20), 
-          axis.title.y = element_text(vjust = +4),
-          axis.title.x = element_text(vjust = -2), 
-          axis.text.y = element_text(size = 14),
-          axis.text.x = element_text(size = 14)) +
+    theme(legend.position = 'none',
+          axis.title.x = element_text(size = 20, vjust = -2), 
+          axis.title.y = element_text(size = 20, vjust = +4),
+          axis.text.x = element_text(size = 14, color = 'grey20'),
+          axis.text.y = element_text(size = 14, color = 'grey20'),
+          axis.ticks.x = element_line(color = 'grey50'),
+          axis.ticks.y = element_line(color = 'grey50'),
+          axis.line.x = element_line(color = 'grey50'),
+          axis.line.y = element_line(color = 'grey50'),
+          plot.margin = unit(c(2,2,3,3),"mm")) +
     annotate('text', x = 0.05, y = 0.895, size = 7, 
              label = paste("italic(r)"), parse = TRUE) +
     annotate('text', x = 0.22, y = 0.90, size = 7, 
@@ -72,19 +86,27 @@ gg <- ggplot(data %>%
                aes(index_smn1, index_dhfr)
              ) + geom_point(alpha = 0.10) + 
     geom_smooth(method = 'lm', color = 'blue') + 
+    scale_x_continuous(breaks = c(0, 0.2, 0.4, 0.6, 0.8, 1)) +
+    scale_y_continuous(breaks = c(0, 0.2, 0.4, 0.6, 0.8, 1)) +
     labs(x = 'inclusion index (SMN1)', y = 'inclusion index (DHFR)') +
-    theme(text = element_text(size = 20), 
-          axis.title.y = element_text(vjust = +4),
-          axis.title.x = element_text(vjust = -2), 
-          axis.text.y = element_text(size = 14),
-          axis.text.x = element_text(size = 14),
-          legend.position = 'none') +
+    theme(legend.position = 'none',
+          axis.title.x = element_text(size = 20, vjust = -2), 
+          axis.title.y = element_text(size = 20, vjust = +4),
+          axis.text.x = element_text(size = 14, color = 'grey20'),
+          axis.text.y = element_text(size = 14, color = 'grey20'),
+          axis.ticks.x = element_line(color = 'grey50'),
+          axis.ticks.y = element_line(color = 'grey50'),
+          axis.line.x = element_line(color = 'grey50'),
+          axis.line.y = element_line(color = 'grey50'),
+          plot.margin = unit(c(2,2,3,3),"mm")) + 
     annotate('text', x = 0.05, y = 0.895, size = 7, 
              label = paste("italic(r)"), parse = TRUE) +
     annotate('text', x = 0.22, y = 0.90, size = 7, 
              label = paste("=", corr))
 ggsave(paste0('../../figs/splicemod/both/splicemod_smn1_dhfr_replicates', 
               plot_format_main), gg, width = 5, height = 5, dpi = hi_res)
+ggsave(paste0('../../figs/splicemod/both/splicemod_smn1_dhfr_replicates', 
+              plot_format), gg, width = 5, height = 5, dpi = lo_res)
 
 ###############################################################################
 # Read distribution across GFP bins
@@ -123,11 +145,13 @@ gg2 <- data %>%
     geom_bar(stat = 'identity', color = 'darkgrey') +
     theme(axis.text.x = element_blank(), axis.ticks.x = element_blank(),
           axis.title.x = element_blank(),
-          plot.margin = unit(c(0,0,0, 0.5), "in")) +
+          plot.margin = unit(c(1,0,0,0.5), "in")) +
     labs(y = 'index')
 
 tiff(paste0('../../figs/splicemod/smn1/splicemod_smn1_bin_dist.tiff'),
     width = 13, height = 4, units = 'in', res = hi_res)
+tiff(paste0('../../figs/splicemod/smn1/splicemod_smn1_bin_dist.tiff'),
+     width = 13, height = 4, units = 'in', res = hi_res)
 g <- rbind(ggplotGrob(gg2), ggplotGrob(gg1), size = 'last')
 id <- g$layout$t[g$layout$name == "panel"]
 g$heights[id] <- unit(c(1, 2.5), 'null')
@@ -156,7 +180,7 @@ gg1 <- ggplot(read_dist, aes(x = reorder(id, index_R1_dhfr), y = bin)) +
     theme(axis.text.x = element_blank(), 
           axis.ticks.x = element_blank(), 
           legend.position = 'none',
-          plot.margin = unit(c(0,0,0,0), "in")) +
+          plot.margin = unit(c(1,0,0,0.5), "in")) +
     labs(x = 'Construct #', y = '', fill = '% contigs') +
     scale_y_discrete(labels = bin_labels) +
     viridis::scale_fill_viridis(option = 'plasma')
@@ -199,21 +223,38 @@ gg <- data %>%
           !is.na(index_smn1), 
           replicability_smn1 == 'high') %>%
   ggplot(aes(index_smn1)) + 
-  geom_histogram(binwidth = 0.02) +
+  geom_histogram(binwidth = 0.02, fill = "grey", color = 'black', size = 0.1) +
+  geom_histogram(data = subset(data %>% filter (sub_id == '000', 
+                                     !is.na(index_smn1), 
+                                     replicability_smn1 == 'high'),
+                             index_smn1 >= 0.79 & index_smn1 <= 1.0), 
+                 binwidth = 0.02, 
+                 color = 'black', 
+                 fill = 'grey',
+                 size = 0.1) +
   geom_vline(xintercept = 0.79, color = 'red') +
-  xlab('inclusion index') +
-  annotate('text', x = 0.070, y = 558, size = 9, 
+  labs(x = 'inclusion index', title = 'Wild-type human exons') +
+  annotate('text', x = 0.215, y = 558, size = 5, 
            label = paste("italic(n)"), parse = TRUE) +
-  annotate('text', x = 0.27, y = 560, size = 9, 
+  annotate('text', x = 0.425, y = 560, size = 5, 
            label = paste("=", smn1_natCount)) +
   scale_y_continuous(expand = c(0,0)) +
+  scale_x_continuous(breaks = c(0, 0.5, 1)) +
   expand_limits(y = 650) +
-  theme(axis.title.y = element_text(size = 22, vjust = 50),
-        axis.title.x = element_text(size = 22, vjust = -40),
-        axis.text.x = element_text(size = 16, color = 'grey20'))
+  theme_bw() + 
+  theme(axis.title.y = element_text(size = 18, vjust = 30),
+        axis.title.x = element_text(size = 18, vjust = -30),
+        axis.text.y = element_text(size = 12, color = 'grey20'),
+        axis.text.x = element_text(size = 12, color = 'grey20'),
+        plot.title = element_text(size = 16, hjust = 0.55, vjust = 2),
+        axis.ticks.x = element_line(color = 'grey50'),
+        axis.ticks.y = element_line(color = 'grey50'),
+        plot.margin = unit(c(2,2,2,2),"mm"),
+        panel.grid = element_blank(),
+        panel.border = element_rect(fill = NA, color = 'grey50'))
 ggsave(paste0('../../figs/splicemod/smn1/splicemod_smn1_index_hist', 
               plot_format), 
-       gg, width = 5, height = 5, dpi = lo_res)
+       gg, width = 3, height = 4, dpi = lo_res)
 
 # DHFR intron backbone
 
@@ -222,23 +263,42 @@ gg <- data %>%
           !is.na(index_dhfr), 
           replicability_dhfr == 'high') %>%
   ggplot(aes(index_dhfr)) + 
-  geom_histogram(binwidth = 0.02) +
+  geom_vline(xintercept = 0.79, color = 'red') +
+  geom_histogram(binwidth = 0.02, fill = "grey", color = 'black', size = 0.1) +
+  geom_histogram(data = subset(data %>%
+                               filter (sub_id == '000', 
+                                       !is.na(index_dhfr), 
+                                       replicability_dhfr == 'high'),
+                               index_dhfr > 0.79 & index_dhfr <= 1.0), 
+                 binwidth = 0.02, 
+                 color = 'black', 
+                 fill = 'grey',
+                 size = 0.1) +
   # geom_vline(xintercept = 0.79, color = 'red') +
   # geom_rect(aes(xmin = 0.8, xmax = 1.02, ymin = 0, 
   # ymax = 675), alpha = 0.1, fill = "lightgray") +
-  xlab('inclusion index') +
-  annotate('text', x = 0.115, y = 588, size = 9, 
+  labs(x = 'inclusion index', title = 'Wild-type human exons') +
+  annotate('text', x = 0.135, y = 628, size = 5, 
            label = paste("italic(n)"), parse = TRUE) +
-  annotate('text', x = 0.33, y = 590, size = 9, 
+  annotate('text', x = 0.345, y = 630, size = 5, 
            label = paste("=", dhfr_natCount)) +
   scale_y_continuous(expand = c(0,0)) +
+  scale_x_continuous(breaks = c(0, 0.5, 1)) +
   expand_limits(y = 700) +
-  theme(axis.title.y = element_text(size = 22, vjust = 50),
-        axis.title.x = element_text(size = 22, vjust = -40),
-        axis.text.y = element_text(size = 14, color = 'grey20'),
-        axis.text.x = element_text(size = 14, color = 'grey20'))
+  theme_bw() + 
+  theme(axis.title.x = element_text(size = 18, vjust = -30),
+        axis.title.y = element_text(size = 18, vjust = 30),
+        axis.text.y = element_text(size = 12, color = 'grey20'),
+        axis.text.x = element_text(size = 12, color = 'grey20'),
+        plot.title = element_text(size = 16, hjust = 0.55, vjust = 2),
+        axis.ticks.x = element_line(color = 'grey50'),
+        axis.ticks.y = element_line(color = 'grey50'),
+        plot.margin = unit(c(2,2,2,2),"mm"),
+        panel.grid = element_blank(),
+        panel.border = element_rect(fill = NA, color = 'grey50'))
+                                 
 ggsave(paste0('../../figs/splicemod/dhfr/splicemod_dhfr_index_hist', 
               plot_format_main), 
-       gg, width = 5, height = 5, dpi = hi_res)
+       gg, width = 3, height = 4, dpi = hi_res)
 
 
