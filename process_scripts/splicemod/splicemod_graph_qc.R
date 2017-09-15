@@ -241,7 +241,6 @@ gg <- data %>%
   scale_y_continuous(expand = c(0,0)) +
   scale_x_continuous(breaks = c(0, 0.5, 1)) +
   expand_limits(y = 650) +
-  theme_bw() + 
   theme(axis.title.y = element_text(size = 18, vjust = 30),
         axis.title.x = element_text(size = 18, vjust = -30),
         axis.text.y = element_text(size = 12, color = 'grey20'),
@@ -285,15 +284,14 @@ gg <- data %>%
   scale_y_continuous(expand = c(0,0)) +
   scale_x_continuous(breaks = c(0, 0.5, 1)) +
   expand_limits(y = 700) +
-  theme_bw() + 
   theme(axis.title.x = element_text(size = 18, vjust = -30),
         axis.title.y = element_text(size = 18, vjust = 30),
         axis.text.y = element_text(size = 12, color = 'grey20'),
         axis.text.x = element_text(size = 12, color = 'grey20'),
-        plot.title = element_text(size = 16, hjust = 0.55, vjust = 2),
+        plot.title = element_text(size = 16, hjust = 0.55, vjust = 2, face = "plain"),
         axis.ticks.x = element_line(color = 'grey50'),
         axis.ticks.y = element_line(color = 'grey50'),
-        plot.margin = unit(c(2,2,2,2),"mm"),
+        plot.margin = unit(c(2,4,2,2),"mm"),
         panel.grid = element_blank(),
         panel.border = element_rect(fill = NA, color = 'grey50'))
                                  

@@ -51,11 +51,11 @@ data_cons_count <- data_cons %>%
 
 lof_cons_count <- lof_cons %>%
     group_by(label_renamed, cons_bin) %>%
-    summarise(`SNP count (loss-of-splicing)` = n())
+    summarise(`SNP count (splicing-disrupting)` = n())
 
 cons_count <- full_join(data_cons_count, lof_cons_count, 
                         by = c("label_renamed", "cons_bin")) %>% 
-    mutate(propFreq = `SNP count (loss-of-splicing)` / `total SNP count` * 100,
+    mutate(propFreq = `SNP count (splicing-disrupting)` / `total SNP count` * 100,
            label_cons = paste(label_renamed, "\n", cons_bin, "\nconserv.", sep = " "))
 
 cons_count$cons_bin <- factor(cons_count$cons_bin, levels=c("low","high"), 
@@ -64,7 +64,7 @@ cons_count$cons_bin <- factor(cons_count$cons_bin, levels=c("low","high"),
 cons_count %>% 
     ggplot(aes(label_renamed, propFreq, fill = factor(cons_bin))) +
     geom_histogram(stat = 'identity', width = 0.75, position = "dodge") +
-    ylab("Percentage of\nloss-of-splicing variants") +
+    ylab("Percentage of\nsplicing-disrupting variants") +
     xlab("") +
     # facet_wrap(~ cons_bin) +
     geom_hline(yintercept = 3.6, linetype = "dashed", color = "grey20") + 
@@ -97,9 +97,9 @@ ggsave(paste0("../../figs/exac/exac_fig4A_phastCons_comparison_prop", plot_forma
 ###############################################################################
 
 cons_count %>% 
-    ggplot(aes(label_renamed, `SNP count (loss-of-splicing)`, fill = factor(cons_bin))) +
+    ggplot(aes(label_renamed, `SNP count (splicing-disrupting)`, fill = factor(cons_bin))) +
     geom_histogram(stat = 'identity', width = 0.75, position = "dodge") +
-    ylab("Number of\nloss-of-splicing variants") +
+    ylab("Number of\nsplicing-disrupting variants") +
     xlab("") +
     scale_y_continuous(expand = c(0,0)) +
     expand_limits(y = 450) +
@@ -153,7 +153,7 @@ percent.df <-data.frame( fraction_of_strong_LoF_genes = c(intolerant_percent, to
 percent.df %>%
   ggplot(aes(tolerance, fraction_of_strong_LoF_genes)) + 
   geom_col(width = 0.425) + 
-  ylab("% of loss-of-splicing variants") + xlab("pLI") + ylim(0,5) +
+  ylab("% of splicing-disrupting variants") + xlab("pLI") + ylim(0,5) +
   geom_hline(yintercept = 1050/29531*100, linetype = "dashed", color = "grey40") +
   scale_y_continuous(expand = c(0, 0)) + 
   expand_limits(y = 4.8) +

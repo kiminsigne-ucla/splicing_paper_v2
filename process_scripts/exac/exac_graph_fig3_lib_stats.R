@@ -63,7 +63,7 @@ gg1 <-
         plot.margin = unit(c(1,0,0,0), units = "lines"),
         panel.grid.major = element_blank(),
         panel.grid.minor = element_blank()) +
-    annotate('text', x = 1125, y = 35, size = 6.5, 
+    annotate('text', x = 1100, y = 35, size = 6.5, 
              label = paste("italic(n)"), parse = TRUE) +
     annotate('text', x = 1730, y = 35.6, size = 6.5, 
              label = paste("=", data_snps %>% nrow()))
