@@ -10,6 +10,7 @@ pkgs <- c('dplyr', 'tidyr', 'ggplot2', 'cowplot')
 load_pkgs(pkgs)
 
 options(stringsAsFactors = F, warn = -1, warnings = -1)
+plot_format <- '.png'
 
 data <- read.table('../../processed_data/exac/exac_data_clean.txt', 
                    sep = '\t', header = T)
@@ -116,11 +117,19 @@ ggplot(data, aes(upstr_intron_mean_cons, upstr_intron_100_mean_cons)) +
     geom_abline(intercept = 0, slope = 1) +
     labs(x = 'upstream intron <= 40bp', y = 'upstream intron 100 bp')
 
+ggsave(paste0('../../figs/supplement/exac_upstr_intron_cons_short_vs_full', plot_format),
+       height = 4, width = 4, unit = 'in')
+
 # downstream
 ggplot(data, aes(downstr_intron_mean_cons, downstr_intron_100_mean_cons)) + 
     geom_point() + 
     geom_abline(intercept = 0, slope = 1) +
     labs(x = 'downstream intron <= 30bp', y = 'downstream intron 100 bp')
+
+ggsave(paste0('../../figs/supplement/exac_downstr_intron_cons_short_vs_full', plot_format),
+       height = 4, width = 4, unit = 'in')
+
+
 
 ###############################################################################
 # Let's get conservation for the intronic portions of the splice donor and 
@@ -371,17 +380,26 @@ nat_cons$rel_pos_binned <- factor(nat_cons$rel_pos_binned, levels = nat_cons$rel
 nat_cons$exon_type <- factor(nat_cons$exon_type)
 levels(nat_cons$exon_type) <- c('in-frame', 'out-of-frame')
 
-nat_cons %>%
-    ggplot(aes(rel_pos_binned, 0.5)) + 
-    geom_tile(aes(fill = mean_cons_per_rel_pos)) + 
-    facet_grid(exon_type ~ .) + 
-    theme(axis.text = element_blank(), axis.ticks = element_blank()) +
-    viridis::scale_fill_viridis(limits = c(0, 1)) +
-    labs(x = '', y = '', fill = 'phastCons\nscore')
+# nat_cons %>%
+#     ggplot(aes(rel_pos_binned, 0.5)) + 
+#     geom_tile(aes(fill = mean_cons_per_rel_pos)) + 
+#     facet_grid(exon_type ~ .) + 
+#     theme(axis.text = element_blank(), axis.ticks = element_blank()) +
+#     viridis::scale_fill_viridis(limits = c(0, 1)) +
+#     labs(x = '', y = '', fill = 'phastCons\nscore')
 
-# ggplot(nat_cons, aes(rel_pos_binned, mean_cons_per_rel_pos, color = exon_type)) +
-#     geom_point() + scale_color_manual(values = c('black', 'red')) +
-#     theme(axis.text.x = element_blank(), axis.ticks.x = element_blank()) +
-#     labs(x = 'relative scaled position', y = 'average phastCons score', color = 'exon type')
+# natural conservation between in-frame and out-of-frame exons, genome-wide
+ggplot(nat_cons, aes(rel_pos_binned, mean_cons_per_rel_pos, color = exon_type)) +
+    geom_point() + scale_color_manual(values = c('black', 'red')) +
+    ylim(c(0, 1)) +
+    theme(axis.text.x = element_blank(), axis.ticks.x = element_blank()) +
+    theme(legend.position = c(0.85, 0.80)) +
+    labs(x = 'relative scaled position', 
+         y = 'average phastCons score', color = 'exon type')
+
+ggsave(paste0('../../figs/supplement/genome_exon_cons_inframe_vs_outframe', plot_format),
+       height = 4, width = 5, unit = 'in')
+
+t.test(mean_cons_per_rel_pos ~ exon_type, nat_cons)
 
 save.image("../../processed_data/exac/exac_intron_cons.RData")

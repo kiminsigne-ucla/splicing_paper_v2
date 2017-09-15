@@ -1,5 +1,5 @@
 R: dplyr, tidyr, ggplot2, cowplot, biomaRt
-binaries: tabix
+binaries: tabix, bedtools (sortBed, mergeBed, sortBed, subtractBed, intersectBed)
 
 # liftOver
 wget http://hgdownload.cse.ucsc.edu/admin/exe/linux.x86_64/liftOver
@@ -11,3 +11,9 @@ wget http://hgdownload.cse.ucsc.edu/admin/exe/macOSX.x86_64/bigWigAverageOverBed
 wget ftp://ftp.broadinstitute.org/pub/ExAC_release/release0.3.1/functional_gene_constraint/fordist_cleaned_exac_r03_march16_z_pli_rec_null_data.txt
 # LINSIGHT scores
 wget http://compgen.cshl.edu/~yihuang/tracks/LINSIGHT.bw
+# Gencode annotation
+wget ftp://ftp.sanger.ac.uk/pub/gencode/Gencode_human/release_26/gencode.v26.annotation.gtf.gz
+
+# splicemod packages
+# MySQLdb
+pip install MySQL-python
