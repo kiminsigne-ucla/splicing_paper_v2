@@ -134,8 +134,9 @@ pr_curve_info %>%
         legend.title = element_blank(),
         legend.text = element_text(size = 16),
         legend.key.size = unit(0.5, 'lines'),
-        legend.key.height = unit(0.2, "inch"),
-        legend.key.width = unit(0.4, "inch"))
+        legend.key.height = unit(0.25, "inch"),
+        legend.key.width = unit(0.6, "inch")) +
+  guides(colour = guide_legend(override.aes = list(size = 3)))
 
 ggsave(paste0(dir, 'exac_fig4E_exac_pr_curves_type', plot_format), 
        height = 4.5, width = 12, units = 'in', dpi = lo_res)
