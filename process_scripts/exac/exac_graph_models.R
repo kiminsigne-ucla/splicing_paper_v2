@@ -129,7 +129,6 @@ pr_curve_info %>%
         axis.line.y = element_line(color = 'grey30'),
         axis.line.x = element_line(color = 'grey30'),
         axis.ticks = element_line(color = 'grey30'),
-        legend.position = 'none',
         legend.justification = 'center',
         legend.direction = 'vertical',
         legend.title = element_blank(),
