@@ -273,7 +273,7 @@ system(paste('bash',
              '../../processed_data/exac/nat_downstr_intron_cons_scores_all.bed'))
 
 # exon
-inframe_outframe_exons %>% 
+inframe_outframe_exons %>%                             
     filter(chromosome_name %in% c(1:22, 'X', 'Y')) %>%
     mutate(chromosome_name = paste0('chr', chromosome_name)) %>% 
     select(chromosome_name, exon_chrom_start, exon_chrom_end, ensembl_exon_id) %>% 
@@ -378,7 +378,7 @@ if(!file.exists('../../processed_data/exac/nat_exon_cons_summary.rds')) {
 nat_cons <- bind_rows(nat_upstr_cons, nat_exon_cons, nat_downstr_cons)
 nat_cons$rel_pos_binned <- factor(nat_cons$rel_pos_binned, levels = nat_cons$rel_pos_binned)
 nat_cons$exon_type <- factor(nat_cons$exon_type)
-levels(nat_cons$exon_type) <- c('in-frame', 'out-of-frame')
+levels(nat_cons$exon_type) <- c('phase 0,0', 'other phases')
 
 # nat_cons %>%
 #     ggplot(aes(rel_pos_binned, 0.5)) + 
