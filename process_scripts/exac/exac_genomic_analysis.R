@@ -15,7 +15,7 @@ options(stringsAsFactors = F, warn = -1, warnings = -1)
 # SNV density, genome-wide
 ###############################################################################
 # extract intronic regions from Gencode annotation file
-system('bash ./extract_intronic_regions.sh')
+# system('bash ./extract_intronic_regions.sh')
 
 # grabs all SNVs from ExAC, convert from vcf to bed, uses intersectBed against
 # bed file for all introns/exons to find which genomic feature each SNV falls in
@@ -98,7 +98,7 @@ nat_snp_summary %>%
           axis.ticks = element_blank(), 
           legend.text = element_text(size=10),
           legend.title = element_text(size=8)) +
-    labs(x = 'relative scaled position', y = '', fill = 'log average\nnumber of\nSNPs',
+    labs(x = 'relative position', y = '', fill = 'log average\nnumber of\nSNPs',
          title = 'All exonic SNVs, intronic SNVs within 100bp') +
     geom_vline(xintercept = as.numeric(nat_snp_summary[90,1]), color = 'black') +
     geom_vline(xintercept = as.numeric(nat_snp_summary[190,1]), color = 'black')
