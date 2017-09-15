@@ -99,9 +99,9 @@ nat_snp_summary %>%
           legend.text = element_text(size=10),
           legend.title = element_text(size=8)) +
     labs(x = 'relative position', y = '', fill = 'log average\nnumber of\nSNPs',
-         title = 'All exonic SNVs, intronic SNVs within 100bp') +
-    geom_vline(xintercept = as.numeric(nat_snp_summary[90,1]), color = 'black') +
-    geom_vline(xintercept = as.numeric(nat_snp_summary[190,1]), color = 'black')
+         title = 'All exonic SNVs, intronic SNVs within 100bp') 
+    # geom_vline(xintercept = as.numeric(nat_snp_summary[90,1]), color = 'black') +
+    # geom_vline(xintercept = as.numeric(nat_snp_summary[190,1]), color = 'black')
 
 ggsave(paste0('../../figs/supplement/genome_SNVs_rel_position', plot_format),
        height = 1.5, width = 8, unit = 'in')

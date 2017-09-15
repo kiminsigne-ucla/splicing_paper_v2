@@ -110,26 +110,43 @@ data <- data %>%
                   na.omit(), 
               by = 'ensembl_id')
 
+data <- data %>% 
+    mutate(upstr_intron_len = ifelse(strand == '+', intron1_len, intron2_len),
+           downstr_intron_len = ifelse(strand == '+', intron2_len, intron1_len))
+
 # supplement, synthetic short intron conservation vs. 100 bp conservation
 # upstream
 ggplot(data, aes(upstr_intron_mean_cons, upstr_intron_100_mean_cons)) + 
     geom_point() +
     geom_abline(intercept = 0, slope = 1) +
-    labs(x = 'upstream intron <= 40bp', y = 'upstream intron 100 bp')
+    labs(x = 'average phastCons score\nshort upstream intron 40-81bp', 
+         y = 'average phastCons score\nupstream intron 100 bp')
 
 ggsave(paste0('../../figs/supplement/exac_upstr_intron_cons_short_vs_full', plot_format),
        height = 4, width = 4, unit = 'in')
+
+tmp <- data %>% 
+    mutate(upstr_cons_diff = upstr_intron_mean_cons - upstr_intron_100_mean_cons,
+           downstr_cons_diff = downstr_intron_mean_cons - downstr_intron_mean_cons) %>% 
+    gather(upstr_cons_diff, downstr_cons_diff)
+
+ggplot(data, aes(upstr_intron_mean_cons - upstr_intron_100_mean_cons)) +
+    geom_density() + 
+    labs(x = 'mean phastCons short upstream intron 40-81bp -
+         mean phastCons upstream intron 100 bp')
 
 # downstream
 ggplot(data, aes(downstr_intron_mean_cons, downstr_intron_100_mean_cons)) + 
     geom_point() + 
     geom_abline(intercept = 0, slope = 1) +
-    labs(x = 'downstream intron <= 30bp', y = 'downstream intron 100 bp')
+    labs(x = 'average phastCons score\nshort downstream intron 30-71bp', 
+         y = 'average phastCons score\ndownstream intron 100 bp')
 
 ggsave(paste0('../../figs/supplement/exac_downstr_intron_cons_short_vs_full', plot_format),
        height = 4, width = 4, unit = 'in')
 
-
+tmp <- data %>% 
+    
 
 ###############################################################################
 # Let's get conservation for the intronic portions of the splice donor and 
@@ -212,21 +229,36 @@ all_exon_ids <- all_exon_ids %>%
            downstr_intron_len = downstr_intron_end - downstr_intron_start + 1,
            exon_len = exon_chrom_end - exon_chrom_start + 1)
 
-# get all exons that start and end on phase 0
 inframe_outframe_exons <- all_exon_ids %>% 
-    filter(phase == 0, end_phase == 0) %>% 
-    mutate(exon_type = 'inframe')
+    mutate(exon_type = case_when(.$phase == 0 & .$end_phase == 0 ~ 'inframe',
+                                 TRUE ~ 'outframe'))
 
-# get out-frame exons and label them
-inframe_outframe_exons <- all_exon_ids %>% 
-    filter(phase != -1, end_phase != -1) %>% 
-    filter(phase != 0, end_phase != 0) %>% 
-    mutate(exon_type = 'outframe') %>% 
-    bind_rows(inframe_outframe_exons)
+# # get all exons that start and end on phase 0
+# inframe_outframe_exons <- all_exon_ids %>% 
+#     filter(phase == 0, end_phase == 0) %>% 
+#     mutate(exon_type = 'inframe')
+# 
+# # get out-frame exons and label them
+# inframe_outframe_exons <- all_exon_ids %>% 
+#     filter(phase != -1, end_phase != -1) %>% 
+#     filter(phase != 0 & end_phase != 0) %>% 
+#     mutate(exon_type = 'outframe') %>% 
+#     bind_rows(inframe_outframe_exons)
 
 inframe_outframe_exons <- inframe_outframe_exons %>% 
     distinct(ensembl_exon_id, .keep_all = T)
 
+# distribution of exon numbers across phases
+inframe_outframe_exons %>% 
+    filter(phase != -1, end_phase != -1) %>% 
+    arrange(phase, end_phase) %>% 
+    mutate(frame = paste(phase, end_phase, sep=',')) %>% 
+    ggplot(aes(frame)) + geom_bar() +
+    labs(x = 'exon start phase, end phase') +
+    theme(axis.text.x = element_text(size = 12, angle = 45, hjust=1))
+
+ggsave(paste0('../../figs/supplement/genome_exon_phase_dist', plot_format),
+       height = 3, width = 4, units = 'in')
 
 # let's get upstream intron coordinates first. We will generate a bed file
 # containing position of each nucleotide in range so we can get conservation per
@@ -394,7 +426,7 @@ ggplot(nat_cons, aes(rel_pos_binned, mean_cons_per_rel_pos, color = exon_type)) 
     ylim(c(0, 1)) +
     theme(axis.text.x = element_blank(), axis.ticks.x = element_blank()) +
     theme(legend.position = c(0.85, 0.80)) +
-    labs(x = 'relative scaled position', 
+    labs(x = 'relative position', 
          y = 'average phastCons score', color = 'exon type')
 
 ggsave(paste0('../../figs/supplement/genome_exon_cons_inframe_vs_outframe', plot_format),
