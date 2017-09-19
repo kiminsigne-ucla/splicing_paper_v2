@@ -29,7 +29,7 @@ graph_curves: ../../figs/exac/exac_fig4E_exac_roc_curves_type_legend.tiff
 ../../ref/exac/exac_ref_rescored.txt: ../../ref/exac/exac_ref_formatted_converted_original_seq.txt
 	@ echo "Re-scoring reference file..."
 	@ cd ../splicemod_src && \
-	python ../score_lib.py $< unflipped_seq ./data/motifs/Ke2011/ \
+	python ../score_lib.py $< original_seq ./data/motifs/Ke2011/ \
 	../../ref/Rosenberg_2015/exonic_mer6_scores.series 30 $@
 
 
