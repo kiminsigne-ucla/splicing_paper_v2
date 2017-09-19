@@ -119,23 +119,23 @@ data <- data %>%
 ggplot(data, aes(upstr_intron_mean_cons, upstr_intron_100_mean_cons)) + 
     geom_point() +
     geom_abline(intercept = 0, slope = 1) +
-    labs(x = 'average phastCons score\nshort upstream intron 40-81bp', 
-         y = 'average phastCons score\nupstream intron 100 bp')
+    labs(x = 'average phastCons score\nshort upstream intron (40-81bp)', 
+         y = 'average phastCons score\nupstream intron (100 bp)')
 
 ggsave(paste0('../../figs/supplement/exac_upstr_intron_cons_short_vs_full', plot_format),
        height = 4, width = 4, unit = 'in')
 
 ggplot(data, aes(upstr_intron_mean_cons - upstr_intron_100_mean_cons)) +
     geom_density() + 
-    labs(x = 'mean phastCons short upstream intron 40-81bp -
-         mean phastCons upstream intron 100 bp')
+    labs(x = 'mean phastCons short upstream intron (40-81bp) -
+         mean phastCons upstream intron (100 bp)')
 
 # downstream
 ggplot(data, aes(downstr_intron_mean_cons, downstr_intron_100_mean_cons)) + 
     geom_point() + 
     geom_abline(intercept = 0, slope = 1) +
-    labs(x = 'average phastCons score\nshort downstream intron 30-71bp', 
-         y = 'average phastCons score\ndownstream intron 100 bp')
+    labs(x = 'average phastCons score\nshort downstream intron (30-71bp)', 
+         y = 'average phastCons score\ndownstream intron (100 bp)')
 
 ggsave(paste0('../../figs/supplement/exac_downstr_intron_cons_short_vs_full', plot_format),
        height = 4, width = 4, unit = 'in')
@@ -418,7 +418,7 @@ if(!file.exists('../../processed_data/exac/nat_exon_cons_summary.rds')) {
 nat_cons <- bind_rows(nat_upstr_cons, nat_exon_cons, nat_downstr_cons)
 nat_cons$rel_pos_binned <- factor(nat_cons$rel_pos_binned, levels = nat_cons$rel_pos_binned)
 nat_cons$exon_type <- factor(nat_cons$exon_type)
-levels(nat_cons$exon_type) <- c('phase 0,0', 'other phases')
+levels(nat_cons$exon_type) <- c('phase (0-0)', 'other phases')
 
 # nat_cons %>%
 #     ggplot(aes(rel_pos_binned, 0.5)) + 
@@ -434,8 +434,8 @@ ggplot(nat_cons, aes(rel_pos_binned, mean_cons_per_rel_pos, color = exon_type)) 
     ylim(c(0, 1)) +
     theme(axis.text.x = element_blank(), axis.ticks.x = element_blank()) +
     theme(legend.position = c(0.85, 0.80)) +
-    labs(x = 'relative position', 
-         y = 'average phastCons score', color = 'exon type')
+    labs(x = 'scaled position', 
+         y = 'average phastCons score', color = 'exon phase')
 
 ggsave(paste0('../../figs/supplement/genome_exon_cons_inframe_vs_outframe', plot_format),
        height = 4, width = 5, unit = 'in')

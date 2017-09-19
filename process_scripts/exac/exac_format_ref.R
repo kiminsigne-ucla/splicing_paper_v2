@@ -160,33 +160,46 @@ write.table(ref, '../../ref/exac/exac_ref_formatted_converted.txt', sep = '\t',
 
 ###############################################################################
 # It is harder to synthesize A's, so oligos in the reference file are the strand
-# with the lower A count. In order to determine the correct orientation, refer
-# to the splicemod naturals (they are unflipped)
+# with the lower A count. In order to determine the correct orientation, 
+# I regenerated original reference ("original_seq") from oligo chip scripts 
+# without regards to AT content
 ###############################################################################
-splicemod_ref_nat <- read.table('../../ref/splicemod/splicemod_ref_formatted_converted.txt',
-                            sep = '\t', header = T, colClasses = c('sub_id' = 'character')) %>% 
-    filter(seq_type == 'nat')
 
-ref$sequence_rc <- sapply(ref$seq,
-                          function(x) as.character(reverseComplement(DNAString(x))))
+ref <- read.table('../../ref/exac/exac_ref_formatted_converted.txt', 
+                  sep = '\t', header = T)
+exac_ref_original_seq <- read.table('../../ref/exac/exac_ref_original_seq.txt',
+                                    sep = '\t', header = T) %>% 
+  select(id, original_seq = sequence)
 
-ref <- ref %>% 
-    left_join(select(splicemod_ref_nat, ensembl_id, splicemod_seq = seq), by = 'ensembl_id')
+ref <- ref %>%
+  left_join(exac_ref_original_seq, by = 'id') %>%
+  mutate(original_seq = ifelse(is.na(original_seq), sequence, original_seq),
+         mixed_seq = sequence) %>%
+  arrange(id, sub_id)
+
+write.table(ref, '../../ref/exac/exac_ref_formatted_converted_original_seq.txt', 
+            sep = '\t', quote = F, row.names = F)
+
+# ref <- ref %>% 
+#     left_join(select(splicemod_ref_nat, ensembl_id, splicemod_seq = seq), by = 'ensembl_id')
 
 # compare natural sequence of each group to the splicemod natural, if they do not match then
 # the sequences were flipped and need to be flipped back to the reverse complement
-ref <- ref %>% 
-    filter(sub_id == '000') %>% 
-    mutate(mismatch = ifelse(sequence != splicemod_seq, T, F)) %>% 
-    select(ensembl_id, mismatch) %>% 
-    left_join(ref, ., by = 'ensembl_id') %>% 
-    mutate(unflipped_seq = ifelse(mismatch, sequence_rc, sequence)) %>% 
-    mutate(unflipped_seq = ifelse(is.na(mismatch), sequence, unflipped_seq))
+# ref <- ref %>% 
+#     filter(sub_id == '000') %>% 
+#     mutate(mismatch = ifelse(sequence != splicemod_seq, T, F)) %>% 
+#     select(ensembl_id, mismatch) %>% 
+#     left_join(ref, ., by = 'ensembl_id') %>% 
+#     mutate(unflipped_seq = ifelse(mismatch, sequence_rc, sequence)) %>% 
+#     mutate(unflipped_seq = ifelse(is.na(mismatch), sequence, unflipped_seq))
+# 
+# ref %>% 
+#     select(-mismatch, -sequence_rc) %>% 
+#     write.table('../../ref/exac/exac_ref_formatted_converted_flipped.txt', 
+#                 sep = '\t', quote = F, row.names = F)
 
-ref %>% 
-    select(-mismatch, -sequence_rc) %>% 
-    write.table('../../ref/exac/exac_ref_formatted_converted_flipped.txt', 
-                sep = '\t', quote = F, row.names = F)
+
+
 
 
 
