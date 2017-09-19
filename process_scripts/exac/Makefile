@@ -1,10 +1,12 @@
-all: format_ref rescore_ref clean_data create_fig3 create_fig4
+all: format_ref rescore_ref clean_data add_annot create_fig3 create_fig4 create_curves graph_curves
 
 format_ref: ../../ref/exac/exac_ref_formatted_converted_flipped.txt
 
 rescore_ref: ../../ref/exac/exac_ref_rescored.txt
 
 clean_data: ../../processed_data/exac/exac_data_clean.txt
+
+add_annot: ../../processed_data/exac/exac_func_annot.txt
 
 run_HAL: ../../processed_data/exac/exac_HAL_scores.txt
 
@@ -19,21 +21,26 @@ create_curves: ../../processed_data/exac/exac_models_roc_curves_intron.txt
 graph_curves: ../../figs/exac/exac_fig4E_exac_roc_curves_type_legend.tiff
 
 
-../../ref/exac/exac_ref_formatted_converted_flipped.txt: ../../ref/exac/exac_ref_all.txt
+../../ref/exac/exac_ref_formatted_converted_original_seq.txt: ../../ref/exac/exac_ref_all.txt
 	@ echo "Formatting reference..."
 	@ Rscript exac_format_ref.R
 
 
-../../ref/exac/exac_ref_rescored.txt: ../../ref/exac/exac_ref_formatted_converted_flipped.txt
+../../ref/exac/exac_ref_rescored.txt: ../../ref/exac/exac_ref_formatted_converted_original_seq.txt
 	@ echo "Re-scoring reference file..."
 	@ cd ../splicemod_src && \
 	python ../score_lib.py $< unflipped_seq ./data/motifs/Ke2011/ \
 	../../ref/Rosenberg_2015/exonic_mer6_scores.series 30 $@
 
 
-../../processed_data/exac/exac_data_clean.txt: ../../ref/exac/exac_ref_formatted_converted_flipped.txt exac_data_clean.R
+../../processed_data/exac/exac_data_clean.txt: ../../ref/exac/exac_ref_formatted_converted_original_seq.txt exac_data_clean.R
 	@ echo "Cleaning up data..."
 	@ Rscript exac_data_clean.R
+
+
+../../processed_data/exac/exac_func_annot.txt: ./../processed_data/exac/exac_data_clean.txt exac_add_annot.R
+	@ echo "Adding functional annotation..."
+	@ Rscript exac_add_annot.R
 
 
 ../../processed_data/exac/exac_HAL_scores.txt: ../../processed_data/exac/exac_data_clean.txt exac_run_HAL.py

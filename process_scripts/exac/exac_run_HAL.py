@@ -216,7 +216,7 @@ if __name__ == '__main__':
     # extract exon sequence
     exac_data['exon_seq'] = exac_data.apply(lambda x : 
     	extract_exon_seq(x['strand'], x['intron1_len'], 
-    		x['exon_len'], x['intron2_len'], x['unflipped_seq'], 
+    		x['exon_len'], x['intron2_len'], x['original_seq'], 
     		extend=5, rc=False), axis=1)
 
     # extract exon sequence for natural sequence
@@ -245,6 +245,8 @@ if __name__ == '__main__':
         # assign factors learned on training set to the test set
         cross_validated_scaling_factors[test_inds] = optimize_scaling_factor(training_set)
         
+    pickle.dump(cross_validated_scaling_factors, 
+        open('../../processed_data/exac/HAL_cv_scaling_factors.pkl', 'wb'))
 
     # make predictions with the scaling factors for the held-out variants, so each
     # fold is assigned a scaling factor that was not trained on it
