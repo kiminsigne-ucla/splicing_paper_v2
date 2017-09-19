@@ -125,11 +125,6 @@ ggplot(data, aes(upstr_intron_mean_cons, upstr_intron_100_mean_cons)) +
 ggsave(paste0('../../figs/supplement/exac_upstr_intron_cons_short_vs_full', plot_format),
        height = 4, width = 4, unit = 'in')
 
-tmp <- data %>% 
-    mutate(upstr_cons_diff = upstr_intron_mean_cons - upstr_intron_100_mean_cons,
-           downstr_cons_diff = downstr_intron_mean_cons - downstr_intron_mean_cons) %>% 
-    gather(upstr_cons_diff, downstr_cons_diff)
-
 ggplot(data, aes(upstr_intron_mean_cons - upstr_intron_100_mean_cons)) +
     geom_density() + 
     labs(x = 'mean phastCons short upstream intron 40-81bp -
@@ -145,8 +140,21 @@ ggplot(data, aes(downstr_intron_mean_cons, downstr_intron_100_mean_cons)) +
 ggsave(paste0('../../figs/supplement/exac_downstr_intron_cons_short_vs_full', plot_format),
        height = 4, width = 4, unit = 'in')
 
-tmp <- data %>% 
+# combined
+data %>% 
+    mutate(upstr_cons_diff = upstr_intron_mean_cons - upstr_intron_100_mean_cons,
+           downstr_cons_diff = downstr_intron_mean_cons - downstr_intron_mean_cons) %>% 
+    gather(key = 'intron_type', value = 'mean_cons_diff', upstr_cons_diff:downstr_cons_diff) %>% 
+    ggplot(aes(mean_cons_diff)) + geom_density(aes(color = intron_type)) +
+    scale_color_discrete(labels = c('downstream intron', 'upstream intron')) +
+    labs(color = '',
+         x = 'short intron (30-81bp) mean phastCons - \n100bp mean phastCons') +
+    theme(legend.position = c(0.80, 0.80),
+          axis.title.x = element_text(size = 10),
+          legend.text = element_text(size = 10))
     
+ggsave(paste0('../../figs/supplement/exac_upstr_downstr_cons', plot_format),
+       height = 3, width = 4, unit = 'in')
 
 ###############################################################################
 # Let's get conservation for the intronic portions of the splice donor and 
