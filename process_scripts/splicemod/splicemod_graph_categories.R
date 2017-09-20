@@ -57,13 +57,53 @@ data <- data %>%
            abs(correct_acc_score_nat)) %>%
   ungroup()
 
+# compare ESE changes to random
+data %>% 
+    mutate(category = ifelse(grepl('ESE', category), 'perturb_ESE', category),
+           category = ifelse(grepl('rnd_exon', category), 'rnd_exon', category)) %>% 
+    filter(category == 'perturb_ESE' | category == 'rnd_exon') %>% 
+    t.test(dpsi_smn1 ~ category, data = ., alternative = 'less')
+
+# compare ESS changes to random
+data %>% 
+    mutate(category = ifelse(grepl('ESS', category), 'perturb_ESS', category),
+           category = ifelse(grepl('rnd_exon', category), 'rnd_exon', category)) %>% 
+    filter(category == 'perturb_ESS' | category == 'rnd_exon') %>% 
+    t.test(dpsi_smn1 ~ category, data = ., alternative = 'greater')
+
+# strongest ESE
+data %>% 
+    mutate(category = ifelse(grepl('rnd_exon', category), 'rnd_exon', category)) %>% 
+    filter(category == 'clst_Ke2011_ESE' | category == 'rnd_exon') %>% 
+    t.test(dpsi_smn1 ~ category, data = ., alternative = 'less')
+
+# strongest ESS
+data %>% 
+    mutate(category = ifelse(grepl('rnd_exon', category), 'rnd_exon', category)) %>% 
+    filter(category == 'clst_Ke2011_ESS' | category == 'rnd_exon') %>% 
+    t.test(dpsi_smn1 ~ category, data = ., alternative = 'greater')
+
+# intron changes
+data %>% 
+    mutate(category = ifelse(grepl('ICS', category), 'intron', category),
+           category = ifelse(grepl('rnd_intron', category), 'rnd_intron', category)) %>% 
+    filter(category == 'intron' | category == 'rnd_intron') %>% 
+    t.test(dpsi_smn1 ~ category, data = .)
+
+# label variants as exonic or intronic
+tmp <- data %>% 
+    separate(loc, into = c('loc_start', 'loc_end', sep = ':', convert = T)) %>% 
+    mutate(exon_start = ,
+           exon_end = ,
+           exon_overlap = ifelse(intersect(seq(loc_start, loc_end), seq(exon_start, exon_end))))
+
 ###############################################################################
 # MaxEnt 
 ###############################################################################
 
 # MaxEnt: splice acceptor and donor score fold-change
 # SMN1 intron backbone
-
+cor.test(data$delta_acc_score, data$dpsi_smn1)
 gg <- data %>% 
   gather(key = 'splice_site', value = 'fold_change', 
          don_score_fold_change, acc_score_fold_change) %>% 
@@ -103,7 +143,7 @@ gg <- data %>%
         plot.margin = unit(c(0,0,3,0),"mm"),
         legend.position = 'none') 
 
-ggsave(paste0('../../figs/splicemod/smn1/splicemod_smn1_don_acc', 
+ggggsave(paste0('../../figs/splicemod/smn1/splicemod_smn1_don_acc', 
               plot_format_main), gg, 
        width = 4.6, height = 3, dpi = hi_res, scale = 1.3)
 ggsave(paste0('../../figs/splicemod/smn1/splicemod_smn1_don_acc', 
@@ -159,6 +199,12 @@ ggsave(paste0('../../figs/splicemod/dhfr/splicemod_dhfr_don_acc',
 ###############################################################################
 # Splicemod categories
 ###############################################################################
+tmp <- data %>% 
+    mutate(test_cat = case_when(.$category == 'rmv_Ke2011_ESE' ~ T,
+                                .$category == 'clst_Ke2011_ESE' ~ T,
+                                TRUE ~ F))
+t.test(dpsi_smn1 ~ test_cat, tmp)
+
 esr_categories <- c('rmv_Ke2011_ESE', 'clst_Ke2011_ESE', 'rmv_Ke2011_ESS', 
                     'clst_Ke2011_ESS')
 esr_labels <- c('weaken ESEs', 'destroy strongest ESE', 'weaken ESSs', 

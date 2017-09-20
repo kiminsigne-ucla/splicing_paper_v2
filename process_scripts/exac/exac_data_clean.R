@@ -126,7 +126,7 @@ ggsave(paste0('../../figs/exac/exac_v1_v2_replicates', plot_format), gg,
        width = 6, height = 6, dpi = 300)
 
 # read in updated ref
-ref <- read.table('../../ref/exac/exac_ref_formatted_converted_flipped.txt', 
+ref <- read.table('../../ref/exac/exac_ref_formatted_converted_original_seq.txt', 
                   sep='\t', header=T)
 
 # combine with data
