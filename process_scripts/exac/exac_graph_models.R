@@ -12,7 +12,7 @@ load_pkgs(pkgs)
 options(stringsAsFactors = F, warn = -1, warnings = -1)
 
 dir <- '../../figs/exac/'
-plot_format_main <- '.tiff'
+plot_format_main <- '.png'
 plot_format <- '.png'
 hi_res <- 600
 lo_res <- 300
@@ -60,20 +60,26 @@ pr_curve_all %>%
     annotation_logticks(sides = 'l') +
     labs(x = 'Recall (%)', y = 'Precision (%)', color = '') +
     theme(
-          legend.position = 'none',
           axis.title.x = element_text(size = 19, vjust = -1.5),
           axis.title.y = element_text(size = 19, vjust = -1.5),
           axis.line.x = element_line(color = 'grey30'),
           axis.line.y = element_line(color = 'grey30'),
           axis.ticks = element_line(color = 'grey30'),
-          axis.text = element_text(size = 14, color = 'grey20')) +
+          axis.text = element_text(size = 14, color = 'grey20'),
+          legend.justification = 'center',
+          legend.direction = 'vertical',
+          legend.title = element_blank(),
+          legend.text = element_text(size = 16),
+          legend.key.size = unit(0.5, 'lines'),
+          legend.key.height = unit(0.25, "inch"),
+          legend.key.width = unit(0.6, "inch")) +
     geom_hline(yintercept = 3.6, linetype = 'dashed', color = 'grey40') +
     scale_color_manual(values = c(color_cadd, color_dann, color_fathmm, 
                                 color_fitcons, color_linsight, color_spanr))
 
 ggsave(paste0(dir, 'exac_fig4E_exac_pr_curves_with_legend', 
               plot_format_main), 
-       height = 4, width = 4, units = 'in', dpi = hi_res)
+       height = 4, width = 7, units = 'in', dpi = hi_res)
        
 
 pr_curve_all %>% 
@@ -231,7 +237,7 @@ ggplot(roc_curve_info_main, aes(false_positive_rate, true_positive_rate)) +
         axis.line.y = element_line(color = 'grey30'),
         axis.line.x = element_line(color = 'grey30'),
         axis.ticks = element_line(color = 'grey30'),
-        legend.position = 'left',
+        legend.position = 'right',
         legend.justification = 'center',
         legend.direction = 'vertical',
         legend.title = element_blank(),

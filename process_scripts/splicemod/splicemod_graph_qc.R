@@ -29,7 +29,6 @@ corr <- signif(cor(data$index_R1_smn1, data$index_R2_smn1, use = 'p'), 3)
 gg <- data %>% 
     ggplot(aes(index_R1_smn1, index_R2_smn1)) + 
     geom_point(alpha = 0.10, aes(color = replicability_smn1)) +
-    geom_smooth(method = 'lm', color = 'blue') +
     scale_x_continuous(breaks = c(0, 0.2, 0.4, 0.6, 0.8, 1)) +
     scale_y_continuous(breaks = c(0, 0.2, 0.4, 0.6, 0.8, 1)) +
     scale_color_manual(values = c('black', '#0033CC')) +
@@ -56,7 +55,6 @@ corr <- signif(cor(data$index_R1_dhfr, data$index_R2_dhfr, use = 'p'), 3)
 gg <- data %>% 
     ggplot(aes(index_R1_dhfr, index_R2_dhfr)) + 
     geom_point(alpha = 0.10, aes(color = replicability_dhfr)) +
-    geom_smooth(method = 'lm', color = 'blue') +
     scale_color_manual(values = c('black', '#0033CC')) +
     scale_x_continuous(breaks = c(0, 0.2, 0.4, 0.6, 0.8, 1)) +
     scale_y_continuous(breaks = c(0, 0.2, 0.4, 0.6, 0.8, 1)) +
@@ -85,7 +83,6 @@ gg <- ggplot(data %>%
                       replicability_smn1 == 'high'), 
                aes(index_smn1, index_dhfr)
              ) + geom_point(alpha = 0.10) + 
-    geom_smooth(method = 'lm', color = 'blue') + 
     scale_x_continuous(breaks = c(0, 0.2, 0.4, 0.6, 0.8, 1)) +
     scale_y_continuous(breaks = c(0, 0.2, 0.4, 0.6, 0.8, 1)) +
     labs(x = 'inclusion index (SMN1)', y = 'inclusion index (DHFR)') +

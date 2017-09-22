@@ -182,6 +182,13 @@ data <- data %>%
            delta_dpsi = abs(v1_dpsi - v2_dpsi) ) %>%
     ungroup()
 
+data_other <- data_other %>%
+  rowwise() %>%
+  mutate(v1_dpsi = mean(c(v1_dpsi_R1, v1_dpsi_R2)),
+         v2_dpsi = mean(c(v2_dpsi_R1, v2_dpsi_R2)),
+         delta_dpsi = abs(v1_dpsi - v2_dpsi) ) %>%
+  ungroup()
+
 dpsi_threshold <- -0.50
 dpsi_threshold_stringent <- -0.70
 

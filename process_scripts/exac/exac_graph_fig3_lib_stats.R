@@ -12,7 +12,7 @@ load_pkgs(pkgs)
 options(stringsAsFactors = F, warn = -1, warnings = -1)
 
 hi_res <- 600
-plot_format_main <- '.tiff'
+plot_format_main <- '.png'
 plot_format <- '.png'
 
 # custom color palette

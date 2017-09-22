@@ -14,7 +14,7 @@ load_pkgs(pkgs)
 
 options(stringsAsFactors = F, warn = -1, warnings = -1)
 
-plot_format_main <- '.tiff'
+plot_format_main <- '.png'
 plot_format <- '.png'
 hi_res <- 600
 lo_res <- 300
