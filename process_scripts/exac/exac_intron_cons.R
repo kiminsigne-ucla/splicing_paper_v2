@@ -434,7 +434,7 @@ ggplot(nat_cons, aes(rel_pos_binned, mean_cons_per_rel_pos, color = exon_type)) 
     ylim(c(0, 1)) +
     theme(axis.text.x = element_blank(), axis.ticks.x = element_blank()) +
     theme(legend.position = c(0.85, 0.80)) +
-    labs(x = 'scaled position', 
+    labs(x = 'relative scaled position', 
          y = 'average phastCons score', color = 'exon phase')
 
 ggsave(paste0('../../figs/supplement/genome_exon_cons_inframe_vs_outframe', plot_format),
