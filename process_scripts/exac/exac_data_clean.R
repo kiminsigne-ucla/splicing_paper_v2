@@ -95,11 +95,29 @@ exac_v2 <- exac_v2 %>%
            v2_index_R2 = (Hi.R2_norm * 0 + IntHi.R2_norm * 0.80 + IntLo.R2_norm * 0.95 + Lo.R2_norm * 1) / 
                (Hi.R2_norm + IntHi.R2_norm + IntLo.R2_norm + Lo.R2_norm),
            v2_R1_norm_sum = Hi.R1_norm + IntHi.R1_norm + IntLo.R1_norm + Lo.R1_norm,
-           v2_R2_norm_sum = Hi.R2_norm + IntHi.R2_norm + IntLo.R2_norm + Lo.R2_norm) %>%
-    # rep agreement
+           v2_R2_norm_sum = Hi.R2_norm + IntHi.R2_norm + IntLo.R2_norm + Lo.R2_norm)
+
+# correlation for v2 before index filter
+corr <- cor(exac_v2$v2_index_R1, exac_v2$v2_index_R2)
+gg <- exac_v2 %>% 
+    mutate(rep_quality = ifelse(abs(v2_index_R1 - v2_index_R2) <= 0.20, 'high', 'low')) %>% 
+    ggplot(aes(v2_index_R1, v2_index_R2)) + 
+    geom_point(alpha = 0.25, aes(color = rep_quality)) +
+    scale_color_manual(values = c('black', 'darkgrey')) +
+    labs(x = 'SNV library V2 replicate 1', 
+         y = 'SNV library V2 replicate 2') +
+    theme(legend.position = 'none') +
+    annotate('text', x = 0.90, y = 0.10, 
+             label = paste0('r = ', signif(corr, 3)), size = 5)
+
+ggsave(paste0('../../figs/supplement/exac_v2_replicates', plot_format), gg, 
+       width = 6, height = 6, dpi = 300)
+
+exac_v2 <- exac_v2 %>% 
     filter(abs(v2_index_R1 - v2_index_R2) <= rep_agreement)
 
 print(paste("Number of sequences after index filter (v1, v2):", nrow(exac_v1), nrow(exac_v2)))
+
 
 ###############################################################################
 # join data
@@ -115,14 +133,13 @@ data_all$v1_index <- rowMeans(select(data_all, v1_index_R1, v1_index_R2))
 data_all$v2_index <- rowMeans(select(data_all, v2_index_R1, v2_index_R2))
 
 # Correlation between v1 and v2
-fit <- summary(lm(v2_index ~ v1_index, data_all))$r.squared
+corr <- cor(data_all$v1_index, data_all$v2_index, use = 'p')
 gg <- ggplot(data_all, aes(v1_index, v2_index)) + geom_point(alpha = 0.25) +
-    geom_smooth(method = 'lm', color = 'red') +
-    labs(x = 'ExAC V1', y = 'ExAC V2') +
-    annotate('text', x = 0.95, y = 0.10, parse = T, 
-             label = paste0('R^2==', signif(fit, 3)), size = 5)
+    labs(x = 'SNV library V1', y = 'SNV library V2') +
+    annotate('text', x = 0.97, y = 0.08, 
+             label = paste0('r = ', signif(corr, 3)), size = 5)
 
-ggsave(paste0('../../figs/exac/exac_v1_v2_replicates', plot_format), gg,
+ggsave(paste0('../../figs/supplement/exac_v1_v2_replicates', plot_format), gg,
        width = 6, height = 6, dpi = 300)
 
 # read in updated ref
@@ -148,13 +165,6 @@ data_all[data_all == 'NaN'] <- NA
 ###############################################################################
 # filtering on natural exon inclusion 
 ###############################################################################
-
-# keep SKP and RANDOM-EXON categories
-data_other <- data_all %>% 
-    group_by(ensembl_id) %>% 
-    filter(any(sub_id == 'SKP') | (any(ensembl_id == 'RANDOM-EXON')) ) %>%
-    ungroup()
-
 data <- data_all %>% 
     group_by(ensembl_id) %>% 
     # mutant must have corresponding natural that passed previous filters
@@ -182,12 +192,26 @@ data <- data %>%
            delta_dpsi = abs(v1_dpsi - v2_dpsi) ) %>%
     ungroup()
 
-data_other <- data_other %>%
-  rowwise() %>%
-  mutate(v1_dpsi = mean(c(v1_dpsi_R1, v1_dpsi_R2)),
-         v2_dpsi = mean(c(v2_dpsi_R1, v2_dpsi_R2)),
-         delta_dpsi = abs(v1_dpsi - v2_dpsi) ) %>%
-  ungroup()
+# keep SKP and RANDOM-EXON categories
+data_other <- data_all %>% 
+    group_by(ensembl_id) %>% 
+    filter(any(sub_id == 'SKP') | (any(ensembl_id == 'RANDOM-EXON')) ) %>%
+    ungroup() %>% 
+    mutate(category = case_when(.$sub_id == 'SKP' ~ 'skipped control',
+                                .$ensembl_id == 'RANDOM-EXON' ~ 'random exon'))
+data_other <- bind_rows(data_other, filter(data, category == 'control'))
+
+# plot controls
+data_other %>% 
+    bind_rows(filter(data, category == 'natural')) %>% 
+    ggplot(aes(v2_index)) + geom_density(aes(color = category)) +
+    scale_color_discrete(labels = c('broke SD/SA control', 'wild-type sequences',
+                                    'random control', 'skipped control')) +
+    labs(x = 'inclusion index') +
+    theme(legend.position = c(0.75, 0.80))
+
+ggsave('../../figs/supplement/exac_controls.png', width = 4, height = 4,
+       units = 'in', dpi = 300)
 
 dpsi_threshold <- -0.50
 dpsi_threshold_stringent <- -0.70
