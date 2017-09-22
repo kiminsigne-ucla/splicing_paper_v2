@@ -19,3 +19,4 @@ process_scripts/exac/.ipynb_checkpoints/exac_models-checkpoint.ipynb
 process_scripts/ensembl-vep/htslib
 process_scripts/exac/ref_file_diagnostics.R
 ref/exac/ExAC_SNVs.vcf.gz
+process_scripts/ensembl-vep/htslib
