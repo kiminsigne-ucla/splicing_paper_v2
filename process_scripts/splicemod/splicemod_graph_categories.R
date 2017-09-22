@@ -57,46 +57,6 @@ data <- data %>%
            abs(correct_acc_score_nat)) %>%
   ungroup()
 
-# compare ESE changes to random
-data %>% 
-    mutate(category = ifelse(grepl('ESE', category), 'perturb_ESE', category),
-           category = ifelse(grepl('rnd_exon', category), 'rnd_exon', category)) %>% 
-    filter(category == 'perturb_ESE' | category == 'rnd_exon') %>% 
-    t.test(dpsi_smn1 ~ category, data = ., alternative = 'less')
-
-# compare ESS changes to random
-data %>% 
-    mutate(category = ifelse(grepl('ESS', category), 'perturb_ESS', category),
-           category = ifelse(grepl('rnd_exon', category), 'rnd_exon', category)) %>% 
-    filter(category == 'perturb_ESS' | category == 'rnd_exon') %>% 
-    t.test(dpsi_smn1 ~ category, data = ., alternative = 'greater')
-
-# strongest ESE
-data %>% 
-    mutate(category = ifelse(grepl('rnd_exon', category), 'rnd_exon', category)) %>% 
-    filter(category == 'clst_Ke2011_ESE' | category == 'rnd_exon') %>% 
-    t.test(dpsi_smn1 ~ category, data = ., alternative = 'less')
-
-# strongest ESS
-data %>% 
-    mutate(category = ifelse(grepl('rnd_exon', category), 'rnd_exon', category)) %>% 
-    filter(category == 'clst_Ke2011_ESS' | category == 'rnd_exon') %>% 
-    t.test(dpsi_smn1 ~ category, data = ., alternative = 'greater')
-
-# intron changes
-data %>% 
-    mutate(category = ifelse(grepl('ICS', category), 'intron', category),
-           category = ifelse(grepl('rnd_intron', category), 'rnd_intron', category)) %>% 
-    filter(category == 'intron' | category == 'rnd_intron') %>% 
-    t.test(dpsi_smn1 ~ category, data = .)
-
-# label variants as exonic or intronic
-tmp <- data %>% 
-    separate(loc, into = c('loc_start', 'loc_end', sep = ':', convert = T)) %>% 
-    mutate(exon_start = ,
-           exon_end = ,
-           exon_overlap = ifelse(intersect(seq(loc_start, loc_end), seq(exon_start, exon_end))))
-
 ###############################################################################
 # MaxEnt 
 ###############################################################################
@@ -355,6 +315,10 @@ data <- data %>%
   mutate(HAL_bin = case_when(.$delta_avg_HAL_score < 0 ~ 'down',
                              .$delta_avg_HAL_score > 0 ~ 'up',
                              .$delta_avg_HAL_score == 0 ~ 'same'))
+
+data %>% 
+    filter(seq_type == 'mut', HAL_bin != 'same') %>% 
+    wilcox.test(dpsi_smn1 ~ HAL_bin, data = .)
 
 # SMN1 intron backbone
 gg <- data %>%

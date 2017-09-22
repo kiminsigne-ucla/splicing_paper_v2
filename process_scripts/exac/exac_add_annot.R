@@ -213,6 +213,13 @@ data <- data %>%
     left_join(select(exon_data_filtered, -(chr:ref_allele), -exon_id_old), 
               by = c('id', 'alt_allele')) 
 
+sdv_by_category <- data %>% 
+    group_by(consequence) %>% 
+    summarise(num_sdv = length(which(strong_lof == T)),
+              category_num = n()) %>% 
+    mutate(percent_sdv = num_sdv / category_num) %>% 
+    arrange(desc(num_sdv))
+
 ###############################################################################
 # CADD annotation
 ###############################################################################
