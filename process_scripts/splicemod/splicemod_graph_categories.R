@@ -91,11 +91,11 @@ data %>%
     t.test(dpsi_smn1 ~ category, data = .)
 
 # label variants as exonic or intronic
-tmp <- data %>% 
-    separate(loc, into = c('loc_start', 'loc_end', sep = ':', convert = T)) %>% 
-    mutate(exon_start = ,
-           exon_end = ,
-           exon_overlap = ifelse(intersect(seq(loc_start, loc_end), seq(exon_start, exon_end))))
+# tmp <- data %>%
+#     separate(loc, into = c('loc_start', 'loc_end', sep = ':', convert = T)) %>%
+#     mutate(exon_start = ,
+#            exon_end = ,
+#            exon_overlap = ifelse(intersect(seq(loc_start, loc_end), seq(exon_start, exon_end))))
 
 ###############################################################################
 # MaxEnt 
@@ -143,7 +143,7 @@ gg <- data %>%
         plot.margin = unit(c(0,0,3,0),"mm"),
         legend.position = 'none') 
 
-ggggsave(paste0('../../figs/splicemod/smn1/splicemod_smn1_don_acc', 
+ggsave(paste0('../../figs/splicemod/smn1/splicemod_smn1_don_acc', 
               plot_format_main), gg, 
        width = 4.6, height = 3, dpi = hi_res, scale = 1.3)
 ggsave(paste0('../../figs/splicemod/smn1/splicemod_smn1_don_acc', 
