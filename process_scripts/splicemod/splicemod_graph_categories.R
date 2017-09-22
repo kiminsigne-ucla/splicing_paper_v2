@@ -57,6 +57,7 @@ data <- data %>%
            abs(correct_acc_score_nat)) %>%
   ungroup()
 
+<<<<<<< HEAD
 # compare ESE changes to random
 data %>% 
     mutate(category = ifelse(grepl('ESE', category), 'perturb_ESE', category),
@@ -97,6 +98,8 @@ data %>%
 #            exon_end = ,
 #            exon_overlap = ifelse(intersect(seq(loc_start, loc_end), seq(exon_start, exon_end))))
 
+=======
+>>>>>>> 3e8ecbc6bdf85d90b6618cd5673bf4e4b24d5696
 ###############################################################################
 # MaxEnt 
 ###############################################################################
@@ -355,6 +358,10 @@ data <- data %>%
   mutate(HAL_bin = case_when(.$delta_avg_HAL_score < 0 ~ 'down',
                              .$delta_avg_HAL_score > 0 ~ 'up',
                              .$delta_avg_HAL_score == 0 ~ 'same'))
+
+data %>% 
+    filter(seq_type == 'mut', HAL_bin != 'same') %>% 
+    wilcox.test(dpsi_smn1 ~ HAL_bin, data = .)
 
 # SMN1 intron backbone
 gg <- data %>%

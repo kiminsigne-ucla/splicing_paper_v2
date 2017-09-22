@@ -107,8 +107,10 @@ gg <- exac_v2 %>%
     labs(x = 'SNV library V2 replicate 1', 
          y = 'SNV library V2 replicate 2') +
     theme(legend.position = 'none') +
-    annotate('text', x = 0.90, y = 0.10, 
-             label = paste0('r = ', signif(corr, 3)), size = 5)
+    annotate('text', x = 0.90, y = 0.10, parse = T,
+             label = paste('italic(r)==', signif(corr, 3)), size = 5) +
+    annotate('text', x = 0.90, y = 0.05, parse = T,
+             label = paste('italic(p) < 10^-16'), size = 5)
 
 ggsave(paste0('../../figs/supplement/exac_v2_replicates', plot_format), gg, 
        width = 6, height = 6, dpi = 300)
@@ -136,8 +138,10 @@ data_all$v2_index <- rowMeans(select(data_all, v2_index_R1, v2_index_R2))
 corr <- cor(data_all$v1_index, data_all$v2_index, use = 'p')
 gg <- ggplot(data_all, aes(v1_index, v2_index)) + geom_point(alpha = 0.25) +
     labs(x = 'SNV library V1', y = 'SNV library V2') +
-    annotate('text', x = 0.97, y = 0.08, 
-             label = paste0('r = ', signif(corr, 3)), size = 5)
+    annotate('text', x = 0.95, y = 0.10, parse = T,
+             label = paste('italic(r)==', signif(corr, 3)), size = 5) +
+    annotate('text', x = 0.95, y = 0.05, parse = T,
+             label = paste('italic(p) < 10^-16'), size = 5)
 
 ggsave(paste0('../../figs/supplement/exac_v1_v2_replicates', plot_format), gg,
        width = 6, height = 6, dpi = 300)
