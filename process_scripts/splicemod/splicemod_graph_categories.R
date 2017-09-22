@@ -199,11 +199,15 @@ ggsave(paste0('../../figs/splicemod/dhfr/splicemod_dhfr_don_acc',
 ###############################################################################
 # Splicemod categories
 ###############################################################################
-tmp <- data %>% 
-    mutate(test_cat = case_when(.$category == 'rmv_Ke2011_ESE' ~ T,
-                                .$category == 'clst_Ke2011_ESE' ~ T,
-                                TRUE ~ F))
-t.test(dpsi_smn1 ~ test_cat, tmp)
+
+sdv_by_category <- data %>% 
+    mutate(sdv = ifelse(dpsi_smn1 <= -0.50, T, F)) %>% 
+    group_by(category) %>% 
+    summarise(num_sdv = length(which(sdv == T)),
+              category_num = n()) %>% 
+    mutate(percent_sdv = num_sdv / category_num) %>% 
+    arrange(desc(num_sdv))
+
 
 esr_categories <- c('rmv_Ke2011_ESE', 'clst_Ke2011_ESE', 'rmv_Ke2011_ESS', 
                     'clst_Ke2011_ESS')
