@@ -208,7 +208,7 @@ data_other <- bind_rows(data_other, filter(data, category == 'control'))
 # plot controls
 data_other %>% 
     bind_rows(filter(data, category == 'natural')) %>% 
-    ggplot(aes(v2_index)) + geom_density(aes(fill = category)) +
+    ggplot(aes(v2_index)) + geom_density(aes(fill = category), alpha = 0.5) +
     scale_fill_discrete(labels = c('broken SD/SA control', 'wild-type sequences',
                                     'random nucleotides', 'skipped control')) +
     labs(x = 'inclusion index') +
