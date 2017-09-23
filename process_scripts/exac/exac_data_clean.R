@@ -202,19 +202,21 @@ data_other <- data_all %>%
     filter(any(sub_id == 'SKP') | (any(ensembl_id == 'RANDOM-EXON')) ) %>%
     ungroup() %>% 
     mutate(category = case_when(.$sub_id == 'SKP' ~ 'skipped control',
-                                .$ensembl_id == 'RANDOM-EXON' ~ 'random exon'))
+                                .$ensembl_id == 'RANDOM-EXON' ~ 'random nucleotides'))
 data_other <- bind_rows(data_other, filter(data, category == 'control'))
 
 # plot controls
 data_other %>% 
     bind_rows(filter(data, category == 'natural')) %>% 
-    ggplot(aes(v2_index)) + geom_density(aes(color = category)) +
-    scale_color_discrete(labels = c('broke SD/SA control', 'wild-type sequences',
-                                    'random control', 'skipped control')) +
+    ggplot(aes(v2_index)) + geom_density(aes(fill = category)) +
+    scale_fill_discrete(labels = c('broken SD/SA control', 'wild-type sequences',
+                                    'random nucleotides', 'skipped control')) +
     labs(x = 'inclusion index') +
-    theme(legend.position = c(0.75, 0.80))
+    theme(legend.position = c(0.40, 0.75),
+          legend.title = element_blank()) +
+    scale_x_continuous(breaks = c(0, 0.2, 0.4, 0.6, 0.8, 1)) 
 
-ggsave('../../figs/supplement/exac_controls.png', width = 4, height = 4,
+ggsave('../../figs/supplement/exac_controls.png', width = 4.5, height = 4,
        units = 'in', dpi = 300)
 
 dpsi_threshold <- -0.50
