@@ -57,7 +57,6 @@ data <- data %>%
            abs(correct_acc_score_nat)) %>%
   ungroup()
 
-<<<<<<< HEAD
 # compare ESE changes to random
 data %>% 
     mutate(category = ifelse(grepl('ESE', category), 'perturb_ESE', category),
@@ -91,15 +90,6 @@ data %>%
     filter(category == 'intron' | category == 'rnd_intron') %>% 
     t.test(dpsi_smn1 ~ category, data = .)
 
-# label variants as exonic or intronic
-# tmp <- data %>%
-#     separate(loc, into = c('loc_start', 'loc_end', sep = ':', convert = T)) %>%
-#     mutate(exon_start = ,
-#            exon_end = ,
-#            exon_overlap = ifelse(intersect(seq(loc_start, loc_end), seq(exon_start, exon_end))))
-
-=======
->>>>>>> 3e8ecbc6bdf85d90b6618cd5673bf4e4b24d5696
 ###############################################################################
 # MaxEnt 
 ###############################################################################
@@ -203,15 +193,6 @@ ggsave(paste0('../../figs/splicemod/dhfr/splicemod_dhfr_don_acc',
 # Splicemod categories
 ###############################################################################
 
-sdv_by_category <- data %>% 
-    mutate(sdv = ifelse(dpsi_smn1 <= -0.50, T, F)) %>% 
-    group_by(category) %>% 
-    summarise(num_sdv = length(which(sdv == T)),
-              category_num = n()) %>% 
-    mutate(percent_sdv = num_sdv / category_num) %>% 
-    arrange(desc(num_sdv))
-
-
 esr_categories <- c('rmv_Ke2011_ESE', 'clst_Ke2011_ESE', 'rmv_Ke2011_ESS', 
                     'clst_Ke2011_ESS')
 esr_labels <- c('weaken ESEs', 'destroy strongest ESE', 'weaken ESSs', 
@@ -297,6 +278,16 @@ ggsave(paste0('../../figs/splicemod/smn1/',
               'splicemod_smn1_all_categories', plot_format), 
        gg, width = 12, height = 5, dpi = lo_res)
 
+# percent splice-disrupting mutants by category
+sdv_by_category_smn1 <- data %>% 
+  mutate(sdv_smn1 = ifelse(dpsi_smn1 <= -0.50, T, F)) %>% 
+  group_by(category) %>% 
+  summarise(num_sdv_smn1 = length(which(sdv_smn1 == T)),
+            category_num_smn1 = n()) %>% 
+  mutate(percent_sdv_smn1 = num_sdv_smn1/ category_num_smn1) %>%
+  arrange(desc(num_sdv_smn1))
+
+
 # DHFR intron backbone
 gg <- data %>% 
   filter(seq_type == 'mut') %>% 
@@ -337,6 +328,15 @@ ggsave(paste0('../../figs/splicemod/dhfr/',
 ggsave(paste0('../../figs/splicemod/dhfr/',
               'splicemod_dhfr_all_categories', plot_format), 
        gg, width = 12, height = 5, dpi = lo_res)
+
+# percent splice-disrupting mutants by category
+sdv_by_category_dhfr <- data %>% 
+  mutate(sdv_dhfr = ifelse(dpsi_dhfr <= -0.50, T, F)) %>% 
+  group_by(category) %>% 
+  summarise(num_sdv_dhfr = length(which(sdv_dhfr == T)),
+            category_num_dhfr = n()) %>% 
+  mutate(percent_sdv_dhfr = num_sdv_dhfr/ category_num_dhfr) %>%
+  arrange(desc(num_sdv_dhfr))
 
 ###############################################################################
 # Exonic motifs
@@ -552,4 +552,5 @@ png(paste0('../../figs/splicemod/both/legend', plot_format),
 grid.newpage()
 grid.draw(legend)
 dev.off()
+
 

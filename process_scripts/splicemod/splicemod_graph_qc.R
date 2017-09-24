@@ -24,7 +24,7 @@ data <- read.table('../../processed_data/splicemod/splicemod_data_clean.txt',
 
 ###############################################################################
 
-# Index across SMN1 replicates
+# Index across SMN1 biological replicates
 corr <- cor(data$index_R1_smn1, data$index_R2_smn1, use = 'p')
 gg <- data %>% 
     ggplot(aes(index_R1_smn1, index_R2_smn1)) + 
@@ -50,7 +50,7 @@ gg <- data %>%
 ggsave(paste0('../../figs/splicemod/smn1/splicemod_smn1_replicates', 
               plot_format_main), gg, width = 5, height = 5, dpi = hi_res)
 
-# Index across DHFR replicates
+# Index across DHFR biological replicates
 corr <- signif(cor(data$index_R1_dhfr, data$index_R2_dhfr, use = 'p'), 3)
 gg <- data %>% 
     ggplot(aes(index_R1_dhfr, index_R2_dhfr)) + 
