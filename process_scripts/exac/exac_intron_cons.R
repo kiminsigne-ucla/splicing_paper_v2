@@ -1,3 +1,5 @@
+load(exac_intron_cons.RData)
+
 load_pkgs <- function(pkgs){
     new_pkgs <- pkgs[!(pkgs %in% installed.packages()[, 'Package'])]
     if(length(new_pkgs)) install.packages(new_pkgs)
@@ -43,12 +45,10 @@ intron_coords %>%
     write.table(file = '../../processed_data/exac/exac_intron_coords.bed', 
                 sep = '\t', quote = F, row.names = F, col.names = F)
 
-
 system(paste('bash',
              '../run_phastCons.sh',
-             '../../processed_data/exac/exac_intron_coords.bed', 
+             '../../processed_data/exac/exac_intron_coords.bed',
              '../../processed_data/exac/exac_intron_cons_scores_all.bed'))
-
 
 intron_cons <- read.table('../../processed_data/exac/exac_intron_cons_scores_all.bed', 
                           sep = '\t', header = F,
@@ -116,45 +116,72 @@ data <- data %>%
 
 # supplement, synthetic short intron conservation vs. 100 bp conservation
 # upstream
-ggplot(data, aes(upstr_intron_mean_cons, upstr_intron_100_mean_cons)) + 
-    geom_point() +
-    geom_abline(intercept = 0, slope = 1) +
-    labs(x = 'average phastCons score\nshort upstream intron (40-81bp)', 
-         y = 'average phastCons score\nupstream intron (100 bp)')
+up <- ggplot(data, aes(upstr_intron_mean_cons, upstr_intron_100_mean_cons)) + 
+    geom_point(alpha = 0.1) +
+    geom_abline(intercept = 0, slope = 1, type = 'dashed') +
+    labs(x = 'average phastCons score\nupstream intron (40-81bp)', 
+         y = 'average phastCons score\nupstream intron (100 bp)') +
+    theme(legend.position = 'none',
+        axis.title.x = element_text(size = 20, vjust = -2), 
+        axis.title.y = element_text(size = 20, vjust = +4),
+        axis.text.x = element_text(size = 14, color = 'grey20'),
+        axis.text.y = element_text(size = 14, color = 'grey20'),
+        axis.ticks.x = element_line(color = 'grey50'),
+        axis.ticks.y = element_line(color = 'grey50'),
+        axis.line.x = element_line(color = 'grey50'),
+        axis.line.y = element_line(color = 'grey50'),
+        plot.margin = unit(c(2,2,3,3),"mm")) 
+up
 
 ggsave(paste0('../../figs/supplement/exac_upstr_intron_cons_short_vs_full', plot_format),
-       height = 4, width = 4, unit = 'in')
+       height = 6, width = 6, unit = 'in')
 
 ggplot(data, aes(upstr_intron_mean_cons - upstr_intron_100_mean_cons)) +
     geom_density() + 
-    labs(x = 'mean phastCons short upstream intron (40-81bp) -
+    labs(x = 'mean phastCons upstream intron (40-81bp) -
          mean phastCons upstream intron (100 bp)')
 
 # downstream
-ggplot(data, aes(downstr_intron_mean_cons, downstr_intron_100_mean_cons)) + 
-    geom_point() + 
-    geom_abline(intercept = 0, slope = 1) +
-    labs(x = 'average phastCons score\nshort downstream intron (30-71bp)', 
-         y = 'average phastCons score\ndownstream intron (100 bp)')
+down <- ggplot(data, aes(downstr_intron_mean_cons, downstr_intron_100_mean_cons)) + 
+    geom_point(alpha = 0.1) + 
+    geom_abline(intercept = 0, slope = 1, type = 'dashed') +
+    labs(x = 'average phastCons score\ndownstream intron (30-71bp)', 
+         y = 'average phastCons score\ndownstream intron (100 bp)') +
+    theme(legend.position = 'none',
+        axis.title.x = element_text(size = 20, vjust = -2), 
+        axis.title.y = element_text(size = 20, vjust = +4),
+        axis.text.x = element_text(size = 14, color = 'grey20'),
+        axis.text.y = element_text(size = 14, color = 'grey20'),
+        axis.ticks.x = element_line(color = 'grey50'),
+        axis.ticks.y = element_line(color = 'grey50'),
+        axis.line.x = element_line(color = 'grey50'),
+        axis.line.y = element_line(color = 'grey50'),
+        plot.margin = unit(c(2,2,3,3),"mm")) 
+down
 
 ggsave(paste0('../../figs/supplement/exac_downstr_intron_cons_short_vs_full', plot_format),
-       height = 4, width = 4, unit = 'in')
+       height = 6, width = 6, unit = 'in')
+
+plot_grid(up, down, labels = "AUTO")
+
+ggsave(paste0('../../figs/supplement/exac_upstr_downstr_intron_cons_short_vs_full', plot_format),
+       height = 6, width = 12, unit = 'in')
 
 # combined
 data %>% 
     mutate(upstr_cons_diff = upstr_intron_mean_cons - upstr_intron_100_mean_cons,
-           downstr_cons_diff = downstr_intron_mean_cons - downstr_intron_mean_cons) %>% 
+           downstr_cons_diff = downstr_intron_mean_cons - downstr_intron_100_mean_cons) %>% 
     gather(key = 'intron_type', value = 'mean_cons_diff', upstr_cons_diff:downstr_cons_diff) %>% 
     ggplot(aes(mean_cons_diff)) + geom_density(aes(color = intron_type)) +
     scale_color_discrete(labels = c('downstream intron', 'upstream intron')) +
     labs(color = '',
-         x = 'short intron (30-81bp) mean phastCons - \n100bp mean phastCons') +
-    theme(legend.position = c(0.80, 0.80),
-          axis.title.x = element_text(size = 10),
+         x = 'intron (30-81bp) mean phastCons - \nintron (100bp) mean phastCons') +
+    theme(legend.position = c(0.675, 0.675),
+          axis.title.x = element_text(size = 14),
           legend.text = element_text(size = 10))
     
 ggsave(paste0('../../figs/supplement/exac_upstr_downstr_cons', plot_format),
-       height = 3, width = 4, unit = 'in')
+       height = 3, width = 5, unit = 'in')
 
 ###############################################################################
 # Let's get conservation for the intronic portions of the splice donor and 
@@ -286,10 +313,10 @@ inframe_outframe_exons %>%
     write.table(file = '../../processed_data/exac/nat_upstr_intron_positions.bed', 
                 sep = '\t', col.names = F, row.names = F, quote = F)
 
-system(paste('bash',
-             '../run_phastCons.sh',
-             '../../processed_data/exac/nat_upstr_intron_positions.bed', 
-             '../../processed_data/exac/nat_upstr_intron_cons_scores_all.bed'))
+# system(paste('bash',
+#              '../run_phastCons.sh',
+#              '../../processed_data/exac/nat_upstr_intron_positions.bed', 
+#              '../../processed_data/exac/nat_upstr_intron_cons_scores_all.bed'))
 
 # downstream intron
 inframe_outframe_exons %>% 
@@ -307,10 +334,10 @@ inframe_outframe_exons %>%
     write.table(file = '../../processed_data/exac/nat_downstr_intron_positions.bed', 
                 sep = '\t', col.names = F, row.names = F, quote = F)
 
-system(paste('bash',
-             '../run_phastCons.sh',
-             '../../processed_data/exac/nat_downstr_intron_positions.bed', 
-             '../../processed_data/exac/nat_downstr_intron_cons_scores_all.bed'))
+# system(paste('bash',
+#              '../run_phastCons.sh',
+#              '../../processed_data/exac/nat_downstr_intron_positions.bed', 
+#              '../../processed_data/exac/nat_downstr_intron_cons_scores_all.bed'))
 
 # exon
 inframe_outframe_exons %>%                             
@@ -328,10 +355,10 @@ inframe_outframe_exons %>%
     write.table(file = '../../processed_data/exac/nat_exon_positions.bed', 
                 sep = '\t', col.names = F, row.names = F, quote = F)
 
-system(paste('bash',
-             '../run_phastCons.sh',
-             '../../processed_data/exac/nat_exon_positions.bed', 
-             '../../processed_data/exac/nat_exon_cons_scores_all.bed'))
+# system(paste('bash',
+#              '../run_phastCons.sh',
+#              '../../processed_data/exac/nat_exon_positions.bed', 
+#              '../../processed_data/exac/nat_exon_cons_scores_all.bed'))
 
 # it takes awhile to read in the conservation score files and calculate summary,
 # so we'll only do this if they don't already exist
