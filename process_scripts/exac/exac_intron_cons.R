@@ -321,10 +321,10 @@ inframe_outframe_exons %>%
     write.table(file = '../../processed_data/exac/nat_upstr_intron_positions.bed', 
                 sep = '\t', col.names = F, row.names = F, quote = F)
 
-# system(paste('bash',
-#              '../run_phastCons.sh',
-#              '../../processed_data/exac/nat_upstr_intron_positions.bed', 
-#              '../../processed_data/exac/nat_upstr_intron_cons_scores_all.bed'))
+system(paste('bash',
+             '../run_phastCons.sh',
+             '../../processed_data/exac/nat_upstr_intron_positions.bed',
+             '../../processed_data/exac/nat_upstr_intron_cons_scores_all.bed'))
 
 # downstream intron
 inframe_outframe_exons %>% 
@@ -342,10 +342,10 @@ inframe_outframe_exons %>%
     write.table(file = '../../processed_data/exac/nat_downstr_intron_positions.bed', 
                 sep = '\t', col.names = F, row.names = F, quote = F)
 
-# system(paste('bash',
-#              '../run_phastCons.sh',
-#              '../../processed_data/exac/nat_downstr_intron_positions.bed', 
-#              '../../processed_data/exac/nat_downstr_intron_cons_scores_all.bed'))
+system(paste('bash',
+             '../run_phastCons.sh',
+             '../../processed_data/exac/nat_downstr_intron_positions.bed',
+             '../../processed_data/exac/nat_downstr_intron_cons_scores_all.bed'))
 
 # exon
 inframe_outframe_exons %>%                             
@@ -363,10 +363,10 @@ inframe_outframe_exons %>%
     write.table(file = '../../processed_data/exac/nat_exon_positions.bed', 
                 sep = '\t', col.names = F, row.names = F, quote = F)
 
-# system(paste('bash',
-#              '../run_phastCons.sh',
-#              '../../processed_data/exac/nat_exon_positions.bed', 
-#              '../../processed_data/exac/nat_exon_cons_scores_all.bed'))
+system(paste('bash',
+             '../run_phastCons.sh',
+             '../../processed_data/exac/nat_exon_positions.bed',
+             '../../processed_data/exac/nat_exon_cons_scores_all.bed'))
 
 # it takes awhile to read in the conservation score files and calculate summary,
 # so we'll only do this if they don't already exist
