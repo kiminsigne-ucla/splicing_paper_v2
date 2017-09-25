@@ -141,6 +141,10 @@ data_all <- full_join(exac_v1, exac_v2, by = 'header') %>%
 data_all$v1_index <- rowMeans(select(data_all, v1_index_R1, v1_index_R2))
 data_all$v2_index <- rowMeans(select(data_all, v2_index_R1, v2_index_R2))
 
+data2 <- data %>% filter(!is.na(v2_index), category == 'mutant')
+cor(data2$v2_index_R1, data2$v2_index_R2, method = 'kendall')
+
+
 # Correlation between v1 and v2
 corr <- signif(cor(data_all$v1_index, data_all$v2_index, use = 'p'), 2)
 gg <- ggplot(data_all, aes(v1_index, v2_index)) + geom_point(alpha = 0.25) +

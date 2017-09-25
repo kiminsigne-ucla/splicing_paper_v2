@@ -11,6 +11,8 @@ load_pkgs(pkgs)
 
 options(stringsAsFactors = F, warn = -1, warnings = -1)
 
+plot_format <- '.png'
+
 ###############################################################################
 # SNV density, genome-wide
 ###############################################################################
@@ -49,7 +51,7 @@ nat_snps <- nat_snps %>%
                              .$id == 'intron' & .$feature_len - .$rel_position <= n ~ 'upstr_intron',
                              TRUE ~ 'intron'))
 
-# average number of SNVs intron vs. exon
+# average number of SNVs intron vs. exon, genome-wide
 nat_snps %>% 
     # combine upstream and downstream into one for graph purposes
     mutate(label = ifelse(grepl('intron', label), 'intron', 'exon'),
@@ -60,14 +62,28 @@ nat_snps %>%
     group_by(rel_pos_binned, label) %>% 
     summarise(num_snps = n()) %>% 
     ggplot(aes(rel_pos_binned, num_snps)) + geom_point() +
-    theme(axis.text.x = element_blank(), axis.ticks.x = element_blank()) +
     facet_grid(. ~ label) +
-    labs(x = 'relative scaled position', y = 'average number of SNVs')
+    coord_cartesian(ylim = c(0,38500)) +
+    scale_y_continuous(breaks = seq(10000, 30000, by = 10000), expand = c(0,0)) +
+    labs(x = 'scaled position', y = 'average\nnumber of SNVs') +
+    theme(
+        strip.text = element_text(size = 16),
+        strip.background = element_rect(fill = "#E8E8E8", color = "white"),
+        legend.position = 'none',
+        axis.title.x = element_text(size = 14, vjust = -2), 
+        axis.title.y = element_text(size = 14, vjust = +4),
+        axis.text.x = element_blank(),
+        axis.text.y = element_text(size = 10, color = 'grey20'),
+        axis.ticks.x = element_blank(),
+        axis.ticks.y = element_line(color = 'grey50'),
+        axis.line.x = element_line(color = 'grey50'),
+        axis.line.y = element_line(color = 'grey50'),
+        plot.margin = unit(c(2,2,3,3),"mm")) 
 
 ggsave(paste0('../../figs/supplement/genome_num_SNVs_exon_vs_intron', plot_format),
        height = 3, width = 4, unit = 'in')
 
-# relative position of SNVs, genome-widr
+# relative position of SNVs, genome-wide
 nat_snps <- nat_snps %>% 
     mutate(rel_position = ifelse(label == 'upstr_intron', 
                                  # make upstream intron negative for graphing purposes
