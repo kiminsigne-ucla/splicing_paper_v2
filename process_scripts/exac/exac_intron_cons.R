@@ -121,6 +121,8 @@ up <- ggplot(data, aes(upstr_intron_mean_cons, upstr_intron_100_mean_cons)) +
     geom_abline(intercept = 0, slope = 1, type = 'dashed') +
     labs(x = 'average phastCons score\nupstream intron (40-81bp)', 
          y = 'average phastCons score\nupstream intron (100 bp)') +
+    scale_x_continuous(breaks = c(0, 0.2, 0.4, 0.6, 0.8, 1)) +
+    scale_y_continuous(breaks = c(0, 0.2, 0.4, 0.6, 0.8, 1)) +
     theme(legend.position = 'none',
         axis.title.x = element_text(size = 20, vjust = -2), 
         axis.title.y = element_text(size = 20, vjust = +4),
@@ -147,6 +149,8 @@ down <- ggplot(data, aes(downstr_intron_mean_cons, downstr_intron_100_mean_cons)
     geom_abline(intercept = 0, slope = 1, type = 'dashed') +
     labs(x = 'average phastCons score\ndownstream intron (30-71bp)', 
          y = 'average phastCons score\ndownstream intron (100 bp)') +
+    scale_x_continuous(breaks = c(0, 0.2, 0.4, 0.6, 0.8, 1)) +
+    scale_y_continuous(breaks = c(0, 0.2, 0.4, 0.6, 0.8, 1)) +
     theme(legend.position = 'none',
         axis.title.x = element_text(size = 20, vjust = -2), 
         axis.title.y = element_text(size = 20, vjust = +4),
@@ -174,6 +178,7 @@ data %>%
     gather(key = 'intron_type', value = 'mean_cons_diff', upstr_cons_diff:downstr_cons_diff) %>% 
     ggplot(aes(mean_cons_diff)) + geom_density(aes(fill = intron_type), alpha = 0.2) +
     scale_fill_discrete(labels = c('downstream intron', 'upstream intron')) +
+    scale_x_continuous(breaks = c(-0.4, -0.2, 0, 0.2, 0.4, 0.6)) +
     labs(color = '',
          x = expression(paste(Delta, ' avg. phastCons score (short - long introns)')
                         )) +
@@ -298,7 +303,16 @@ inframe_outframe_exons %>%
     mutate(frame = paste(phase, end_phase, sep=',')) %>% 
     ggplot(aes(frame)) + geom_bar() +
     labs(x = 'exon start phase, end phase') +
-    theme(axis.text.x = element_text(size = 12, angle = 45, hjust=1))
+    theme(legend.title = element_blank(),
+        legend.position = c(0.625, 0.85),
+        axis.title.x = element_text(size = 14),
+        axis.text.x = element_text(size = 12, angle = 45, hjust=1, color = 'grey20'),
+        axis.text.y = element_text(size = 12, color = 'grey20'),
+        axis.ticks.x = element_line(color = 'grey50'),
+        axis.ticks.y = element_line(color = 'grey50'),
+        axis.line.x = element_line(color = 'grey50'),
+        axis.line.y = element_line(color = 'grey50'),
+        legend.text = element_text(size = 12))
 
 ggsave(paste0('../../figs/supplement/genome_exon_phase_dist', plot_format),
        height = 3, width = 4, units = 'in')
@@ -466,11 +480,22 @@ levels(nat_cons$exon_type) <- c('phase (0-0)', 'other phases')
 # natural conservation between in-frame and out-of-frame exons, genome-wide
 ggplot(nat_cons, aes(rel_pos_binned, mean_cons_per_rel_pos, color = exon_type)) +
     geom_point() + scale_color_manual(values = c('black', 'red')) +
-    ylim(c(0, 1)) +
     theme(axis.text.x = element_blank(), axis.ticks.x = element_blank()) +
     theme(legend.position = c(0.85, 0.80)) +
-    labs(x = 'relative scaled position', 
-         y = 'average phastCons score', color = 'exon phase')
+    labs(x = '', 
+         y = 'average\nphastCons score', color = 'exon phase') +
+    scale_y_continuous(breaks = c(0, 0.2, 0.4, 0.6, 0.8, 1)) +
+    coord_cartesian(ylim=c(0, 1)) +
+    theme(legend.title = element_blank(),
+        legend.position = c(0.675, 0.7),
+        axis.title.x = element_text(size = 14),
+        axis.text.x = element_blank(),
+        axis.text.y = element_text(size = 10, color = 'grey20'),
+        axis.ticks.x = element_blank(),
+        axis.ticks.y = element_line(color = 'grey50'),
+        axis.line.x = element_line(color = 'grey50'),
+        axis.line.y = element_line(color = 'grey50'),
+        legend.text = element_text(size = 12))
 
 ggsave(paste0('../../figs/supplement/genome_exon_cons_inframe_vs_outframe', plot_format),
        height = 4, width = 5, unit = 'in')
