@@ -74,7 +74,7 @@ exac_v2 <- exac_v2 %>%
     mutate(v2_R1_sum = Hi.R1 + IntHi.R1 + IntLo.R1 + Lo.R1,
            v2_R2_sum = Hi.R2 + IntHi.R2 + IntLo.R2 + Lo.R2) %>% 
     # read filter
-    filter(v2_R1_sum >= hi_read_threshold, v2_R2_sum >= hi_read_threshold)
+    filter(v2_R1_sum >= hi_read_threshold, v2_R2_sum >= hi_read_threshold) 
 
 print(paste("Number of sequences after read filter (v1, v2):", nrow(exac_v1), nrow(exac_v2)))
 
@@ -89,26 +89,27 @@ exac_v1 <- exac_v1 %>%
     filter(abs(v1_index_R1 - v1_index_R2) <= rep_agreement)
 
 exac_v2 <- exac_v2 %>% 
-    mutate(v2_index_R1 = (Hi.R1_norm * 0 + IntHi.R1_norm * 0.80 + IntLo.R1_norm * 0.95 + Lo.R1_norm * 1) / 
+     mutate(v2_index_R1 = (Hi.R1_norm * 0 + IntHi.R1_norm * 0.80 + IntLo.R1_norm * 0.95 + Lo.R1_norm * 1) / 
                (Hi.R1_norm + IntHi.R1_norm + IntLo.R1_norm + Lo.R1_norm), 
            v2_index_R2 = (Hi.R2_norm * 0 + IntHi.R2_norm * 0.80 + IntLo.R2_norm * 0.95 + Lo.R2_norm * 1) / 
                (Hi.R2_norm + IntHi.R2_norm + IntLo.R2_norm + Lo.R2_norm),
            v2_R1_norm_sum = Hi.R1_norm + IntHi.R1_norm + IntLo.R1_norm + Lo.R1_norm,
-           v2_R2_norm_sum = Hi.R2_norm + IntHi.R2_norm + IntLo.R2_norm + Lo.R2_norm)
+           v2_R2_norm_sum = Hi.R2_norm + IntHi.R2_norm + IntLo.R2_norm + Lo.R2_norm) 
 
 # correlation for v2 before index filter
 corr <-  signif(cor(exac_v2$v2_index_R1, exac_v2$v2_index_R2), 2)
-gg <- exac_v2 %>% 
+gg <- exac_v2 %>%
     mutate(rep_quality = ifelse(abs(v2_index_R1 - v2_index_R2) <= 0.20, 'high', 'low')) %>% 
     ggplot(aes(v2_index_R1, v2_index_R2)) + 
     geom_point(alpha = 0.25, aes(color = rep_quality)) +
     scale_color_manual(values = c('black', 'darkgrey')) +
     scale_x_continuous(breaks = c(0, 0.2, 0.4, 0.6, 0.8, 1)) +
     scale_y_continuous(breaks = c(0, 0.2, 0.4, 0.6, 0.8, 1)) +
-    labs(x = 'SNV library v2 (Rep. 1)', y = 'SNV library v2 (Rep. 2)') +
+    labs(x = 'inclusion index (v2 replicate 1)', 
+         y = 'inclusion index (v2 replicate 2)') +
     theme(legend.position = 'none',
-        axis.title.x = element_text(size = 20, vjust = -2), 
-        axis.title.y = element_text(size = 20, vjust = +4),
+        axis.title.x = element_text(size = 16, vjust = -2), 
+        axis.title.y = element_text(size = 16, vjust = +4),
         axis.text.x = element_text(size = 14, color = 'grey20'),
         axis.text.y = element_text(size = 14, color = 'grey20'),
         axis.ticks.x = element_line(color = 'grey50'),
@@ -124,9 +125,6 @@ gg <- exac_v2 %>%
 
 ggsave(paste0('../../figs/supplement/exac_v2_replicates', plot_format), gg,
        width = 6, height = 6, dpi = hi_res)
-
-exac_v2 <- exac_v2 %>%
-    filter(abs(v2_index_R1 - v2_index_R2) <= rep_agreement)
 
 print(paste("Number of sequences after index filter (v1, v2):", nrow(exac_v1), nrow(exac_v2)))
 
@@ -148,10 +146,10 @@ corr <- signif(cor(data_all$v1_index, data_all$v2_index, use = 'p'), 2)
 gg <- ggplot(data_all, aes(v1_index, v2_index)) + geom_point(alpha = 0.25) +
   scale_x_continuous(breaks = c(0, 0.2, 0.4, 0.6, 0.8, 1)) +
   scale_y_continuous(breaks = c(0, 0.2, 0.4, 0.6, 0.8, 1)) +
-  labs(x = 'SNV library v1', y = 'SNV library v2') +
+  labs(x = 'inclusion index (SNV library v1)', y = 'inclusion index (SNV library v2)') +
   theme(legend.position = 'none',
-        axis.title.x = element_text(size = 20, vjust = -2), 
-        axis.title.y = element_text(size = 20, vjust = +4),
+        axis.title.x = element_text(size = 16, vjust = -2), 
+        axis.title.y = element_text(size = 16, vjust = +4),
         axis.text.x = element_text(size = 14, color = 'grey20'),
         axis.text.y = element_text(size = 14, color = 'grey20'),
         axis.ticks.x = element_line(color = 'grey50'),
