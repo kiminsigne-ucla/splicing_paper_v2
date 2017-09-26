@@ -6,7 +6,7 @@ load_pkgs <- function(pkgs){
     }
 }
 
-pkgs <- c('dplyr', 'tidyr', 'ggplot2', 'cowplot')
+pkgs <- c('dplyr', 'tidyr', 'ggplot2', 'cowplot', 'weights')
 load_pkgs(pkgs)
 
 options(stringsAsFactors = F, warn = -1, warnings = -1)
@@ -67,12 +67,14 @@ rep_agreement <- 0.20
 # read filter
 exac_v1 <- exac_v1 %>%
     mutate(v1_R1_sum = DP_R1 + INT_R1 + SP_R1,
-           v1_R2_sum = DP_R2 + INT_R2 + SP_R2) %>%
+           v1_R2_sum = DP_R2 + INT_R2 + SP_R2,
+           v1_sum = v1_R1_sum + v1_R2_sum) %>%
     filter(v1_R1_sum >= hi_read_threshold, v1_R2_sum >= hi_read_threshold)
 
 exac_v2 <- exac_v2 %>%
     mutate(v2_R1_sum = Hi.R1 + IntHi.R1 + IntLo.R1 + Lo.R1,
-           v2_R2_sum = Hi.R2 + IntHi.R2 + IntLo.R2 + Lo.R2) %>% 
+           v2_R2_sum = Hi.R2 + IntHi.R2 + IntLo.R2 + Lo.R2,
+           v2_sum = v2_R1_sum + v2_R2_sum) %>% 
     # read filter
     filter(v2_R1_sum >= hi_read_threshold, v2_R2_sum >= hi_read_threshold) 
 
@@ -83,21 +85,30 @@ exac_v1 <- exac_v1 %>%
     # calculate index
     mutate(v1_index_R1 = (DP_R1_norm * 0 + INT_R1_norm * 0.85 + SP_R1_norm * 1) / 
                (DP_R1_norm + INT_R1_norm + SP_R1_norm),
+           v1_R1_norm_sum = DP_R1_norm + INT_R1_norm + SP_R1_norm,
            v1_index_R2 = (DP_R2_norm * 0 + INT_R2_norm * 0.85 + SP_R2_norm * 1) / 
-               (DP_R2_norm + INT_R2_norm + SP_R2_norm)) %>%
+               (DP_R2_norm + INT_R2_norm + SP_R2_norm),
+           v1_R2_norm_sum = DP_R2_norm + INT_R2_norm + SP_R2_norm,
+           v1_norm_sum =  v1_R1_norm_sum + v1_R2_norm_sum) %>%
     # rep agreement
     filter(abs(v1_index_R1 - v1_index_R2) <= rep_agreement)
+
+ihs <- function(x) {
+  y <- log(x + sqrt(x ^ 2 + 1))
+  return(y)
+}
 
 exac_v2 <- exac_v2 %>% 
      mutate(v2_index_R1 = (Hi.R1_norm * 0 + IntHi.R1_norm * 0.80 + IntLo.R1_norm * 0.95 + Lo.R1_norm * 1) / 
                (Hi.R1_norm + IntHi.R1_norm + IntLo.R1_norm + Lo.R1_norm), 
-           v2_index_R2 = (Hi.R2_norm * 0 + IntHi.R2_norm * 0.80 + IntLo.R2_norm * 0.95 + Lo.R2_norm * 1) / 
+            v2_index_R2 = (Hi.R2_norm * 0 + IntHi.R2_norm * 0.80 + IntLo.R2_norm * 0.95 + Lo.R2_norm * 1) / 
                (Hi.R2_norm + IntHi.R2_norm + IntLo.R2_norm + Lo.R2_norm),
            v2_R1_norm_sum = Hi.R1_norm + IntHi.R1_norm + IntLo.R1_norm + Lo.R1_norm,
-           v2_R2_norm_sum = Hi.R2_norm + IntHi.R2_norm + IntLo.R2_norm + Lo.R2_norm) 
+           v2_R2_norm_sum = Hi.R2_norm + IntHi.R2_norm + IntLo.R2_norm + Lo.R2_norm,
+           v2_norm_sum = v2_R1_norm_sum + v2_R2_norm_sum) 
 
 # correlation for v2 before index filter
-corr <-  signif(cor(exac_v2$v2_index_R1, exac_v2$v2_index_R2), 2)
+corr <- wtd.cor(exac_v2$v2_index_R1, exac_v2$v2_index_R2, exac_v2$v2_norm_sum)
 gg <- exac_v2 %>%
     mutate(rep_quality = ifelse(abs(v2_index_R1 - v2_index_R2) <= 0.20, 'high', 'low')) %>% 
     ggplot(aes(v2_index_R1, v2_index_R2)) + 
@@ -116,15 +127,14 @@ gg <- exac_v2 %>%
         axis.ticks.y = element_line(color = 'grey50'),
         axis.line.x = element_line(color = 'grey50'),
         axis.line.y = element_line(color = 'grey50'),
-        plot.margin = unit(c(2,2,3,3),"mm"))+
-    theme(legend.position = 'none') +
-    annotate('text', x = 0.90, y = 0.10, parse = T,
-             label = paste('italic(r)==', signif(corr, 3)), size = 5) +
-    annotate('text', x = 0.91, y = 0.05, parse = T,
+        plot.margin = unit(c(2,2,3,3),"mm")) +
+        annotate('text', x = 0.89, y = 0.10, parse = T,
+             label = paste('italic(r) ==', round(corr[1], 2)), size = 5) +
+        annotate('text', x = 0.91, y = 0.05, parse = T,
              label = paste('italic(p) < 10^-16'), size = 5)
 
 ggsave(paste0('../../figs/supplement/exac_v2_replicates', plot_format), gg,
-       width = 6, height = 6, dpi = hi_res)
+       width = 6, height = 6)
 
 print(paste("Number of sequences after index filter (v1, v2):", nrow(exac_v1), nrow(exac_v2)))
 
@@ -141,12 +151,8 @@ data_all <- full_join(exac_v1, exac_v2, by = 'header') %>%
 data_all$v1_index <- rowMeans(select(data_all, v1_index_R1, v1_index_R2))
 data_all$v2_index <- rowMeans(select(data_all, v2_index_R1, v2_index_R2))
 
-data2 <- data %>% filter(!is.na(v2_index), category == 'mutant')
-cor(data2$v2_index_R1, data2$v2_index_R2, method = 'kendall')
-
-
 # Correlation between v1 and v2
-corr <- signif(cor(data_all$v1_index, data_all$v2_index, use = 'p'), 2)
+corr <- wtd.cor(data_all$v1_index, data_all$v2_index, data_all$v1_norm_sum + data_all$v2_norm_sum)
 gg <- ggplot(data_all, aes(v1_index, v2_index)) + geom_point(alpha = 0.25) +
   scale_x_continuous(breaks = c(0, 0.2, 0.4, 0.6, 0.8, 1)) +
   scale_y_continuous(breaks = c(0, 0.2, 0.4, 0.6, 0.8, 1)) +
@@ -163,7 +169,7 @@ gg <- ggplot(data_all, aes(v1_index, v2_index)) + geom_point(alpha = 0.25) +
         plot.margin = unit(c(2,2,3,3),"mm"))+
   theme(legend.position = 'none') +
     annotate('text', x = 0.95, y = 0.10, parse = T,
-             label = paste('italic(r)==', signif(corr, 3)), size = 5) +
+             label = paste('italic(r)==', sprintf("%.2f", round(corr[1], 3))), size = 5) +
     annotate('text', x = 0.96, y = 0.05, parse = T,
              label = paste('italic(p) < 10^-16'), size = 5)
 
@@ -250,7 +256,7 @@ data_other %>%
         plot.margin = unit(c(2,2,3,3),"mm"))
 
 ggsave('../../figs/supplement/exac_controls.png', width = 4.5, height = 4,
-       units = 'in', dpi = hi_res)
+       units = 'in', dpi = 300)
 
 dpsi_threshold <- -0.50
 dpsi_threshold_stringent <- -0.70
