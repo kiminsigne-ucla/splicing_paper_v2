@@ -93,11 +93,6 @@ exac_v1 <- exac_v1 %>%
     # rep agreement
     filter(abs(v1_index_R1 - v1_index_R2) <= rep_agreement)
 
-ihs <- function(x) {
-  y <- log(x + sqrt(x ^ 2 + 1))
-  return(y)
-}
-
 exac_v2 <- exac_v2 %>% 
      mutate(v2_index_R1 = (Hi.R1_norm * 0 + IntHi.R1_norm * 0.80 + IntLo.R1_norm * 0.95 + Lo.R1_norm * 1) / 
                (Hi.R1_norm + IntHi.R1_norm + IntLo.R1_norm + Lo.R1_norm), 
