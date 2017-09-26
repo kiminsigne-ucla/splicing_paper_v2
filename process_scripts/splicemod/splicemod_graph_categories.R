@@ -90,6 +90,8 @@ data %>%
     filter(category == 'intron' | category == 'rnd_intron') %>% 
     t.test(dpsi_smn1 ~ category, data = .)
 
+
+
 ###############################################################################
 # MaxEnt 
 ###############################################################################
@@ -285,8 +287,8 @@ sdv_by_category_smn1 <- data %>%
   summarise(num_sdv_smn1 = length(which(sdv_smn1 == T)),
             category_num_smn1 = n()) %>% 
   mutate(percent_sdv_smn1 = num_sdv_smn1/ category_num_smn1) %>%
-  arrange(desc(num_sdv_smn1))
-
+  arrange(desc(num_sdv_smn1)) %>%
+  ungroup()
 
 # DHFR intron backbone
 gg <- data %>% 
@@ -336,7 +338,15 @@ sdv_by_category_dhfr <- data %>%
   summarise(num_sdv_dhfr = length(which(sdv_dhfr == T)),
             category_num_dhfr = n()) %>% 
   mutate(percent_sdv_dhfr = num_sdv_dhfr/ category_num_dhfr) %>%
-  arrange(desc(num_sdv_dhfr))
+  arrange(desc(num_sdv_dhfr)) %>%
+  ungroup()
+
+# range of number of changes by category
+num_changes_summary <- data %>% 
+  group_by(category) %>% 
+  summarise(min_change = min(num_changes),
+            max_change = max(num_changes)) %>%
+  ungroup()
 
 ###############################################################################
 # Exonic motifs
