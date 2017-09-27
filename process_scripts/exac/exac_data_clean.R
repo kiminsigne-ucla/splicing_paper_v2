@@ -13,7 +13,6 @@ load_pkgs(pkgs)
 
 options(stringsAsFactors = F, warn = -1, warnings = -1)
 
-hi_res <- 300
 plot_format <- '.png'
 
 ###############################################################################
@@ -38,8 +37,9 @@ bin_prop <- c(0.092, 0.091, 0.127, 0.122, 1, 1, 0.596, 0.603)
 
 # multiply each bin count by bin proportion
 exac_v1 <- bind_cols(select(exac_v1, header = id, DP_R1:SP_R2), 
-                     data.frame(mapply(`*`, select(exac_v1, DP_R1_norm:SP_R2_norm), 
-                                       bin_prop, SIMPLIFY = FALSE)))
+                     data.frame(mapply(`*`, 
+                                    select(exac_v1, DP_R1_norm:SP_R2_norm), 
+                                    bin_prop, SIMPLIFY = FALSE)))
 
 
 # ExAC second sequencing run, four bins
@@ -54,8 +54,9 @@ bin_prop <- c(0.070, 0.075, 0.029, 0.032, 0.032, 0.033, 0.227, 0.252)
 
 # multiply each bin count by bin proportion
 exac_v2 <- bind_cols(select(exac_v2, header = id, Hi.R1:Lo.R2), 
-                     data.frame(mapply(`*`, select(exac_v2, Hi.R1_norm:Lo.R2_norm), 
-                                       bin_prop, SIMPLIFY = FALSE)))
+                     data.frame(mapply(`*`, 
+                                    select(exac_v2, Hi.R1_norm:Lo.R2_norm), 
+                                    bin_prop, SIMPLIFY = FALSE)))
 
 ###############################################################################
 # Filtering
@@ -81,23 +82,27 @@ print(paste("Number of sequences after read filter (v1, v2):",
 # index agreement between replicates filter
 exac_v1 <- exac_v1 %>% 
     # calculate index
-    mutate(v1_index_R1 = (DP_R1_norm * 0 + INT_R1_norm * 0.85 + SP_R1_norm * 1) / 
-             (DP_R1_norm + INT_R1_norm + SP_R1_norm),
+    mutate(v1_index_R1 = (DP_R1_norm * 0 + INT_R1_norm * 0.85 + 
+               SP_R1_norm * 1) / (DP_R1_norm + INT_R1_norm + SP_R1_norm),
+           v1_index_R2 = (DP_R2_norm * 0 + INT_R2_norm * 0.85 + 
+               SP_R2_norm * 1) / (DP_R2_norm + INT_R2_norm + SP_R2_norm),
            v1_R1_norm = DP_R1_norm + INT_R1_norm + SP_R1_norm,
-           v1_index_R2 = (DP_R2_norm * 0 + INT_R2_norm * 0.85 + SP_R2_norm * 1) / 
-               (DP_R2_norm + INT_R2_norm + SP_R2_norm),
            v1_R2_norm = DP_R2_norm + INT_R2_norm + SP_R2_norm,
            v1_norm = v1_R1_norm + v1_R2_norm) %>%
     # rep agreement
     filter(abs(v1_index_R1 - v1_index_R2) <= rep_agreement)
 
 exac_v2 <- exac_v2 %>% 
-     mutate(v2_index_R1 = (Hi.R1_norm * 0 + IntHi.R1_norm * 0.80 + IntLo.R1_norm * 0.95 + Lo.R1_norm * 1) / 
-               (Hi.R1_norm + IntHi.R1_norm + IntLo.R1_norm + Lo.R1_norm), 
-            v2_R1_norm = Hi.R1_norm + IntHi.R1_norm + IntLo.R1_norm + Lo.R1_norm,
-            v2_index_R2 = (Hi.R2_norm * 0 + IntHi.R2_norm * 0.80 + IntLo.R2_norm * 0.95 + Lo.R2_norm * 1) / 
+     mutate(v2_index_R1 = (Hi.R1_norm * 0 + IntHi.R1_norm * 0.80 + 
+                             IntLo.R1_norm * 0.95 + Lo.R1_norm * 1) / 
+                (Hi.R1_norm + IntHi.R1_norm + IntLo.R1_norm + Lo.R1_norm), 
+            v2_index_R2 = (Hi.R2_norm * 0 + IntHi.R2_norm * 0.80 + 
+                             IntLo.R2_norm * 0.95 + Lo.R2_norm * 1) / 
                (Hi.R2_norm + IntHi.R2_norm + IntLo.R2_norm + Lo.R2_norm),
-            v2_R2_norm = Hi.R2_norm + IntHi.R2_norm + IntLo.R2_norm + Lo.R2_norm,
+            v2_R1_norm = Hi.R1_norm + 
+                 IntHi.R1_norm + IntLo.R1_norm + Lo.R1_norm,
+            v2_R2_norm = Hi.R2_norm + 
+                 IntHi.R2_norm + IntLo.R2_norm + Lo.R2_norm,
             v2_norm = v2_R1_norm + v2_R2_norm) 
 
 # correlation for v2 before index filter
@@ -127,11 +132,15 @@ gg <- exac_v2 %>%
         annotate('text', x = 0.91, y = 0.05, parse = T,
              label = paste('italic(p) < 10^-16'), size = 5)
 
-ggsave(paste0('../../figs/supplement/exac_v2_replicates', plot_format), gg,
-       width = 6, height = 6)
+ggsave(paste0('../../figs/supplement/exac_v2_replicates', plot_format), 
+       gg, width = 6, height = 6)
+
+# rep agreement
+exac_v2 <- exac_v2 %>% 
+    filter(abs(v2_index_R1 - v2_index_R2) <= rep_agreement)
 
 ###############################################################################
-# join data
+# Join data (v1 and v2)
 ###############################################################################
 data_all <- full_join(exac_v1, exac_v2, by = 'header') %>% 
     # small substitutions so separate will work easier
@@ -163,12 +172,12 @@ gg <- ggplot(data_all, aes(v1_index, v2_index)) + geom_point(alpha = 0.25) +
         plot.margin = unit(c(2,2,3,3),"mm"))+
   theme(legend.position = 'none') +
     annotate('text', x = 0.95, y = 0.10, parse = T,
-             label = paste('italic(r)==', signif(corr[1], 2)), size = 5) +
+             label = paste0('italic(r)==', signif(corr[1], 2)), size = 5) +
     annotate('text', x = 0.96, y = 0.05, parse = T,
              label = paste('italic(p) < 10^-16'), size = 5)
 
 ggsave(paste0('../../figs/supplement/exac_v1_v2_replicates', plot_format), 
-       gg, width = 6, height = 6, dpi = 300)
+       gg, width = 6, height = 6)
 
 # read in updated ref
 ref <- read.table(paste0('../../ref/exac/',
@@ -195,7 +204,7 @@ data_all <- left_join(data_all, ref, by = 'id') %>%
 data_all[data_all == 'NaN'] <- NA
 
 ###############################################################################
-# filtering on natural exon inclusion 
+# Filtering on natural exons
 ###############################################################################
 data <- data_all %>% 
     group_by(ensembl_id) %>% 
@@ -235,7 +244,7 @@ data_other <- data_all %>%
 data_other <- bind_rows(data_other, filter(data, category == 'control'))
 
 # plot controls
-data_other %>% 
+gg <- data_other %>% 
     bind_rows(filter(data, category == 'natural')) %>% 
     ggplot(aes(v2_index)) + geom_density(aes(fill = category), alpha = 0.5) +
     scale_fill_discrete(labels = c('broken SD/SA control', 
@@ -256,9 +265,9 @@ data_other %>%
           axis.line.y = element_line(color = 'grey50'),
           plot.margin = unit(c(2,2,3,3),"mm"))
 
-ggsave('../../figs/supplement/exac_controls.png', width = 4.5, height = 4,
-       units = 'in', dpi = 300)
-
+ggsave('../../figs/supplement/exac_controls', plot_format, 
+       gg, width = 4.5, height = 4)
+       
 dpsi_threshold <- -0.50
 dpsi_threshold_stringent <- -0.70
 
