@@ -1,3 +1,5 @@
+### Generate data for PR and ROC curves for various external models ###
+
 import pandas as pd
 import numpy as np
 
@@ -51,7 +53,9 @@ def pr_score_curve(df, direction, score_width, truth_var, score_var, score_min=N
         precision, recall, specificity = precision_recall(df, truth_var, 'score_var_strong_lof')
         precisions.append(precision)
         recalls.append(recall)
-    result = pd.DataFrame({'threshold' : score_thresholds, 'precision' : precisions, 'recall' : recalls})
+    result = pd.DataFrame({'threshold' : score_thresholds, 
+        'precision' : precisions, 
+        'recall' : recalls})
     return result
 
 
@@ -102,8 +106,9 @@ def roc_score_curve(df, direction, score_width, truth_var, score_var, score_min=
         tp_rate, fp_rate = roc_stats(df, truth_var, 'score_var_strong_lof')
         tp_rates.append(tp_rate)
         fp_rates.append(fp_rate)
-    result = pd.DataFrame({'threshold' : score_thresholds, 'true_positive_rate' : tp_rates,
-                          'false_positive_rate' : fp_rates})
+    result = pd.DataFrame({'threshold' : score_thresholds, 
+        'true_positive_rate' : tp_rates,
+        'false_positive_rate' : fp_rates})
     return result
 
 
@@ -119,7 +124,9 @@ def pr_threshold_curve(df, truth_var, prediction_var):
         precision, recall, specificity = precision_recall(df, truth_var, 'prediction_var_strong_lof')
         precisions.append(precision)
         recalls.append(recall)
-    result = pd.DataFrame({'threshold' : thresholds, 'precision' : precisions, 'recall' : recalls})
+    result = pd.DataFrame({'threshold' : thresholds, 
+        'precision' : precisions, 
+        'recall' : recalls})
     return result
 
 
@@ -135,35 +142,48 @@ def roc_threshold_curve(df, truth_var, prediction_var):
         tp_rate, fp_rate = roc_stats(df, truth_var, 'prediction_var_strong_lof')
         tp_rates.append(tp_rate)
         fp_rates.append(fp_rate)
-    result = pd.DataFrame({'threshold' : thresholds, 'true_positive_rate' : tp_rates,
-                          'false_positive_rate' : fp_rates})
+    result = pd.DataFrame({'threshold' : thresholds, 
+        'true_positive_rate' : tp_rates,
+        'false_positive_rate' : fp_rates})
     return result
 
 
 def run_pr_methods(df, intron=False):
     # if intron variants only, don't run HAL (only exonic variants)
-    fathmm_noncoding_pr_curve = pr_score_curve(df, score_min=0, score_max=1, score_width=0.01, 
-                                           truth_var='strong_lof', score_var='noncoding_score', direction='same')
+    fathmm_noncoding_pr_curve = pr_score_curve(df, 
+        score_min=0, score_max=1, 
+        score_width=0.01, truth_var='strong_lof', 
+        score_var='noncoding_score', direction='same')
     fathmm_noncoding_pr_curve['method'] = ['fathmm_noncoding'] * len(fathmm_noncoding_pr_curve)
 
-    fathmm_coding_pr_curve = pr_score_curve(df, score_min=0, score_max=1, score_width=0.01, 
-                                        truth_var='strong_lof', score_var='coding_score', direction='same')
+    fathmm_coding_pr_curve = pr_score_curve(df, 
+        score_min=0, score_max=1, 
+        score_width=0.01, truth_var='strong_lof', 
+        score_var='coding_score', direction='same')
     fathmm_coding_pr_curve['method'] = ['fathmm_coding'] * len(fathmm_coding_pr_curve)
     
-    cadd_pr_curve = pr_score_curve(df, score_width = 0.5, truth_var='strong_lof', score_var='cadd_score', 
-                               direction='same')
+    cadd_pr_curve = pr_score_curve(df, 
+        score_width = 0.5, 
+        truth_var='strong_lof', score_var='cadd_score', 
+        direction='same')
     cadd_pr_curve['method'] = ['cadd'] * len(cadd_pr_curve)
     
-    fitcons_pr_curve = pr_score_curve(df, score_min=0, score_max=1, score_width = 0.01, 
-                                  truth_var='strong_lof', score_var='fitCons_score', direction='opposite')
+    fitcons_pr_curve = pr_score_curve(df, 
+        score_min=0, score_max=1, 
+        score_width = 0.01, truth_var='strong_lof', 
+        score_var='fitCons_score', direction='opposite')
     fitcons_pr_curve['method'] = ['fitcons'] * len(fitcons_pr_curve)
     
-    dann_pr_curve = pr_score_curve(df, score_min=0, score_max=1, score_width = 0.001, 
-                               truth_var='strong_lof', score_var='dann_score', direction='same')
+    dann_pr_curve = pr_score_curve(df, 
+        score_min=0, score_max=1, 
+        score_width = 0.001, truth_var='strong_lof', 
+        score_var='dann_score', direction='same')
     dann_pr_curve['method'] = ['dann'] * len(dann_pr_curve)
     
-    linsight_pr_curve = pr_score_curve(df, score_min=0, score_max=1, score_width = 0.001, 
-                               truth_var='strong_lof', score_var='linsight_score', direction='opposite')
+    linsight_pr_curve = pr_score_curve(df, 
+        score_min=0, score_max=1, 
+        score_width = 0.001, truth_var='strong_lof', 
+        score_var='linsight_score', direction='opposite')
     linsight_pr_curve['method'] = ['linsight'] * len(linsight_pr_curve)
     
     spanr_pr_curve = pr_threshold_curve(df, 'strong_lof', 'spanr_dpsi')
@@ -172,38 +192,51 @@ def run_pr_methods(df, intron=False):
     if not intron:
         hal_pr_curve = pr_threshold_curve(df, 'strong_lof', 'hal_dpsi')
         hal_pr_curve['method'] = ['hal'] * len(hal_pr_curve)
-        pr_curve_info = pd.concat([fathmm_noncoding_pr_curve, fathmm_coding_pr_curve, cadd_pr_curve, fitcons_pr_curve,
-                          dann_pr_curve, linsight_pr_curve, spanr_pr_curve, hal_pr_curve])
+        pr_curve_info = pd.concat([fathmm_noncoding_pr_curve, 
+            fathmm_coding_pr_curve, cadd_pr_curve, fitcons_pr_curve,
+            dann_pr_curve, linsight_pr_curve, spanr_pr_curve, hal_pr_curve])
     else:
-        pr_curve_info = pd.concat([fathmm_noncoding_pr_curve, fathmm_coding_pr_curve, cadd_pr_curve, fitcons_pr_curve,
-                              dann_pr_curve, linsight_pr_curve, spanr_pr_curve])
+        pr_curve_info = pd.concat([fathmm_noncoding_pr_curve, 
+            fathmm_coding_pr_curve, cadd_pr_curve, fitcons_pr_curve,
+            dann_pr_curve, linsight_pr_curve, spanr_pr_curve])
     return pr_curve_info
 
 
 def run_roc_methods(df, intron=False):
     # if intron variants only, don't run HAL (only exonic variants)
-    fathmm_noncoding_roc_curve = roc_score_curve(df, score_min=0, score_max=1, score_width=0.01, 
-                                               truth_var='strong_lof', score_var='noncoding_score', direction='same')
+    fathmm_noncoding_roc_curve = roc_score_curve(df, 
+        score_min=0, score_max=1, 
+        score_width=0.01, truth_var='strong_lof', 
+        score_var='noncoding_score', direction='same')
     fathmm_noncoding_roc_curve['method'] = ['fathmm_noncoding'] * len(fathmm_noncoding_roc_curve)  
     
-    fathmm_coding_roc_curve = roc_score_curve(df, score_min=0, score_max=1, score_width=0.01, 
-                                            truth_var='strong_lof', score_var='coding_score', direction='same')
+    fathmm_coding_roc_curve = roc_score_curve(df, 
+        score_min=0, score_max=1, 
+        score_width=0.01, truth_var='strong_lof', 
+        score_var='coding_score', direction='same')
     fathmm_coding_roc_curve['method'] = ['fathmm_coding'] * len(fathmm_coding_roc_curve)
     
-    cadd_roc_curve = roc_score_curve(df, score_width = 0.5, truth_var='strong_lof', score_var='cadd_score', 
-                                   direction='same')
+    cadd_roc_curve = roc_score_curve(df, 
+        score_width = 0.5, truth_var='strong_lof', 
+        score_var='cadd_score', direction='same')
     cadd_roc_curve['method'] = ['cadd'] * len(cadd_roc_curve)
     
-    fitcons_roc_curve = roc_score_curve(df, score_min=0, score_max=1, score_width = 0.01, 
-                                  truth_var='strong_lof', score_var='fitCons_score', direction='opposite')
+    fitcons_roc_curve = roc_score_curve(df, 
+        score_min=0, score_max=1, 
+        score_width = 0.01, truth_var='strong_lof', 
+        score_var='fitCons_score', direction='opposite')
     fitcons_roc_curve['method'] = ['fitcons'] * len(fitcons_roc_curve)
     
-    dann_roc_curve = roc_score_curve(df, score_min=0, score_max=1, score_width = 0.001, 
-                               truth_var='strong_lof', score_var='dann_score', direction='same')
+    dann_roc_curve = roc_score_curve(df, 
+        score_min=0, score_max=1, 
+        score_width = 0.001, truth_var='strong_lof', 
+        score_var='dann_score', direction='same')
     dann_roc_curve['method'] = ['dann'] * len(dann_roc_curve)
     
-    linsight_roc_curve = roc_score_curve(df, score_min=0, score_max=1, score_width = 0.001, 
-                               truth_var='strong_lof', score_var='linsight_score', direction='same')
+    linsight_roc_curve = roc_score_curve(df, 
+        score_min=0, score_max=1, 
+        score_width = 0.001, truth_var='strong_lof', 
+        score_var='linsight_score', direction='same')
     linsight_roc_curve['method'] = ['linsight'] * len(linsight_roc_curve)
     
     spanr_roc_curve = roc_threshold_curve(df, 'strong_lof', 'spanr_dpsi')

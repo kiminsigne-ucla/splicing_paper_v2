@@ -148,7 +148,8 @@ df <- matrix(c(num_intolerant_lof, num_tolerant_lof,
 
 intolerant_percent =  num_intolerant_lof / (num_intolerant_lof + num_intolerant_not_lof) * 100
 tolerant_percent = num_tolerant_lof / (num_tolerant_not_lof + num_tolerant_lof) * 100
-percent.df <-data.frame( fraction_of_strong_LoF_genes = c(intolerant_percent, tolerant_percent), tolerance = c('intolerant', 'tolerant'))
+percent.df <-data.frame( fraction_of_strong_LoF_genes = c(intolerant_percent, tolerant_percent), 
+                         tolerance = c('intolerant', 'tolerant'))
 
 percent.df %>%
   ggplot(aes(tolerance, fraction_of_strong_LoF_genes)) + 
@@ -195,7 +196,8 @@ fig4d <- data %>%
                            expression(index["WT "])) +
     geom_violin(alpha = 0, color = "grey10", size = 0.5) +
     stat_summary(fun.y = median, geom = "point", size = 1, color = "grey10") +
-    labs(x = "ExAC global allele frequency", y = expression(paste(Delta, ' inclusion index'))) +
+    labs(x = "ExAC global allele frequency", 
+         y = expression(paste(Delta, ' inclusion index'))) +
     theme_bw() + 
     theme(legend.position = 'none', 
           panel.grid.major = element_blank(),
@@ -205,7 +207,8 @@ fig4d <- data %>%
           axis.title.x = element_text(size = 17, vjust = -0.5),
           axis.ticks.x = element_blank(),
           axis.text.y = element_text(size = 10, color = "grey20"),
-          axis.text.x = element_text(size = 14, color = "grey10", angle = 45, vjust = 0.55)) 
+          axis.text.x = element_text(size = 14, color = "grey10", angle = 45, 
+                                     vjust = 0.55)) 
 
 ggsave(paste0("../../figs/exac/exac_fig4D_allele_frequency_binned", plot_format), 
        width = 4, height = 3.5, units = 'in', dpi = hi_res)

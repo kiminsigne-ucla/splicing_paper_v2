@@ -1,5 +1,5 @@
 # get all SNVs from ExAC annotation, this takes awhile
-# zgrep 'SNV' ../../ref/exac/ExAC.r0.3.1.sites.vep.vcf.gz > ../../ref/exac/ExAC_SNVs.vcf.gz
+zgrep 'SNV' ../../ref/exac/ExAC.r0.3.1.sites.vep.vcf.gz > ../../ref/exac/ExAC_SNVs.vcf.gz
 
 # reformat to bed format, add ID and strand column. Easier to just do this in Python
 python exac_snv_vcf2bed.py ../../ref/exac/ExAC_SNVs.vcf.gz ../../ref/exac/ExAC_SNVs.bed.gz

@@ -1,3 +1,5 @@
+### Process raw data with appropriate normalization and filters ###
+
 load_pkgs <- function(pkgs){
     new_pkgs <- pkgs[!(pkgs %in% installed.packages()[, 'Package'])]
     if(length(new_pkgs)) install.packages(new_pkgs)

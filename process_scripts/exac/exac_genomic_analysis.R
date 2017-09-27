@@ -1,3 +1,5 @@
+# generate genome-wide statistics for supplementary figures ###
+
 load_pkgs <- function(pkgs){
     new_pkgs <- pkgs[!(pkgs %in% installed.packages()[, 'Package'])]
     if(length(new_pkgs)) install.packages(new_pkgs)
@@ -17,7 +19,7 @@ plot_format <- '.png'
 # SNV density, genome-wide
 ###############################################################################
 # extract intronic regions from Gencode annotation file
-# system('bash ./extract_intronic_regions.sh')
+system('bash ./extract_intronic_regions.sh')
 
 # grabs all SNVs from ExAC, convert from vcf to bed, uses intersectBed against
 # bed file for all introns/exons to find which genomic feature each SNV falls in

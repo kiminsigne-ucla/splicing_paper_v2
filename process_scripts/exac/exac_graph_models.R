@@ -1,3 +1,5 @@
+### Graph PR and ROC curves for various external models ###
+
 load_pkgs <- function(pkgs){
     new_pkgs <- pkgs[!(pkgs %in% installed.packages()[, 'Package'])]
     if(length(new_pkgs)) install.packages(new_pkgs)
@@ -56,8 +58,8 @@ pr_curve_all %>%
     ggplot(aes(recall, precision)) + 
     geom_line(aes(color = method), size = 1.25) + 
     # scale_y_log10() +
-    scale_y_log10(breaks = c(3.6, 10, 100), limits = c(2,100)) +
-    annotation_logticks(sides = 'l') +
+    # scale_y_log10(breaks = c(3.6, 10, 100), limits = c(2,100)) +
+    # annotation_logticks(sides = 'l') +
     labs(x = 'Recall (%)', y = 'Precision (%)', color = '') +
     theme(
           axis.title.x = element_text(size = 19, vjust = -1.5),

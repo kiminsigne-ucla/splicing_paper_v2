@@ -33,7 +33,8 @@ nat_ref <- ref %>%
 
 mut_ref <- ref %>%
     filter(grepl('mut', header)) %>%
-    # don't modify equal sign for control sequences because they don't have any information for those fields
+    # don't modify equal sign for control sequences because they don't have any 
+    # information for those fields
     mutate(header = ifelse(grepl('CTRL', header), header, gsub('= ', '=', header)),
            header = gsub(', ', ',', header),
            header = gsub(';', '', header)) %>%
@@ -108,7 +109,8 @@ print('Updating Ensembl exon IDs...')
 
 # release 89 5/17 based on hg38
 ensembl <- biomaRt::useMart('ENSEMBL_MART_ENSEMBL', dataset = 'hsapiens_gene_ensembl')
-attributes <- c('ensembl_gene_id', 'description', 'chromosome_name', 'start_position', 'end_position', 'strand',
+attributes <- c('ensembl_gene_id', 'description', 'chromosome_name', 
+                'start_position', 'end_position', 'strand',
                 'ensembl_transcript_id', 'transcript_start', 'transcript_end', 
                 'ensembl_exon_id', 'exon_chrom_start', 'exon_chrom_end',
                 'is_constitutive', 'rank', 'phase', 'end_phase')

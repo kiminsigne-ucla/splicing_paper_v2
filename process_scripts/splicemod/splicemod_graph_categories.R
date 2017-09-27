@@ -562,5 +562,3 @@ png(paste0('../../figs/splicemod/both/legend', plot_format),
 grid.newpage()
 grid.draw(legend)
 dev.off()
-
-
