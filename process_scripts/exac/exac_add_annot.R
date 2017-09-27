@@ -268,9 +268,9 @@ data <- data %>%
 # DANN annotation
 ###############################################################################
 #https://cbcl.ics.uci.edu/public_data/DANN/.
-# system(paste('while read line; do tabix ../../ref/dann/DANN_whole_genome_SNVs.tsv.bgz $line',
-#              '>> ../../processed_data/exac/snp_dann_annot.txt done',
-#              '< ../../processed_data/ref/tabix_input_snp_regions.txt'))
+system(paste('while read line; do tabix ../../ref/dann/DANN_whole_genome_SNVs.tsv.bgz $line',
+             '>> ../../processed_data/exac/snp_dann_annot.txt done',
+             '< ../../processed_data/ref/tabix_input_snp_regions.txt'))
 
 dann <- read.table('../../processed_data/exac/snp_dann_annot.txt',
                    sep = '\t', header = T)
