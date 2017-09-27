@@ -80,20 +80,23 @@ print(paste("Number of sequences after read filter (v1, v2):",
 exac_v1 <- exac_v1 %>% 
     # calculate index
     mutate(v1_index_R1 = (DP_R1_norm * 0 + INT_R1_norm * 0.85 + SP_R1_norm * 1) / 
-             (DP_R1_norm + INT_R1_norm + SP_R1_norm),
+                              (DP_R1_norm + INT_R1_norm + SP_R1_norm),
            v1_R1_norm = DP_R1_norm + INT_R1_norm + SP_R1_norm,
            v1_index_R2 = (DP_R2_norm * 0 + INT_R2_norm * 0.85 + SP_R2_norm * 1) / 
-               (DP_R2_norm + INT_R2_norm + SP_R2_norm),
+                              (DP_R2_norm + INT_R2_norm + SP_R2_norm),
            v1_R2_norm = DP_R2_norm + INT_R2_norm + SP_R2_norm,
            v1_norm = v1_R1_norm + v1_R2_norm) %>%
     # rep agreement
     filter(abs(v1_index_R1 - v1_index_R2) <= rep_agreement)
 
 exac_v2 <- exac_v2 %>% 
-     mutate(v2_index_R1 = (Hi.R1_norm * 0 + IntHi.R1_norm * 0.80 + IntLo.R1_norm * 0.95 + Lo.R1_norm * 1) / 
+     mutate(v2_index_R1 = (Hi.R1_norm * 0 + IntHi.R1_norm * 0.80 + 
+                             IntLo.R1_norm * 0.95 + Lo.R1_norm * 1) / 
                (Hi.R1_norm + IntHi.R1_norm + IntLo.R1_norm + Lo.R1_norm), 
-            v2_R1_norm = Hi.R1_norm + IntHi.R1_norm + IntLo.R1_norm + Lo.R1_norm,
-            v2_index_R2 = (Hi.R2_norm * 0 + IntHi.R2_norm * 0.80 + IntLo.R2_norm * 0.95 + Lo.R2_norm * 1) / 
+            v2_R1_norm = Hi.R1_norm + IntHi.R1_norm + 
+                IntLo.R1_norm + Lo.R1_norm,
+            v2_index_R2 = (Hi.R2_norm * 0 + IntHi.R2_norm * 0.80 + 
+                             IntLo.R2_norm * 0.95 + Lo.R2_norm * 1) / 
                (Hi.R2_norm + IntHi.R2_norm + IntLo.R2_norm + Lo.R2_norm),
             v2_R2_norm = Hi.R2_norm + IntHi.R2_norm + IntLo.R2_norm + Lo.R2_norm,
             v2_norm = v2_R1_norm + v2_R2_norm) 
