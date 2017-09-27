@@ -96,7 +96,9 @@ exac_v2 <- exac_v2 %>%
             v2_index_R2 = (Hi.R2_norm * 0 + IntHi.R2_norm * 0.80 + IntLo.R2_norm * 0.95 + Lo.R2_norm * 1) / 
                (Hi.R2_norm + IntHi.R2_norm + IntLo.R2_norm + Lo.R2_norm),
             v2_R2_norm = Hi.R2_norm + IntHi.R2_norm + IntLo.R2_norm + Lo.R2_norm,
-            v2_norm = v2_R1_norm + v2_R2_norm) 
+            v2_norm = v2_R1_norm + v2_R2_norm) %>%
+  # rep agreement
+  filter(abs(v2_index_R1 - v2_index_R2) <= rep_agreement)
 
 # correlation for v2 before index filter
 corr <- wtd.cor(exac_v2$v2_index_R1, exac_v2$v2_index_R2, exac_v2$v2_norm)
