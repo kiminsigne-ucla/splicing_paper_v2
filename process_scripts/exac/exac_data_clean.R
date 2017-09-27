@@ -77,7 +77,7 @@ exac_v2 <- exac_v2 %>%
 print(paste("Number of sequences after read filter (v1, v2):", 
             nrow(exac_v1), nrow(exac_v2)))
 
-# index agreement between replicates filter
+# index agreement before replicate filter
 exac_v1 <- exac_v1 %>% 
     # calculate index
     mutate(v1_index_R1 = (DP_R1_norm * 0 + INT_R1_norm * 0.85 + 
@@ -90,6 +90,7 @@ exac_v1 <- exac_v1 %>%
     # rep agreement
     filter(abs(v1_index_R1 - v1_index_R2) <= rep_agreement)
 
+# index agreement
 exac_v2 <- exac_v2 %>% 
      mutate(v2_index_R1 = (Hi.R1_norm * 0 + IntHi.R1_norm * 0.80 + 
                              IntLo.R1_norm * 0.95 + Lo.R1_norm * 1) / 
@@ -151,7 +152,7 @@ data_all <- full_join(exac_v1, exac_v2, by = 'header') %>%
 data_all$v1_index <- rowMeans(select(data_all, v1_index_R1, v1_index_R2))
 data_all$v2_index <- rowMeans(select(data_all, v2_index_R1, v2_index_R2))
 
-# Correlation between v1 and v2
+# correlation between v1 and v2
 corr <- wtd.cor(data_all$v1_index, data_all$v2_index, data_all$all_norm)
 gg <- ggplot(data_all, aes(v1_index, v2_index)) + geom_point(alpha = 0.25) +
   scale_x_continuous(breaks = c(0, 0.2, 0.4, 0.6, 0.8, 1)) +
