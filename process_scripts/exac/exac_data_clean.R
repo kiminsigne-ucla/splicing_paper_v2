@@ -96,9 +96,7 @@ exac_v2 <- exac_v2 %>%
             v2_index_R2 = (Hi.R2_norm * 0 + IntHi.R2_norm * 0.80 + IntLo.R2_norm * 0.95 + Lo.R2_norm * 1) / 
                (Hi.R2_norm + IntHi.R2_norm + IntLo.R2_norm + Lo.R2_norm),
             v2_R2_norm = Hi.R2_norm + IntHi.R2_norm + IntLo.R2_norm + Lo.R2_norm,
-            v2_norm = v2_R1_norm + v2_R2_norm) %>%
-  # rep agreement
-  filter(abs(v2_index_R1 - v2_index_R2) <= rep_agreement)
+            v2_norm = v2_R1_norm + v2_R2_norm) 
 
 # correlation for v2 before index filter
 corr <- wtd.cor(exac_v2$v2_index_R1, exac_v2$v2_index_R2, exac_v2$v2_norm)
@@ -126,6 +124,9 @@ gg <- exac_v2 %>%
              label = paste('italic(r) ==', signif(corr[1], 2)), size = 5) +
         annotate('text', x = 0.91, y = 0.05, parse = T,
              label = paste('italic(p) < 10^-16'), size = 5)
+
+exac_v2 <- exac_v2 %>% 
+    filter(abs(v2_index_R1 - v2_index_R2) <= rep_agreement)
 
 ggsave(paste0('../../figs/supplement/exac_v2_replicates', plot_format), gg,
        width = 6, height = 6)
