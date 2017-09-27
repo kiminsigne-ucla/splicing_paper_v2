@@ -19,7 +19,7 @@ plot_format <- '.png'
 # Read in data
 ###############################################################################
 
-# ExAC first sequencing run, three bins
+# ExAC first sequencing run (v1), three bins
 # select sort 2 only
 exac_v1 <- read.csv('../../processed_data/exac/exac_v1_all_alignments.csv') %>% 
     select(-ends_with('S1')) %>% 
@@ -42,7 +42,7 @@ exac_v1 <- bind_cols(select(exac_v1, header = id, DP_R1:SP_R2),
                                     bin_prop, SIMPLIFY = FALSE)))
 
 
-# ExAC second sequencing run, four bins
+# ExAC second sequencing run (v2), four bins
 exac_v2 <- read.csv('../../processed_data/exac/exac_v2_all_alignments.csv')
 exac_v2 <- exac_v2 %>% 
     select(Hi.R1:Lo.R2) %>% 
@@ -234,7 +234,7 @@ data <- data %>%
            delta_dpsi = abs(v1_dpsi - v2_dpsi) ) %>%
     ungroup()
 
-# keep SKP and RANDOM-EXON categories
+# keep control categories: SKP and RANDOM-EXON 
 data_other <- data_all %>% 
     group_by(ensembl_id) %>% 
     filter(any(sub_id == 'SKP') | (any(ensembl_id == 'RANDOM-EXON')) ) %>%
@@ -270,13 +270,9 @@ ggsave('../../figs/supplement/exac_controls', plot_format,
        gg, width = 4.5, height = 4)
        
 dpsi_threshold <- -0.50
-dpsi_threshold_stringent <- -0.70
 
 data <- data %>% 
-    mutate(strong_lof = ifelse(v2_dpsi <= 
-                                 dpsi_threshold, TRUE, FALSE),
-           stringent_lof = ifelse(v2_dpsi <= 
-                                 dpsi_threshold_stringent, TRUE, FALSE))
-
+    mutate(strong_lof = ifelse(v2_dpsi <= dpsi_threshold, TRUE, FALSE))
+           
 write.table(data, '../../processed_data/exac/exac_data_clean.txt', 
             sep = '\t', row.names = F, quote = F)
