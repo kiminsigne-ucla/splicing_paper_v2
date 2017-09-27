@@ -36,8 +36,9 @@ bin_prop <- c(0.092, 0.091, 0.127, 0.122, 1, 1, 0.596, 0.603)
 
 # multiply each bin count by bin proportion
 exac_v1 <- bind_cols(select(exac_v1, header = id, DP_R1:SP_R2), 
-                     data.frame(mapply(`*`, select(exac_v1, DP_R1_norm:SP_R2_norm), 
-                                       bin_prop, SIMPLIFY = FALSE)))
+                     data.frame(mapply(`*`, 
+                                    select(exac_v1, DP_R1_norm:SP_R2_norm), 
+                                    bin_prop, SIMPLIFY = FALSE)))
 
 
 # ExAC second sequencing run, four bins
@@ -52,8 +53,9 @@ bin_prop <- c(0.070, 0.075, 0.029, 0.032, 0.032, 0.033, 0.227, 0.252)
 
 # multiply each bin count by bin proportion
 exac_v2 <- bind_cols(select(exac_v2, header = id, Hi.R1:Lo.R2), 
-                     data.frame(mapply(`*`, select(exac_v2, Hi.R1_norm:Lo.R2_norm), 
-                                       bin_prop, SIMPLIFY = FALSE)))
+                     data.frame(mapply(`*`, 
+                                    select(exac_v2, Hi.R1_norm:Lo.R2_norm), 
+                                    bin_prop, SIMPLIFY = FALSE)))
 
 ###############################################################################
 # Filtering
@@ -79,11 +81,11 @@ print(paste("Number of sequences after read filter (v1, v2):",
 # index agreement between replicates filter
 exac_v1 <- exac_v1 %>% 
     # calculate index
-    mutate(v1_index_R1 = (DP_R1_norm * 0 + INT_R1_norm * 0.85 + SP_R1_norm * 1) / 
-                              (DP_R1_norm + INT_R1_norm + SP_R1_norm),
+    mutate(v1_index_R1 = (DP_R1_norm * 0 + INT_R1_norm * 0.85 + 
+               SP_R1_norm * 1) / (DP_R1_norm + INT_R1_norm + SP_R1_norm),
+           v1_index_R2 = (DP_R2_norm * 0 + INT_R2_norm * 0.85 + 
+               SP_R2_norm * 1) / (DP_R2_norm + INT_R2_norm + SP_R2_norm),
            v1_R1_norm = DP_R1_norm + INT_R1_norm + SP_R1_norm,
-           v1_index_R2 = (DP_R2_norm * 0 + INT_R2_norm * 0.85 + SP_R2_norm * 1) / 
-                              (DP_R2_norm + INT_R2_norm + SP_R2_norm),
            v1_R2_norm = DP_R2_norm + INT_R2_norm + SP_R2_norm,
            v1_norm = v1_R1_norm + v1_R2_norm) %>%
     # rep agreement
@@ -92,13 +94,14 @@ exac_v1 <- exac_v1 %>%
 exac_v2 <- exac_v2 %>% 
      mutate(v2_index_R1 = (Hi.R1_norm * 0 + IntHi.R1_norm * 0.80 + 
                              IntLo.R1_norm * 0.95 + Lo.R1_norm * 1) / 
-               (Hi.R1_norm + IntHi.R1_norm + IntLo.R1_norm + Lo.R1_norm), 
-            v2_R1_norm = Hi.R1_norm + IntHi.R1_norm + 
-                IntLo.R1_norm + Lo.R1_norm,
+                (Hi.R1_norm + IntHi.R1_norm + IntLo.R1_norm + Lo.R1_norm), 
             v2_index_R2 = (Hi.R2_norm * 0 + IntHi.R2_norm * 0.80 + 
                              IntLo.R2_norm * 0.95 + Lo.R2_norm * 1) / 
                (Hi.R2_norm + IntHi.R2_norm + IntLo.R2_norm + Lo.R2_norm),
-            v2_R2_norm = Hi.R2_norm + IntHi.R2_norm + IntLo.R2_norm + Lo.R2_norm,
+            v2_R1_norm = Hi.R1_norm + 
+                 IntHi.R1_norm + IntLo.R1_norm + Lo.R1_norm,
+            v2_R2_norm = Hi.R2_norm + 
+                 IntHi.R2_norm + IntLo.R2_norm + Lo.R2_norm,
             v2_norm = v2_R1_norm + v2_R2_norm) 
 
 # correlation for v2 before index filter
