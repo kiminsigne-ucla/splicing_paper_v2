@@ -36,8 +36,7 @@ bin_prop <- c(0.092, 0.091, 0.127, 0.122, 1, 1, 0.596, 0.603)
 
 # multiply each bin count by bin proportion
 exac_v1 <- bind_cols(select(exac_v1, header = id, DP_R1:SP_R2), 
-                     data.frame(mapply(`*`, 
-                                       select(exac_v1, DP_R1_norm:SP_R2_norm), 
+                     data.frame(mapply(`*`, select(exac_v1, DP_R1_norm:SP_R2_norm), 
                                        bin_prop, SIMPLIFY = FALSE)))
 
 
@@ -53,8 +52,7 @@ bin_prop <- c(0.070, 0.075, 0.029, 0.032, 0.032, 0.033, 0.227, 0.252)
 
 # multiply each bin count by bin proportion
 exac_v2 <- bind_cols(select(exac_v2, header = id, Hi.R1:Lo.R2), 
-                     data.frame(mapply(`*`, 
-                                       select(exac_v2, Hi.R1_norm:Lo.R2_norm), 
+                     data.frame(mapply(`*`, select(exac_v2, Hi.R1_norm:Lo.R2_norm), 
                                        bin_prop, SIMPLIFY = FALSE)))
 
 ###############################################################################
@@ -73,7 +71,6 @@ exac_v1 <- exac_v1 %>%
 exac_v2 <- exac_v2 %>%
     mutate(v2_R1_sum = Hi.R1 + IntHi.R1 + IntLo.R1 + Lo.R1,
            v2_R2_sum = Hi.R2 + IntHi.R2 + IntLo.R2 + Lo.R2) %>% 
-    # read filter
     filter(v2_R1_sum >= hi_read_threshold, v2_R2_sum >= hi_read_threshold) 
 
 print(paste("Number of sequences after read filter (v1, v2):", 
@@ -130,7 +127,7 @@ gg <- exac_v2 %>%
         axis.line.y = element_line(color = 'grey50'),
         plot.margin = unit(c(2,2,3,3),"mm")) +
         annotate('text', x = 0.89, y = 0.10, parse = T,
-             label = paste('italic(r) ==', round(corr[1], 2)), size = 5) +
+             label = paste('italic(r) ==', signif(corr[1], 2)), size = 5) +
         annotate('text', x = 0.91, y = 0.05, parse = T,
              label = paste('italic(p) < 10^-16'), size = 5)
 
@@ -170,7 +167,7 @@ gg <- ggplot(data_all, aes(v1_index, v2_index)) + geom_point(alpha = 0.25) +
         plot.margin = unit(c(2,2,3,3),"mm"))+
   theme(legend.position = 'none') +
     annotate('text', x = 0.95, y = 0.10, parse = T,
-             label = paste('italic(r)==', round(corr[1], 3)), size = 5) +
+             label = paste('italic(r)==', signif(corr[1], 2)), size = 5) +
     annotate('text', x = 0.96, y = 0.05, parse = T,
              label = paste('italic(p) < 10^-16'), size = 5)
 
