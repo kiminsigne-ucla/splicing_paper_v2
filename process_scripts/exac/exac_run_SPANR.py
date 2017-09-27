@@ -1,3 +1,5 @@
+# extract splicing effects of SNVs from pre-computed file
+
 import pandas as pd
 import numpy as np
 import os
@@ -86,7 +88,8 @@ if __name__ == '__main__':
 	args = parser.parse_args()
 
 	exac_data = pd.read_table(args.infile, sep = '\t')
-	# reformat so intron/exon length columns are int and not float, convert NA to 0 so we can use int
+	# reformat so intron/exon length columns are int and not float, convert NA 
+    # to 0 so we can use int
 	exac_data[['start', 'end', 'intron1_len', 'exon_len', 'intron2_len']] = \
 		exac_data[['start', 'end', 'intron1_len', 'exon_len', 
 		'intron2_len']].fillna(0.0).astype(int)

@@ -6,7 +6,8 @@ load_pkgs <- function(pkgs){
     }
 }
 
-pkgs <- c('dplyr', 'tidyr', 'ggplot2', 'cowplot', 'forcats', 'gridExtra', 'grid', 'Unicode')
+pkgs <- c('dplyr', 'tidyr', 'ggplot2', 'cowplot', 'forcats', 'gridExtra', 
+          'grid', 'Unicode')
 load_pkgs(pkgs)
 
 options(stringsAsFactors = F, warn = -1, warnings = -1)
@@ -46,12 +47,14 @@ gg1 <-
     ggplot(aes(x = ensembl_id, y = num_muts_per_exon, group = 1)) + geom_line() + 
     labs(x = '', y = 'SNV count') +
     theme(
-        plot.title = element_text(size = 16, face = "bold", margin = margin(50, 0, 0, 50)),
+        plot.title = element_text(size = 16, face = "bold", 
+                                  margin = margin(50, 0, 0, 50)),
         axis.title.x = element_text(size = 20),
         axis.title.y = element_text(size = 20),
         axis.line = element_line(colour = "grey50", size = 0.1),
         axis.text.x = element_blank(),
-        axis.text.y = element_text(colour = "black", size = 13, angle = 0, hjust = .5, vjust = .5),
+        axis.text.y = element_text(colour = "black", size = 13, angle = 0, 
+                                   hjust = .5, vjust = .5),
         axis.ticks.x = element_blank(),
         axis.ticks.y = element_line(colour = "grey50"),
         legend.background = element_rect(),
@@ -210,7 +213,8 @@ g_legend <- function(a.gplot){
     legend
 }
 legend <- g_legend(index_tile_with_legend)
-tiff('../../figs/exac/legend_3b.tiff', width = 25, height = 27.5, units = 'mm', res = hi_res)
+tiff('../../figs/exac/legend_3b.tiff', width = 25, height = 27.5, units = 'mm', 
+     res = hi_res)
 grid.newpage()
 grid.draw(legend)
 dev.off()
@@ -322,7 +326,8 @@ if(!file.exists('../../processed_data/exac/exac_nat_cons_scaled.rds')) {
         if (label == 'exon') {
             # closer to downstream intron
             if ( rel_position - start + 1 >= end - rel_position + 1) {
-                rel_pos_feature <- rel_position - end - 1 # negative position, left side of boundary
+                # negative position, left side of boundary
+                rel_pos_feature <- rel_position - end - 1 
             }
             else {
                 # closer to upstream intron, right side of boundary, positive
@@ -402,7 +407,3 @@ snp_density_tile <- ref %>%
 
 ggsave(paste0('../../figs/exac/exac_snv_density', '.svg'),
     width = 11, height = 0.8, units = 'in')
-
-
-
-

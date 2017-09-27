@@ -1,3 +1,5 @@
+### Replicate graphs and bin distribution ### 
+
 ###############################################################################
 # set-up
 ###############################################################################
@@ -295,5 +297,3 @@ gg <- data %>%
 ggsave(paste0('../../figs/splicemod/dhfr/splicemod_dhfr_index_hist', 
               plot_format_main), 
        gg, width = 3, height = 4, dpi = hi_res)
-
-

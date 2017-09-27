@@ -1,4 +1,4 @@
-load(exac_intron_cons.RData)
+### This script makes supplementary figures for genome-wide statistics ###
 
 load_pkgs <- function(pkgs){
     new_pkgs <- pkgs[!(pkgs %in% installed.packages()[, 'Package'])]
@@ -468,14 +468,6 @@ nat_cons <- bind_rows(nat_upstr_cons, nat_exon_cons, nat_downstr_cons)
 nat_cons$rel_pos_binned <- factor(nat_cons$rel_pos_binned, levels = nat_cons$rel_pos_binned)
 nat_cons$exon_type <- factor(nat_cons$exon_type)
 levels(nat_cons$exon_type) <- c('phase (0-0)', 'other phases')
-
-# nat_cons %>%
-#     ggplot(aes(rel_pos_binned, 0.5)) + 
-#     geom_tile(aes(fill = mean_cons_per_rel_pos)) + 
-#     facet_grid(exon_type ~ .) + 
-#     theme(axis.text = element_blank(), axis.ticks = element_blank()) +
-#     viridis::scale_fill_viridis(limits = c(0, 1)) +
-#     labs(x = '', y = '', fill = 'phastCons\nscore')
 
 # natural conservation between in-frame and out-of-frame exons, genome-wide
 ggplot(nat_cons, aes(rel_pos_binned, mean_cons_per_rel_pos, color = exon_type)) +
