@@ -1,0 +1,101 @@
+# @author : Kimberly Insigne
+# 
+# This is a pipeline for the splicemod sequencing data in the SMN1 intron
+# backbone done in 06/2016
+
+# paths
+SHELL := /bin/bash
+SOURCE_DATA := /data/projects/splicing/raw-data/20160531
+DATA := raw_data/201605_dhfr_intron
+SCRIPTS := /data/home/kinsigne/scripts
+OUTPUT_DIR := ./produced_data/dhfr
+
+# programs
+BBMERGE := bbmerge.sh
+
+BASE := R1-DN R1-DP R1-INT R1-PRESORT R1-SP R2-DN R2-DP R2-INT R2-PRESORT R2-SP
+
+
+all : $(OUTPUT_DIR)/dhfr_all_alignments.csv
+
+concat: $(patsubst %,$(OUTPUT_DIR)/%_read1_all.fastq,$(BASE))
+
+.PHONY: setup
+
+# keep all intermediate files
+.SECONDARY :
+
+clean: 
+	@ rm -f $(OUTPUT_DIR)/*merged.fastq
+	@ rm -f $(OUTPUT_DIR)/*alignment.txt
+	@ rm -f $(OUTPUT_DIR)/dhfr_all_alignments.csv
+
+# concatenate qseq, convert to fastq
+$(OUTPUT_DIR)/s_%.fastq: 
+	@ echo "Making" $@
+	@ # make qseq list
+	@ ls $(SOURCE_DATA)/qseqs/$(basename $(notdir $@))*qseq* > qseq_list.txt
+	@ python $(SCRIPTS)/qseq2fastq.py qseq_list.txt $@
+	@ rm -f qseq_list.txt
+
+# demultiplex samples for each lane individually
+$(OUTPUT_DIR)/demultiplex_lane1_done.txt: $(OUTPUT_DIR)/s_1_1.fastq $(OUTPUT_DIR)/s_1_3.fastq $(OUTPUT_DIR)/s_1_2.fastq
+	@ mkdir -p $(OUTPUT_DIR)/lane1
+	@ python $(SCRIPTS)/demultiplex_paired.py $^ ./ref/splicemod_dhfr_index.txt 8
+	@ mv ./*.fastq $(OUTPUT_DIR)/lane1
+	@ echo "Done" > $@
+	@ rm $^
+
+
+$(OUTPUT_DIR)/demultiplex_lane2_done.txt: $(OUTPUT_DIR)/s_2_1.fastq $(OUTPUT_DIR)/s_2_3.fastq $(OUTPUT_DIR)/s_2_2.fastq
+	@ mkdir -p $(OUTPUT_DIR)/lane2
+	@ python $(SCRIPTS)/demultiplex_paired.py $^ ./ref/splicemod_dhfr_index.txt 8
+	@ mv ./*.fastq $(OUTPUT_DIR)/lane2
+	@ echo "Done" > $@
+	@ rm $^
+
+
+$(OUTPUT_DIR)/%_read1_all.fastq: $(OUTPUT_DIR)/lane1/%_read1.fastq $(OUTPUT_DIR)/lane2/%_read1.fastq \
+	$(OUTPUT_DIR)/demultiplex_lane1_done.txt $(OUTPUT_DIR)/demultiplex_lane2_done.txt
+	@ # combine reads from lanes 1 and 2
+	@ cat $(word 1, $^) $(word 2, $^) > $@
+
+
+$(OUTPUT_DIR)/%_read2_all.fastq: $(OUTPUT_DIR)/lane1/%_read2.fastq $(OUTPUT_DIR)/lane2/%_read2.fastq \
+	$(OUTPUT_DIR)/demultiplex_lane1_done.txt $(OUTPUT_DIR)/demultiplex_lane2_done.txt
+	@ # combine reads from lanes 1 and 2
+	@ cat $(word 1, $^) $(word 2, $^) > $@
+
+
+$(OUTPUT_DIR)/%_merged.fastq: $(OUTPUT_DIR)/%_read1_all.fastq $(OUTPUT_DIR)/%_read2_all.fastq
+	@# Actions: 
+	@#	Merge uncompressed paired read FASTQ files with bbmerge
+	@# Dependencies:
+	@#	uncompressed fastq files in data directory
+	$(BBMERGE) in1=$(word 1, $^) in2=$(word 2, $^) out=$@ \
+		outu1=$(OUTPUT_DIR)/$(subst .fastq,_unmerged.fastq,$(notdir $(word 1, $^))) \
+		outu2=$(OUTPUT_DIR)/$(subst .fastq,_unmerged.fastq,$(notdir $(word 2, $^))) \
+		t=35
+
+
+$(OUTPUT_DIR)/%_perfect_alignment.txt: $(OUTPUT_DIR)/%_merged.fastq ../scripts/perfect_alignment.py
+	@# Actions:
+	@#	Align sequences to reference FASTA file
+	@# Dependencies:
+	@#	merged FASTQ files from previous step.
+	@ echo "Aligning" $(subst _perfect_alignment.txt,, $(notdir $@))
+	@ python ../scripts/perfect_alignment.py -i $< -r ref/splicemod_ref.fa -o $@
+
+
+$(OUTPUT_DIR)/dhfr_all_alignments.csv: $(patsubst %,$(OUTPUT_DIR)/%_perfect_alignment.txt,$(BASE)) ../scripts/aggregate_alignments.py
+	@# Actions:
+	@#	Aggregate all perfect alignments into one file
+	@# Dependencies:
+	@#	perfect alignment files in produced_data/ from the previous step
+	@ echo "Aggregating alignments..."
+	@ ls $(OUTPUT_DIR)/*perfect_alignment.txt > $(OUTPUT_DIR)/alignment_list.txt
+	@ python ../scripts/aggregate_alignments.py $(OUTPUT_DIR)/alignment_list.txt $@
+	@ rm $(OUTPUT_DIR)/alignment_list.txt
+
+
+print-%  : ; @echo $* = $($*)
