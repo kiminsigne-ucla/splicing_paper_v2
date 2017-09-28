@@ -51,11 +51,11 @@ data_cons_count <- data_cons %>%
 
 lof_cons_count <- lof_cons %>%
     group_by(label_renamed, cons_bin) %>%
-    summarise(`SNP count (splicing-disrupting)` = n())
+    summarise(`SNP count (splice-disrupting)` = n())
 
 cons_count <- full_join(data_cons_count, lof_cons_count, 
                         by = c("label_renamed", "cons_bin")) %>% 
-    mutate(propFreq = `SNP count (splicing-disrupting)` / `total SNP count` * 100,
+    mutate(propFreq = `SNP count (splice-disrupting)` / `total SNP count` * 100,
            label_cons = paste(label_renamed, "\n", cons_bin, "\nconserv.", sep = " "))
 
 cons_count$cons_bin <- factor(cons_count$cons_bin, levels=c("low","high"), 
@@ -64,7 +64,7 @@ cons_count$cons_bin <- factor(cons_count$cons_bin, levels=c("low","high"),
 cons_count %>% 
     ggplot(aes(label_renamed, propFreq, fill = factor(cons_bin))) +
     geom_histogram(stat = 'identity', width = 0.75, position = "dodge") +
-    ylab("Percentage of\nsplicing-disrupting variants") +
+    ylab("Percentage of\nsplice-disrupting variants") +
     xlab("") +
     # facet_wrap(~ cons_bin) +
     geom_hline(yintercept = 3.6, linetype = "dashed", color = "grey20") + 
@@ -97,9 +97,9 @@ ggsave(paste0("../../figs/exac/exac_fig4A_phastCons_comparison_prop", plot_forma
 ###############################################################################
 
 cons_count %>% 
-    ggplot(aes(label_renamed, `SNP count (splicing-disrupting)`, fill = factor(cons_bin))) +
+    ggplot(aes(label_renamed, `SNP count (splice-disrupting)`, fill = factor(cons_bin))) +
     geom_histogram(stat = 'identity', width = 0.75, position = "dodge") +
-    ylab("Number of\nsplicing-disrupting variants") +
+    ylab("Number of\nsplice-disrupting variants") +
     xlab("") +
     scale_y_continuous(expand = c(0,0)) +
     expand_limits(y = 450) +
@@ -148,12 +148,13 @@ df <- matrix(c(num_intolerant_lof, num_tolerant_lof,
 
 intolerant_percent =  num_intolerant_lof / (num_intolerant_lof + num_intolerant_not_lof) * 100
 tolerant_percent = num_tolerant_lof / (num_tolerant_not_lof + num_tolerant_lof) * 100
-percent.df <-data.frame( fraction_of_strong_LoF_genes = c(intolerant_percent, tolerant_percent), tolerance = c('intolerant', 'tolerant'))
+percent.df <-data.frame( fraction_of_strong_LoF_genes = c(intolerant_percent, tolerant_percent), 
+                         tolerance = c('intolerant', 'tolerant'))
 
 percent.df %>%
   ggplot(aes(tolerance, fraction_of_strong_LoF_genes)) + 
   geom_col(width = 0.425) + 
-  ylab("% of splicing-disrupting variants") + xlab("pLI") + ylim(0,5) +
+  ylab("% of splice-disrupting variants") + xlab("pLI") + ylim(0,5) +
   geom_hline(yintercept = 1050/29531*100, linetype = "dashed", color = "grey40") +
   scale_y_continuous(expand = c(0, 0)) + 
   expand_limits(y = 4.8) +
@@ -195,7 +196,8 @@ fig4d <- data %>%
                            expression(index["WT "])) +
     geom_violin(alpha = 0, color = "grey10", size = 0.5) +
     stat_summary(fun.y = median, geom = "point", size = 1, color = "grey10") +
-    labs(x = "ExAC global allele frequency", y = expression(paste(Delta, ' inclusion index'))) +
+    labs(x = "ExAC global allele frequency", 
+         y = expression(paste(Delta, ' inclusion index'))) +
     theme_bw() + 
     theme(legend.position = 'none', 
           panel.grid.major = element_blank(),
@@ -205,7 +207,8 @@ fig4d <- data %>%
           axis.title.x = element_text(size = 17, vjust = -0.5),
           axis.ticks.x = element_blank(),
           axis.text.y = element_text(size = 10, color = "grey20"),
-          axis.text.x = element_text(size = 14, color = "grey10", angle = 45, vjust = 0.55)) 
+          axis.text.x = element_text(size = 14, color = "grey10", angle = 45, 
+                                     vjust = 0.55)) 
 
 ggsave(paste0("../../figs/exac/exac_fig4D_allele_frequency_binned", plot_format), 
        width = 4, height = 3.5, units = 'in', dpi = hi_res)

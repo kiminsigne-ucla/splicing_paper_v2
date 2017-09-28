@@ -12,9 +12,9 @@ run_HAL: ../../processed_data/exac/exac_HAL_scores.txt
 
 run_SPANR: ../../processed_data/exac/exac_SPANR_scores.txt
 
-create_fig3: ../../figs/exac/exac_snv_density.png
+create_fig3: ../../figs/exac/exac_snv_density.svg
 
-create_fig4: ../../figs/exac/exac_fig3D_pLI_enrichment.png
+create_fig4: ../../figs/exac/exac_fig4D_allele_frequency_binned.tiff
 
 create_curves: ../../processed_data/exac/exac_models_roc_curves_intron.txt
 
@@ -38,7 +38,7 @@ graph_curves: ../../figs/exac/exac_fig4E_exac_roc_curves_type_legend.tiff
 	@ Rscript exac_data_clean.R
 
 
-../../processed_data/exac/exac_func_annot.txt: ./../processed_data/exac/exac_data_clean.txt exac_add_annot.R
+../../processed_data/exac/exac_func_annot.txt: ../../processed_data/exac/exac_data_clean.txt exac_add_annot.R
 	@ echo "Adding functional annotation..."
 	@ Rscript exac_add_annot.R
 

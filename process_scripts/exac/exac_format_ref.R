@@ -160,9 +160,8 @@ write.table(ref, '../../ref/exac/exac_ref_formatted_converted.txt', sep = '\t',
 
 ###############################################################################
 # It is harder to synthesize A's, so oligos in the reference file are the strand
-# with the lower A count. In order to determine the correct orientation, 
-# I regenerated original reference ("original_seq") from oligo chip scripts 
-# without regards to AT content
+# with the lower A count. Let's read in the original reference file without 
+# flipped sequence
 ###############################################################################
 
 ref <- read.table('../../ref/exac/exac_ref_formatted_converted.txt', 
@@ -179,27 +178,3 @@ ref <- ref %>%
 
 write.table(ref, '../../ref/exac/exac_ref_formatted_converted_original_seq.txt', 
             sep = '\t', quote = F, row.names = F)
-
-# ref <- ref %>% 
-#     left_join(select(splicemod_ref_nat, ensembl_id, splicemod_seq = seq), by = 'ensembl_id')
-
-# compare natural sequence of each group to the splicemod natural, if they do not match then
-# the sequences were flipped and need to be flipped back to the reverse complement
-# ref <- ref %>% 
-#     filter(sub_id == '000') %>% 
-#     mutate(mismatch = ifelse(sequence != splicemod_seq, T, F)) %>% 
-#     select(ensembl_id, mismatch) %>% 
-#     left_join(ref, ., by = 'ensembl_id') %>% 
-#     mutate(unflipped_seq = ifelse(mismatch, sequence_rc, sequence)) %>% 
-#     mutate(unflipped_seq = ifelse(is.na(mismatch), sequence, unflipped_seq))
-# 
-# ref %>% 
-#     select(-mismatch, -sequence_rc) %>% 
-#     write.table('../../ref/exac/exac_ref_formatted_converted_flipped.txt', 
-#                 sep = '\t', quote = F, row.names = F)
-
-
-
-
-
-

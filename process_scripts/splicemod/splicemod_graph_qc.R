@@ -1,3 +1,5 @@
+### Replicate graphs and bin distribution ### 
+
 ###############################################################################
 # set-up
 ###############################################################################
@@ -9,7 +11,7 @@ load_pkgs <- function(pkgs){
     }
 }
 
-pkgs <- c('dplyr', 'tidyr', 'ggplot2', 'cowplot', 'ggExtra', 'grid', 'Unicode')
+pkgs <- c('dplyr', 'tidyr', 'ggplot2', 'cowplot', 'ggExtra', 'grid', 'Unicode', 'weights')
 load_pkgs(pkgs)
 
 options(stringsAsFactors = F, warn = -1, warnings = -1)
@@ -24,12 +26,11 @@ data <- read.table('../../processed_data/splicemod/splicemod_data_clean.txt',
 
 ###############################################################################
 
-# Index across SMN1 replicates
-corr <- signif(cor(data$index_R1_smn1, data$index_R2_smn1, use = 'p'), 3)
+# Index across SMN1 biological replicates
+corr <- signif(cor(data$index_R1_smn1, data$index_R2_smn1, use = 'p'), 2)
 gg <- data %>% 
     ggplot(aes(index_R1_smn1, index_R2_smn1)) + 
     geom_point(alpha = 0.10, aes(color = replicability_smn1)) +
-    geom_smooth(method = 'lm', color = 'blue') +
     scale_x_continuous(breaks = c(0, 0.2, 0.4, 0.6, 0.8, 1)) +
     scale_y_continuous(breaks = c(0, 0.2, 0.4, 0.6, 0.8, 1)) +
     scale_color_manual(values = c('black', '#0033CC')) +
@@ -44,19 +45,18 @@ gg <- data %>%
           axis.line.x = element_line(color = 'grey50'),
           axis.line.y = element_line(color = 'grey50'),
           plot.margin = unit(c(2,2,3,3),"mm")) +
-    annotate('text', x = 0.05, y = 0.895, size = 7, 
-             label = paste("italic(r)"), parse = TRUE) +
-    annotate('text', x = 0.22, y = 0.90, size = 7, 
-             label = paste("=", corr))
+    annotate('text', x = 0.15, y = 0.895, size = 7, parse = T,
+             label = paste("italic(r)==", signif(corr, 3))) +
+    annotate('text', x = 0.165, y = 0.80, size = 7, parse = T,
+             label = paste('italic(p) < 10^-16'))
 ggsave(paste0('../../figs/splicemod/smn1/splicemod_smn1_replicates', 
               plot_format_main), gg, width = 5, height = 5, dpi = hi_res)
 
-# Index across DHFR replicates
-corr <- signif(cor(data$index_R1_dhfr, data$index_R2_dhfr, use = 'p'), 3)
+# Index across DHFR biological replicates
+corr <- signif(cor(data$index_R1_dhfr, data$index_R2_dhfr, use = 'p'), 2)
 gg <- data %>% 
     ggplot(aes(index_R1_dhfr, index_R2_dhfr)) + 
     geom_point(alpha = 0.10, aes(color = replicability_dhfr)) +
-    geom_smooth(method = 'lm', color = 'blue') +
     scale_color_manual(values = c('black', '#0033CC')) +
     scale_x_continuous(breaks = c(0, 0.2, 0.4, 0.6, 0.8, 1)) +
     scale_y_continuous(breaks = c(0, 0.2, 0.4, 0.6, 0.8, 1)) +
@@ -71,21 +71,20 @@ gg <- data %>%
           axis.line.x = element_line(color = 'grey50'),
           axis.line.y = element_line(color = 'grey50'),
           plot.margin = unit(c(2,2,3,3),"mm")) +
-    annotate('text', x = 0.05, y = 0.895, size = 7, 
-             label = paste("italic(r)"), parse = TRUE) +
-    annotate('text', x = 0.22, y = 0.90, size = 7, 
-             label = paste("=", corr))
+    annotate('text', x = 0.15, y = 0.895, size = 7, parse = T,
+             label = paste("italic(r)==", signif(corr, 3))) +
+    annotate('text', x = 0.165, y = 0.80, size = 7, parse = T,
+             label = paste('italic(p) < 10^-16'))
 ggsave(paste0('../../figs/splicemod/dhfr/splicemod_dhfr_replicates', 
               plot_format_main), gg, width = 5, height = 5, dpi = hi_res)
 
 # Index across intron backbones
-corr <- signif(cor(data$index_smn1, data$index_dhfr, use = 'p'), 3)
+corr <- signif(cor(data$index_smn1, data$index_dhfr, use = 'p'), 2)
 gg <- ggplot(data %>% 
                filter(replicability_dhfr == 'high', 
                       replicability_smn1 == 'high'), 
                aes(index_smn1, index_dhfr)
              ) + geom_point(alpha = 0.10) + 
-    geom_smooth(method = 'lm', color = 'blue') + 
     scale_x_continuous(breaks = c(0, 0.2, 0.4, 0.6, 0.8, 1)) +
     scale_y_continuous(breaks = c(0, 0.2, 0.4, 0.6, 0.8, 1)) +
     labs(x = 'inclusion index (SMN1)', y = 'inclusion index (DHFR)') +
@@ -99,10 +98,10 @@ gg <- ggplot(data %>%
           axis.line.x = element_line(color = 'grey50'),
           axis.line.y = element_line(color = 'grey50'),
           plot.margin = unit(c(2,2,3,3),"mm")) + 
-    annotate('text', x = 0.05, y = 0.895, size = 7, 
-             label = paste("italic(r)"), parse = TRUE) +
-    annotate('text', x = 0.22, y = 0.90, size = 7, 
-             label = paste("=", corr))
+    annotate('text', x = 0.15, y = 0.895, size = 7, parse = T,
+             label = paste("italic(r)==", signif(corr, 3))) +
+    annotate('text', x = 0.165, y = 0.80, size = 7, parse = T,
+             label = paste('italic(p) < 10^-16'))
 ggsave(paste0('../../figs/splicemod/both/splicemod_smn1_dhfr_replicates', 
               plot_format_main), gg, width = 5, height = 5, dpi = hi_res)
 ggsave(paste0('../../figs/splicemod/both/splicemod_smn1_dhfr_replicates', 
@@ -298,5 +297,3 @@ gg <- data %>%
 ggsave(paste0('../../figs/splicemod/dhfr/splicemod_dhfr_index_hist', 
               plot_format_main), 
        gg, width = 3, height = 4, dpi = hi_res)
-
-

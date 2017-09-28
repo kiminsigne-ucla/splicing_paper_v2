@@ -14,7 +14,7 @@ load_pkgs(pkgs)
 
 options(stringsAsFactors = F, warn = -1, warnings = -1)
 
-plot_format_main <- '.tiff'
+plot_format_main <- '.png'
 plot_format <- '.png'
 hi_res <- 600
 lo_res <- 300
@@ -57,13 +57,48 @@ data <- data %>%
            abs(correct_acc_score_nat)) %>%
   ungroup()
 
+# compare ESE changes to random
+data %>% 
+    mutate(category = ifelse(grepl('ESE', category), 'perturb_ESE', category),
+           category = ifelse(grepl('rnd_exon', category), 'rnd_exon', category)) %>% 
+    filter(category == 'perturb_ESE' | category == 'rnd_exon') %>% 
+    t.test(dpsi_smn1 ~ category, data = ., alternative = 'less')
+
+# compare ESS changes to random
+data %>% 
+    mutate(category = ifelse(grepl('ESS', category), 'perturb_ESS', category),
+           category = ifelse(grepl('rnd_exon', category), 'rnd_exon', category)) %>% 
+    filter(category == 'perturb_ESS' | category == 'rnd_exon') %>% 
+    t.test(dpsi_smn1 ~ category, data = ., alternative = 'greater')
+
+# strongest ESE
+data %>% 
+    mutate(category = ifelse(grepl('rnd_exon', category), 'rnd_exon', category)) %>% 
+    filter(category == 'clst_Ke2011_ESE' | category == 'rnd_exon') %>% 
+    t.test(dpsi_smn1 ~ category, data = ., alternative = 'less')
+
+# strongest ESS
+data %>% 
+    mutate(category = ifelse(grepl('rnd_exon', category), 'rnd_exon', category)) %>% 
+    filter(category == 'clst_Ke2011_ESS' | category == 'rnd_exon') %>% 
+    t.test(dpsi_smn1 ~ category, data = ., alternative = 'greater')
+
+# intron changes
+data %>% 
+    mutate(category = ifelse(grepl('ICS', category), 'intron', category),
+           category = ifelse(grepl('rnd_intron', category), 'rnd_intron', category)) %>% 
+    filter(category == 'intron' | category == 'rnd_intron') %>% 
+    t.test(dpsi_smn1 ~ category, data = .)
+
+
+
 ###############################################################################
 # MaxEnt 
 ###############################################################################
 
 # MaxEnt: splice acceptor and donor score fold-change
 # SMN1 intron backbone
-
+cor.test(data$delta_acc_score, data$dpsi_smn1)
 gg <- data %>% 
   gather(key = 'splice_site', value = 'fold_change', 
          don_score_fold_change, acc_score_fold_change) %>% 
@@ -159,6 +194,7 @@ ggsave(paste0('../../figs/splicemod/dhfr/splicemod_dhfr_don_acc',
 ###############################################################################
 # Splicemod categories
 ###############################################################################
+
 esr_categories <- c('rmv_Ke2011_ESE', 'clst_Ke2011_ESE', 'rmv_Ke2011_ESS', 
                     'clst_Ke2011_ESS')
 esr_labels <- c('weaken ESEs', 'destroy strongest ESE', 'weaken ESSs', 
@@ -244,6 +280,16 @@ ggsave(paste0('../../figs/splicemod/smn1/',
               'splicemod_smn1_all_categories', plot_format), 
        gg, width = 12, height = 5, dpi = lo_res)
 
+# percent splice-disrupting mutants by category
+sdv_by_category_smn1 <- data %>% 
+  mutate(sdv_smn1 = ifelse(dpsi_smn1 <= -0.50, T, F)) %>% 
+  group_by(category) %>% 
+  summarise(num_sdv_smn1 = length(which(sdv_smn1 == T)),
+            category_num_smn1 = n()) %>% 
+  mutate(percent_sdv_smn1 = num_sdv_smn1/ category_num_smn1) %>%
+  arrange(desc(num_sdv_smn1)) %>%
+  ungroup()
+
 # DHFR intron backbone
 gg <- data %>% 
   filter(seq_type == 'mut') %>% 
@@ -285,6 +331,23 @@ ggsave(paste0('../../figs/splicemod/dhfr/',
               'splicemod_dhfr_all_categories', plot_format), 
        gg, width = 12, height = 5, dpi = lo_res)
 
+# percent splice-disrupting mutants by category
+sdv_by_category_dhfr <- data %>% 
+  mutate(sdv_dhfr = ifelse(dpsi_dhfr <= -0.50, T, F)) %>% 
+  group_by(category) %>% 
+  summarise(num_sdv_dhfr = length(which(sdv_dhfr == T)),
+            category_num_dhfr = n()) %>% 
+  mutate(percent_sdv_dhfr = num_sdv_dhfr/ category_num_dhfr) %>%
+  arrange(desc(num_sdv_dhfr)) %>%
+  ungroup()
+
+# range of number of changes by category
+num_changes_summary <- data %>% 
+  group_by(category) %>% 
+  summarise(min_change = min(num_changes),
+            max_change = max(num_changes)) %>%
+  ungroup()
+
 ###############################################################################
 # Exonic motifs
 ###############################################################################
@@ -305,6 +368,10 @@ data <- data %>%
   mutate(HAL_bin = case_when(.$delta_avg_HAL_score < 0 ~ 'down',
                              .$delta_avg_HAL_score > 0 ~ 'up',
                              .$delta_avg_HAL_score == 0 ~ 'same'))
+
+data %>% 
+    filter(seq_type == 'mut', HAL_bin != 'same') %>% 
+    wilcox.test(dpsi_smn1 ~ HAL_bin, data = .)
 
 # SMN1 intron backbone
 gg <- data %>%
@@ -495,4 +562,3 @@ png(paste0('../../figs/splicemod/both/legend', plot_format),
 grid.newpage()
 grid.draw(legend)
 dev.off()
-

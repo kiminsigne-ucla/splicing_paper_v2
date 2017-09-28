@@ -1,3 +1,5 @@
+### Add external functional data ###
+
 load_pkgs <- function(pkgs){
     new_pkgs <- pkgs[!(pkgs %in% installed.packages()[, 'Package'])]
     if(length(new_pkgs)) install.packages(new_pkgs)
@@ -44,22 +46,6 @@ phastCons <- read.table('../../processed_data/exac/snp_position_cons_scores.bed'
 data <- data %>% 
   left_join(select(phastCons, id = name, mean_cons_score), by = 'id') 
 
-# # phyloP
-# system(paste('bash',
-#              '../run_phyloP.sh',
-#              '../../processed_data/exac/snp_positions_hg38.bed',
-#              '../../processed_data/exac/snp_position_phyloP_scores.bed'))
-# 
-# # read in phyloP
-# phyloP <- read.table('../../processed_data/exac/snp_position_phyloP_scores.bed', 
-#                         sep = '\t', header = F,
-#                         col.names = c('name', 'size', 'bases_covered', 
-#                                       'snp_sum', 'mean0', 'mean_phyloP_score')) %>% 
-#   filter(bases_covered != 0)
-# 
-# data <- data %>% 
-#     left_join(select(phyloP, id = name, mean_phyloP_score), by = 'id') 
-
 ###############################################################################
 # grab ExAC annotation for all sequences
 ###############################################################################
@@ -82,6 +68,7 @@ write.table(file = '../../processed_data/exac/snp_positions_hg19.bed',
                 na.omit(),
             sep = '\t', col.names = F, row.names = F, quote = F)
 
+# this takes awhile
 # system(paste('while read line; do tabix',
 #              '../../ref/exac/ExAC.r0.3.1.sites.vep.vcf.gz',
 #              '$line >> ../../ref/exac/snp_exac_annot_all.txt;',
@@ -143,6 +130,7 @@ data %>%
     write.table(file = '../../ref/exac/exac.vcf', 
                 sep='\t', quote = F, row.names = F, col.names = F)
 
+# this takes awhile
 # system(paste('../ensembl-vep/vep -i ../../ref/exac/exac.vcf',
 #              '--cache --dir_cache ../../ref/vep/'))
 # system('mv variant_effect_output.txt ../../processed_data/exac/exac_vep.txt')
@@ -213,6 +201,13 @@ data <- data %>%
     left_join(select(exon_data_filtered, -(chr:ref_allele), -exon_id_old), 
               by = c('id', 'alt_allele')) 
 
+sdv_by_category <- data %>% 
+    group_by(consequence) %>% 
+    summarise(num_sdv = length(which(strong_lof == T)),
+              category_num = n()) %>% 
+    mutate(percent_sdv = num_sdv / category_num) %>% 
+    arrange(desc(num_sdv))
+
 ###############################################################################
 # CADD annotation
 ###############################################################################
@@ -273,9 +268,9 @@ data <- data %>%
 # DANN annotation
 ###############################################################################
 #https://cbcl.ics.uci.edu/public_data/DANN/.
-# system(paste('while read line; do tabix ../../ref/dann/DANN_whole_genome_SNVs.tsv.bgz $line',
-#              '>> ../../processed_data/exac/snp_dann_annot.txt done',
-#              '< ../../processed_data/ref/tabix_input_snp_regions.txt'))
+system(paste('while read line; do tabix ../../ref/dann/DANN_whole_genome_SNVs.tsv.bgz $line',
+             '>> ../../processed_data/exac/snp_dann_annot.txt done',
+             '< ../../processed_data/ref/tabix_input_snp_regions.txt'))
 
 dann <- read.table('../../processed_data/exac/snp_dann_annot.txt',
                    sep = '\t', header = T)

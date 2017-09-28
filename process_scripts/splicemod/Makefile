@@ -1,7 +1,7 @@
 # TODO: add commands to process sequencing data. This will run everything for
 # splicemod, from processing sequencing, formatting reference, and making figures
 
-all: format_ref rescore_ref clean_data qc_figs
+all: format_ref rescore_ref clean_data figs
 
 format_ref: ../../ref/splicemod/splicemod_ref_formatted_converted.txt
 
@@ -33,9 +33,6 @@ figs: qc_figs category_figs
 	@ Rscript splicemod_data_clean.R
 
 
-# these scripts make multiple figures, list the first figure as a target so the script
-# will run anytime it is older than script that makes it. This will make all the
-# figures which is fine since it's quick
 ../../figs/splicemod/smn1/splicemod_smn1_replicates.png: splicemod_graph_qc.R ../../processed_data/splicemod/splicemod_data_clean.txt
 	@ echo "Making quality control figures..."
 	@ Rscript splicemod_graph_qc.R

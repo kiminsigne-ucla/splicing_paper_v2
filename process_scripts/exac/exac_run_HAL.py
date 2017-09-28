@@ -100,46 +100,6 @@ def score_exon_seq(seq, mer_scores, exonic_acceptor_scores, sd_scores,
     return score
 
 
-# def make_exon_skipping_predictions(exon_var_group, df, y_name, mult_factor=None):
-    
-#     global exonic_mer6_scores
-#     global exonic_acceptor_scores
-#     global sd_scores
-
-#     # y_name is column name of splicing index to use for predictions
-#     if mult_factor==None:
-#         mult_factor = np.ones(len(exon_var_group))*2.
-
-#     # check if there's a natural sequence, it may have been filtered out for 
-#     # low quality
-#     num_ref = ((df.ensembl_id == exon_var_group.ensembl_id.iloc[0]) & 
-#     	(df.sub_id == '000')).tolist().count(True)
-#     if num_ref == 0:
-#         exon_var_group['PSI_pred'] = float('NaN') * len(exon_var_group)
-#         exon_var_group['DPSI_pred'] = float('NaN') * len(exon_var_group)
-#         return exon_var_group
-#     # grab natural sequence for mutant
-#     else:
-#         ref = df[(df.ensembl_id == exon_var_group.ensembl_id.iloc[0]) & 
-#         (df.sub_id == '000')]
-#         # only 1 row
-#         ref_seq = ref.exon_seq.iloc[0]
-#         ref_score = score_exon_seq(ref_seq, exonic_mer6_scores, 
-#         	exonic_acceptor_scores, sd_scores)
-    
-#     psi_pred_list = []
-    
-#     for i in range(len(exon_var_group)):
-#         mut_seq = exon_var_group.exon_seq.iloc[i]
-#         mut_score = score_exon_seq(mut_seq, exonic_mer6_scores, 
-#         	exonic_acceptor_scores, sd_scores, mult_factor[i])
-#         psi_pred_list.append(expit(logit(ref[y_name].iloc[0]) + mut_score - ref_score))
-    
-#     exon_var_group['PSI_pred'] = psi_pred_list
-#     exon_var_group['DPSI_pred'] = exon_var_group.PSI_pred - ref[y_name].iloc[0]
-    
-#     return exon_var_group
-
 def make_exon_skipping_predictions(df, y_name, mult_factor=None):
     
     global exonic_mer6_scores
@@ -180,14 +140,6 @@ def optimize_scaling_factor(df):
     scaling_factors = {params[i] : results[i] for i in range(len(params))}
     scaling_factors = pd.Series(scaling_factors)
     return scaling_factors.argmin()
-    # scaling_factors = {}
-    # for i in np.arange(1,4,0.1):
-    #     print "param: ", i
-    #     df = make_exon_skipping_predictions(df, y_name='v2_index', mult_factor=np.ones(len(df))*i)
-    #     scaling_factors[i] = np.nansum((df.DPSI_pred-df.v2_dpsi)**2)
-    scaling_factors = pd.Series(scaling_factors)
-    return scaling_factors.argmin()
-
 
 
 if __name__ == '__main__':
@@ -199,7 +151,8 @@ if __name__ == '__main__':
     args = parser.parse_args()
     # read in data
     exac_data = pd.read_table(args.infile, sep = '\t')
-    # reformat so intron/exon length columns are int and not float, convert NA to 0 so we can use int
+    # reformat so intron/exon length columns are int and not float, 
+    # convert NA to 0 so we can use int
     exac_data[['start', 'end', 'intron1_len', 'exon_len', 'intron2_len']] = \
     	exac_data[['start', 'end', 'intron1_len', 'exon_len', 
     	'intron2_len']].fillna(0.0).astype(int)
@@ -250,8 +203,6 @@ if __name__ == '__main__':
 
     # make predictions with the scaling factors for the held-out variants, so each
     # fold is assigned a scaling factor that was not trained on it
-    # exac_exon_vars = exac_exon_vars.groupby('ensembl_id').apply(make_exon_skipping_predictions, 
-    # 	df=exac_data, y_name='v2_index', mult_factor=cross_validated_scaling_factors)
     exac_exon_vars = make_exon_skipping_predictions(exac_exon_vars, 'nat_v2_index',
         mult_factor=cross_validated_scaling_factors)
 
