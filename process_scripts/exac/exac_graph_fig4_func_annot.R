@@ -186,6 +186,14 @@ data <- data %>%
                         labels = c('Singleton', 'AC = 2-3', 
                                    'AC = 4-10', '0.01%', '>0.1%' ))) 
 
+data_lof <- data %>% 
+  filter(v2_dpsi <= -0.5) %>%
+  mutate(AF_bin = cut(AF, 
+                      breaks = c(0, 0.00001, 0.000025, 0.0001, 0.001, 1), 
+                      include.lowest = T,
+                      labels = c('Singleton', 'AC = 2-3', 
+                                 'AC = 4-10', '0.01%', '>0.1%' ))) 
+
 fig4d <- data %>% 
     filter(!is.na(AF_bin)) %>% 
     ggplot(aes(AF_bin, v2_dpsi)) + 
@@ -212,6 +220,33 @@ fig4d <- data %>%
 
 ggsave(paste0("../../figs/exac/exac_fig4D_allele_frequency_binned", plot_format), 
        width = 4, height = 3.5, units = 'in', dpi = hi_res)
+
+fig4d <- data %>% 
+  filter(!is.na(AF_bin)) %>% 
+  ggplot(aes(AF_bin, v2_dpsi)) + 
+  geom_jitter(alpha = 0.25, aes(color = nat_v2_index), width = 0.35) + 
+  scale_colour_gradientn(limits = c(-0.005,1), 
+                         breaks=seq(0,1, by = 0.25), 
+                         colors=pal(321), 
+                         expression(index["WT "])) +
+  geom_violin(alpha = 0, color = "grey10", size = 0.5) +
+  stat_summary(fun.y = median, geom = "point", size = 1, color = "grey10") +
+  labs(x = "ExAC global allele frequency", 
+       y = expression(paste(Delta, ' inclusion index'))) +
+  theme_bw() + 
+  theme(legend.position = 'none', 
+        panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        panel.border = element_rect(fill = NA, color = "grey50"),
+        axis.title.y = element_text(size = 17, vjust = 12),
+        axis.title.x = element_blank(),
+        axis.ticks.x = element_blank(),
+        axis.text.y = element_text(size = 10, color = "grey20"),
+        axis.text.x = element_blank()) 
+
+ggsave(paste0("../../figs/exac/exac_fig4D_allele_frequency_binned_no_label", plot_format), 
+       width = 4, height = 2.25, units = 'in', dpi = hi_res)
+
 
 
 
