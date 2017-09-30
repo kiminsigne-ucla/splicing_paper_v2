@@ -14,7 +14,7 @@ load_pkgs(pkgs)
 
 options(stringsAsFactors = F, warn = -1, warnings = -1)
 
-plot_format_main <- '.png'
+plot_format_main <- '.tiff'
 plot_format <- '.png'
 hi_res <- 600
 lo_res <- 300
@@ -282,6 +282,7 @@ ggsave(paste0('../../figs/splicemod/smn1/',
 
 # percent splice-disrupting mutants by category
 sdv_by_category_smn1 <- data %>% 
+  filter(nat_index_smn1 >= 0.75) %>%
   mutate(sdv_smn1 = ifelse(dpsi_smn1 <= -0.50, T, F)) %>% 
   group_by(category) %>% 
   summarise(num_sdv_smn1 = length(which(sdv_smn1 == T)),
@@ -333,6 +334,7 @@ ggsave(paste0('../../figs/splicemod/dhfr/',
 
 # percent splice-disrupting mutants by category
 sdv_by_category_dhfr <- data %>% 
+  filter(nat_index_dhfr >= 0.75) %>%
   mutate(sdv_dhfr = ifelse(dpsi_dhfr <= -0.50, T, F)) %>% 
   group_by(category) %>% 
   summarise(num_sdv_dhfr = length(which(sdv_dhfr == T)),
@@ -381,7 +383,7 @@ gg <- data %>%
   geom_violin(alpha = 0, color = "grey35") +
   scale_colour_gradientn(limits = c(-0.005, 1), breaks = seq(0, 1, by = 0.25), 
                          colors = pal(321)) + 
-  labs(x = expression(paste(Delta, ' avg. exonic hexamer score')), 
+  labs(x = expression(paste(Delta, ' avg. exon hexamer score')), 
        y = expression(paste(Delta, ' inclusion index')),
        color = expression(index["WT "])) +
   ggsignif::geom_signif(comparisons = list(c('down', 'up')),
@@ -411,7 +413,7 @@ gg <- data %>%
   geom_violin(alpha = 0, color = "grey35") +
   scale_colour_gradientn(limits = c(-0.005, 1), 
                          breaks = seq(0, 1, by = 0.25), colors = pal(321)) + 
-  labs(x = expression(paste(Delta, ' avg. exonic hexamer score (HAL)')), 
+  labs(x = expression(paste(Delta, ' avg. exon hexamer score (HAL)')), 
        y = expression(paste(Delta, ' inclusion index')),
        color = expression(index["WT "])) +
   ggsignif::geom_signif(comparisons = list(c('down', 'up')),
@@ -466,7 +468,7 @@ gg <- data %>%
   geom_violin(alpha = 0, color = "grey35") +
   scale_colour_gradientn(limits = c(-0.005, 1), 
                          breaks = seq(0, 1, by = 0.25), colors = pal(321)) +
-  labs(x = expression(paste(Delta, ' avg. exonic hexamer score (Ke)')), 
+  labs(x = expression(paste(Delta, ' avg. exon hexamer score (Ke)')), 
        y = expression(paste(Delta, ' inclusion index')),
        color = expression(index["WT "])) +
   ggsignif::geom_signif(comparisons = list(c('down', 'up')),
@@ -495,7 +497,7 @@ gg <- data %>%
   geom_violin(alpha = 0, color = "grey35") +
   scale_colour_gradientn(limits = c(-0.005, 1), 
                          breaks = seq(0, 1, by = 0.25), colors = pal(321)) +
-  labs(x = expression(paste(Delta, ' avg. exonic hexamer score (Ke)')), 
+  labs(x = expression(paste(Delta, ' avg. exon hexamer score (Ke)')), 
        y = expression(paste(Delta, ' inclusion index')),
        color = expression(index["WT "])) +
   ggsignif::geom_signif(comparisons = list(c('down', 'up')),

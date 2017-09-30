@@ -224,7 +224,7 @@ data <- data_all %>%
            nat_v2_index = (nat_v2_index_R1 + nat_v2_index_R2) / 2,
            nat_seq = original_seq[sub_id == '000']) %>% 
     filter(abs(nat_v2_index_R1 - nat_v2_index_R2) <= rep_agreement) %>%
-    ungroup()
+    ungroup() 
 
 # get averages between replicates
 data <- data %>%
@@ -233,6 +233,9 @@ data <- data %>%
            v2_dpsi = mean(c(v2_dpsi_R1, v2_dpsi_R2)),
            delta_dpsi = abs(v1_dpsi - v2_dpsi) ) %>%
     ungroup()
+
+data_final <- data %>% 
+    filter(nat_v2_index >= 0.5, category == 'mutant')
 
 # keep control categories: SKP and RANDOM-EXON 
 data_other <- data_all %>% 

@@ -89,6 +89,8 @@ cons_count %>%
           ) +
     scale_fill_manual(values = c('#458B00','#2E9FFE'))
 
+fisher.test(cons_count, alternative = 'two.sided')
+
 ggsave(paste0("../../figs/exac/exac_fig4A_phastCons_comparison_prop", plot_format),
         width = 4.5, height = 5, units = 'in', dpi = hi_res)
 
@@ -170,7 +172,7 @@ percent.df %>%
         axis.text.y = element_text(size = 12, color = "grey20"),
         axis.text.x = element_text(size = 13, color = "black")) 
 
-fisher.test(df, alternative = 'less')
+fisher.test(df, alternative = 'two.sided')
 
 ggsave(paste0("../../figs/exac/exac_fig4C_pLI_enrichment", plot_format), 
        width = 2.25, height = 3.5, units = 'in', dpi = hi_res)
