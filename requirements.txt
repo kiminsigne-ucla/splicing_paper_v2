@@ -30,8 +30,16 @@ tar -xzvf BBMap.tar.gz -C bbmap/
 mv bbmap/bbmerge.sh ../
 
 ### SPLICEMOD PACKAGES ###
-# MySQLdb
-pip install MySQL-python
+# biopython version very important, uses deprecated Bio.Motifs package
+# biopython==1.57
+# numpy
+# pyinterval==1.0
+# bx-python
+# acora
+# blist
+# MySQL
+# cogent
+# sqlalchemy
 
 ### REFERENCES ###
 # functional gene constraint, pLI

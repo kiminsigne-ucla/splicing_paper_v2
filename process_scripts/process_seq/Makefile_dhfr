@@ -5,13 +5,13 @@
 
 # paths
 SHELL := /bin/bash
-SOURCE_DATA := /data/projects/splicing/raw-data/20160531
-DATA := raw_data/201605_dhfr_intron
-SCRIPTS := /data/home/kinsigne/scripts
-OUTPUT_DIR := ./produced_data/dhfr
+# update the following as appropriate
+# working data folder
+DATA := ../data/dhfr
+OUTPUT_DIR := ../processed_data/splicemod/dhfr
 
 # programs
-BBMERGE := bbmerge.sh
+BBMERGE := ../bin/bbmerge.sh
 
 BASE := R1-DN R1-DP R1-INT R1-PRESORT R1-SP R2-DN R2-DP R2-INT R2-PRESORT R2-SP
 
@@ -34,14 +34,14 @@ clean:
 $(OUTPUT_DIR)/s_%.fastq: 
 	@ echo "Making" $@
 	@ # make qseq list
-	@ ls $(SOURCE_DATA)/qseqs/$(basename $(notdir $@))*qseq* > qseq_list.txt
-	@ python $(SCRIPTS)/qseq2fastq.py qseq_list.txt $@
+	@ ls $(DATA)/qseqs/$(basename $(notdir $@))*qseq* > qseq_list.txt
+	@ python qseq2fastq.py qseq_list.txt $@
 	@ rm -f qseq_list.txt
 
 # demultiplex samples for each lane individually
 $(OUTPUT_DIR)/demultiplex_lane1_done.txt: $(OUTPUT_DIR)/s_1_1.fastq $(OUTPUT_DIR)/s_1_3.fastq $(OUTPUT_DIR)/s_1_2.fastq
 	@ mkdir -p $(OUTPUT_DIR)/lane1
-	@ python $(SCRIPTS)/demultiplex_paired.py $^ ./ref/splicemod_dhfr_index.txt 8
+	@ python demultiplex_paired.py $^ ./ref/splicemod_dhfr_index.txt 8
 	@ mv ./*.fastq $(OUTPUT_DIR)/lane1
 	@ echo "Done" > $@
 	@ rm $^
@@ -49,7 +49,7 @@ $(OUTPUT_DIR)/demultiplex_lane1_done.txt: $(OUTPUT_DIR)/s_1_1.fastq $(OUTPUT_DIR
 
 $(OUTPUT_DIR)/demultiplex_lane2_done.txt: $(OUTPUT_DIR)/s_2_1.fastq $(OUTPUT_DIR)/s_2_3.fastq $(OUTPUT_DIR)/s_2_2.fastq
 	@ mkdir -p $(OUTPUT_DIR)/lane2
-	@ python $(SCRIPTS)/demultiplex_paired.py $^ ./ref/splicemod_dhfr_index.txt 8
+	@ python demultiplex_paired.py $^ ../ref/splicemod/splicemod_dhfr_index.txt 8
 	@ mv ./*.fastq $(OUTPUT_DIR)/lane2
 	@ echo "Done" > $@
 	@ rm $^
@@ -78,23 +78,23 @@ $(OUTPUT_DIR)/%_merged.fastq: $(OUTPUT_DIR)/%_read1_all.fastq $(OUTPUT_DIR)/%_re
 		t=35
 
 
-$(OUTPUT_DIR)/%_perfect_alignment.txt: $(OUTPUT_DIR)/%_merged.fastq ../scripts/perfect_alignment.py
+$(OUTPUT_DIR)/%_perfect_alignment.txt: $(OUTPUT_DIR)/%_merged.fastq perfect_alignment.py
 	@# Actions:
 	@#	Align sequences to reference FASTA file
 	@# Dependencies:
 	@#	merged FASTQ files from previous step.
 	@ echo "Aligning" $(subst _perfect_alignment.txt,, $(notdir $@))
-	@ python ../scripts/perfect_alignment.py -i $< -r ref/splicemod_ref.fa -o $@
+	@ python perfect_alignment.py -i $< -r ../ref/splicemod/splicemod_ref.txt -o $@
 
 
-$(OUTPUT_DIR)/dhfr_all_alignments.csv: $(patsubst %,$(OUTPUT_DIR)/%_perfect_alignment.txt,$(BASE)) ../scripts/aggregate_alignments.py
+$(OUTPUT_DIR)/dhfr_all_alignments.csv: $(patsubst %,$(OUTPUT_DIR)/%_perfect_alignment.txt,$(BASE)) aggregate_alignments.py
 	@# Actions:
 	@#	Aggregate all perfect alignments into one file
 	@# Dependencies:
 	@#	perfect alignment files in produced_data/ from the previous step
 	@ echo "Aggregating alignments..."
 	@ ls $(OUTPUT_DIR)/*perfect_alignment.txt > $(OUTPUT_DIR)/alignment_list.txt
-	@ python ../scripts/aggregate_alignments.py $(OUTPUT_DIR)/alignment_list.txt $@
+	@ python aggregate_alignments.py $(OUTPUT_DIR)/alignment_list.txt $@
 	@ rm $(OUTPUT_DIR)/alignment_list.txt
 
 

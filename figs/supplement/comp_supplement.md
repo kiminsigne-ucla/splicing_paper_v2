@@ -3,6 +3,7 @@
 #### Is there a difference in conservation between our short intron context (~30bp) and longer 100bp intron context? ####
 <img src="./exac_upstr_intron_cons_short_vs_full.png", width=300>
 <img src="./exac_downstr_intron_cons_short_vs_full.png", width=300>
+<img src="./exac_upstr_downstr_cons.png", width=300>
 
 #### How many exons are in-frame (phase 0,0) vs. out-of-frame? ####
 <img src="./genome_exon_phase_dist.png", width=200>

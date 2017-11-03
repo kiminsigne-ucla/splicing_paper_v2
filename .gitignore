@@ -31,3 +31,4 @@ processed_data/exac/HAL_cv_scaling_factors.pkl
 processed_data/splicemod/splicemod_stop_codon_info.txt
 bin/src/
 ref/cadd/ExAC_r0.3.tsv.gz
+ext_rna_seq/

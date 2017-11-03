@@ -11,7 +11,7 @@ load_pkgs <- function(pkgs){
 pkgs <- c('dplyr', 'tidyr', 'ggplot2', 'cowplot')
 load_pkgs(pkgs)
 
-options(stringsAsFactors = F, warn = -1, warnings = -1)
+options(stringsAsFactors = F, warn = -1, warnings = -1, scipen = 10000)
 plot_format <- '.png'
 
 data <- read.table('../../processed_data/exac/exac_data_clean.txt', 
@@ -278,22 +278,9 @@ all_exon_ids <- all_exon_ids %>%
            exon_len = exon_chrom_end - exon_chrom_start + 1)
 
 inframe_outframe_exons <- all_exon_ids %>% 
+    filter(phase != -1 & end_phase != -1) %>% 
     mutate(exon_type = case_when(.$phase == 0 & .$end_phase == 0 ~ 'inframe',
-                                 TRUE ~ 'outframe'))
-
-# # get all exons that start and end on phase 0
-# inframe_outframe_exons <- all_exon_ids %>% 
-#     filter(phase == 0, end_phase == 0) %>% 
-#     mutate(exon_type = 'inframe')
-# 
-# # get out-frame exons and label them
-# inframe_outframe_exons <- all_exon_ids %>% 
-#     filter(phase != -1, end_phase != -1) %>% 
-#     filter(phase != 0 & end_phase != 0) %>% 
-#     mutate(exon_type = 'outframe') %>% 
-#     bind_rows(inframe_outframe_exons)
-
-inframe_outframe_exons <- inframe_outframe_exons %>% 
+                                 TRUE ~ 'outframe')) %>% 
     distinct(ensembl_exon_id, .keep_all = T)
 
 # distribution of exon numbers across phases

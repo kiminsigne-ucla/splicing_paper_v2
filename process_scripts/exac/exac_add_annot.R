@@ -126,7 +126,7 @@ data <- data %>%
 # write VCF file for Ensembl VEP (1-based)
 data %>% 
     filter(category == 'mutant') %>% 
-    dplyr::select(chr, snp_position_hg38_1based, id, ref_allele, alt_allele) %>% 
+    select(chr, snp_position_hg38_1based, id, ref_allele, alt_allele) %>% 
     write.table(file = '../../ref/exac/exac.vcf', 
                 sep='\t', quote = F, row.names = F, col.names = F)
 
@@ -156,9 +156,9 @@ colnames(vep) <- c('id', 'location', 'alt_allele', 'ensembl_gene_id',
                    'amino_acids', 'codons', 'existing_variation', 'extra')
 
 exon_data <- exon_data %>% 
-    left_join(select(vep, id, alt_allele, ensembl_transcript_id, feature_type, 
-                     consequence, extra), 
-              by = c('id', 'alt_allele', 'ensembl_transcript_id')) %>%
+    left_join(select(vep, id, alt_allele, feature_type, consequence, extra), 
+              # by = c('id', 'alt_allele', 'ensembl_transcript_id')) %>%
+              by = c('id', 'alt_allele')) %>% 
     distinct()
 
 # some entries have multiple consequences, create new row for each
@@ -316,3 +316,21 @@ data <- data %>%
 
 write.table(data, '../../processed_data/exac/exac_func_annot.txt',
             sep = '\t', quote = F, row.names = F)
+
+# write simpler data frame of variant list
+data %>% 
+    filter(category != 'control') %>% 
+    dplyr::select(internal_id = id, category, ref_allele, alt_allele, 
+                  current_ensembl_exon_id = exon_id_new, 
+                  ensembl_gene_id, ensembl_transcript_id,
+                  chr, strand, start_hg19_0based = start, end_hg19_0based = end,  
+                  start_hg38_0based, end_hg38_0based, 
+                  snp_position_hg19_0based = snp_position,
+                  snp_position_hg38_0based_start, snp_position_hg38_0based_end,
+                  label, seq = original_seq, 
+                  index = v2_index, nat_index = nat_v2_index, 
+                  dpsi = v2_dpsi, is_sdv = strong_lof) %>% 
+    write.table('../../processed_data/exac/snv_list.txt', 
+                sep = '\t', row.names = F, quote = F)
+
+
