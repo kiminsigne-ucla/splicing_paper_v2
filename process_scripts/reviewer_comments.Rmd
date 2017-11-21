@@ -1,0 +1,739 @@
+---
+title: "Addressing Reviewer Comments"
+output:
+  html_document:
+    df_print: paged
+---
+
+```{r setup}
+library(dplyr)
+library(ggplot2)
+library(cowplot)
+
+options(stringsAsFactors = F)
+options(scipen = 10000)
+
+snv_data <- read.table('../processed_data/exac/exac_func_annot.txt', 
+                       sep = '\t', header = T)
+sre_data <- read.table('../processed_data/splicemod/splicemod_data_clean.txt',
+                       sep = '\t', header = T)
+```
+
+
+## Reviewer 1 ##
+
+### 1b. ###
+
+"62.2% of 2902 WT exons in SNV library have index > 0.80. This seems low given 
+these exons are represented in the exome-sequencing data (ExAC)."
+
+```{r load_data}
+num_natural <- snv_data %>% filter(category == 'natural') %>% nrow()
+snv_data %>% 
+    filter(category == 'natural', v2_index >= 0.80) %>% 
+    summarise(n() / num_natural)
+```
+
+```{r}
+num_natural <- sre_data %>% filter(seq_type == 'nat') %>% nrow()
+num_nat_dhfr <- sre_data %>% filter(seq_type == 'nat', !is.na(index_dhfr)) %>% nrow()
+num_nat_smn1 <- sre_data %>% filter(seq_type == 'nat', !is.na(index_smn1)) %>% nrow()
+
+sre_data %>% 
+    filter(seq_type == 'nat', index_dhfr >= 0.80) %>%
+    summarise(n() / num_nat_dhfr)
+
+sre_data %>% 
+    filter(seq_type == 'nat', index_dhfr >= 0.50) %>%
+    summarise(n() / num_nat_dhfr)
+```
+
+The percentage of included WT exons > 0.80 at 91% in the SNV library. The 62.%
+we state is from the SRE library. My numbers show that 58% (2882/4920) of WT exons 
+have index > 0.80 and and 67% (3297/4920) > 0.50 in the DHFR backbone. The reviewer
+misunderstood the number, which we can make more clear.
+
+### 1c ###
+
+How comparable are the DHFR and SMN1 backbone, we mention that DHFR is more reproducible.
+
+```{r}
+sre_data %>% 
+    filter(!is.na(index_dhfr)) %>% nrow() %>% print()
+
+sre_data %>% 
+    filter(!is.na(index_smn1)) %>% nrow() %>% print()
+
+sre_data %>% 
+    filter(!is.na(index_smn1), !is.na(index_dhfr)) %>% nrow() %>% print()
+
+cor.test(sre_data$index_smn1, sre_data$index_dhfr, use = 'p')
+```
+
+Fig 1E. shows correlatin of 0.94 for DHFR biological replicates, 0.89 for SMN1, 
+and shows correlation between the two is 0.85. We actually recover more sequences 
+with SMN1 than DHFR, but choose DHFR for it's replicability. I'm not sure what
+further evidence could show that the results are generalizable across backbones.
+
+### 5. Why are some exons highly expressed in SMN1 but not DHFR? ###
+
+```{r}
+high_smn1_low_dhfr <- sre_data %>% 
+    mutate(discordance = index_smn1 - index_dhfr) %>% 
+    filter(discordance >= 0.50)
+
+table(high_smn1_low_dhfr$seq_type)
+```
+
+```{r}
+high_smn1_low_dhfr %>% 
+    group_by(category) %>% 
+    summarise(count = n()) %>% 
+    arrange(desc(count))
+```
+
+```{r}
+ggplot(high_smn1_low_dhfr, aes(norm_sum_smn1, norm_sum_dhfr)) + geom_point() +
+    scale_x_log10() + scale_y_log10() + annotation_logticks(sides = 'bl')
+```
+
+## Reviewer 2 ##
+
+### Minor Issues ###
+
+### 1. Scatter plots Fig 1E ###
+
+Blue/black/grey colors are difficult to see. Bump up alpha to make it less transparent
+can improve clarity without changing colors. Example plot:
+
+```{r}
+# Index across SMN1 biological replicates
+corr <- signif(cor(sre_data$index_R1_smn1, sre_data$index_R2_smn1, use = 'p'), 2)
+sre_data %>% 
+    ggplot(aes(index_R1_smn1, index_R2_smn1)) + 
+    geom_point(alpha = 0.25, aes(color = replicability_smn1)) +
+    scale_x_continuous(breaks = c(0, 0.2, 0.4, 0.6, 0.8, 1)) +
+    scale_y_continuous(breaks = c(0, 0.2, 0.4, 0.6, 0.8, 1)) +
+    scale_color_manual(values = c('black', '#0033CC')) +
+    labs(x = 'inclusion index (Rep. 1)', y = 'inclusion index (Rep. 2)') +
+    theme(legend.position = 'none',
+          axis.title.x = element_text(size = 20, vjust = -2), 
+          axis.title.y = element_text(size = 20, vjust = +4),
+          axis.text.x = element_text(size = 14, color = 'grey20'),
+          axis.text.y = element_text(size = 14, color = 'grey20'),
+          axis.ticks.x = element_line(color = 'grey50'),
+          axis.ticks.y = element_line(color = 'grey50'),
+          axis.line.x = element_line(color = 'grey50'),
+          axis.line.y = element_line(color = 'grey50'),
+          plot.margin = unit(c(2,2,3,3),"mm")) +
+    annotate('text', x = 0.15, y = 0.895, size = 7, parse = T,
+             label = paste("italic(r)==", signif(corr, 3))) +
+    annotate('text', x = 0.165, y = 0.80, size = 7, parse = T,
+             label = paste('italic(p) < 10^-16'))
+```
+
+## Motif Analysis ##
+
+```{r}
+# source("https://bioconductor.org/biocLite.R")
+# biocLite("PWMEnrich")
+# biocLite("PWMEnrich.Hsapiens.background")
+# biocLite("MotifDb")
+# biocLite('Biostrings')
+library(PWMEnrich)
+library(PWMEnrich.Hsapiens.background)
+library(MotifDb)
+library(Biostrings)
+```
+
+Making a custom background from the sequences in our SNV library takes too much
+memory, below is not evaluated.
+
+```{r, eval = F}
+# grab all human motifs, position probability matrices
+motifs <- query(MotifDb, 'hsapiens')
+# convert to PWMs
+pwm_motifs <- lapply(motifs, toPWM)
+# create genomic background based on SNV library
+bg_seqs <- DNAStringSet(filter(snv_data, category != 'control')$original_seq)
+# background suitable for empirical p-value calculation. Background seqs are
+# concatenated into one large seq, scanned for motifs, then save raw scores
+makePWMEmpiricalBackground(bg_seqs, pwm_motifs)
+```
+
+Let's use a pre-compiled background and only use the ~300 motifs from the CISBP-RNA
+database, a library of RNA binding proteins and their motifs.
+
+The SDVs are probably breaking important motifs, so running enrichment directly on
+these will be challenging. Let's instead grab the natural exons for the SDVs.
+
+```{r, results = 'hide'}
+registerCoresPWMEnrich(4)
+# load pre-compiled background 
+data("PWMLogn.hg19.MotifDb.Hsap")
+sdv_nat_seqs <- snv_data %>% 
+    filter(category != 'control', strong_lof == T) %>% 
+    select(ensembl_id) %>% 
+    distinct() %>% 
+    semi_join(snv_data, ., by = 'ensembl_id') %>% 
+    filter(category == 'natural') %>% 
+    select(original_seq, ensembl_id) %>% 
+    distinct()
+
+sdv_nat_set <- DNAStringSet(sdv_nat_seqs$original_seq)
+```
+
+
+```{r cisbp_enrich}
+ # grab all CISBP-RNA binding motifs, position probability matrices
+cisbp_motifs <- query(query(MotifDb, 'Hsapiens'), 'cispb')
+# convert to PWMs, for some reason IDs do not propagate through
+pwm_motifs <- lapply(cisbp_motifs, toPWM)
+bg_cisbp <- makeBackground(pwm_motifs, organism = 'hg19', quick = T)
+
+# PWMEnrich motif set only contains CIS-BP TF PWMs
+#  this is slow
+motif_enrichment <- motifEnrichment(sdv_nat_set, bg_cisbp)
+```
+
+```{r}
+report = sequenceReport(motif_enrichment, 1)
+report
+```
+
+```{r}
+signif_report = report[report$p.value < 0.05]
+signif_report
+```
+
+```{r}
+plot(signif_report, fontsize = 8, id.fontsize = 7)
+```
+
+For some reason the target and motif IDs don't propagate when converting from PFM to
+PWM, can get the names below.
+
+```{r}
+motif_info <- data.frame(id = sapply(strsplit(names(report$pwms), '-'), `[[`, 3),
+                         p.value = report$p.value)
+```
+
+You can download more information from the CIS-BP website (http://cisbp.ccbr.utoronto.ca/bulk.php)
+which includes a TF information file.
+
+Pulling information from the `TF_Information_all_motifs_plus.txt` file:
+
+```{r}
+tf_info <- read.table('../ref/cisbp_hsapiens/TF/TF_Information_all_motifs_plus.txt',
+                      header = T, sep = '\t', fill = T)
+
+motif_info <- motif_info %>% 
+    left_join(tf_info, by = c('id' = 'Motif_ID'))
+```
+
+PWMEnrich only contains TF binding sites, let's look at the RNA binding protein sites
+also availble from CISBP. To get at positional information, let's use matchPWM.
+Also, it's a pain to create PWMs for PWMEnrich from text files.
+
+```{r read_motifs}
+# load in motifs
+read_pwm_from_file <- function(filename) {
+    if(file.size(filename) == 0) { return(NULL) }
+    df <- read.table(filename, sep = '\t', header = T)
+    # convert to matrix, transpose so rows are nucleotides. Get rid of the 
+    # position columns in first row
+    pwm <- t(data.matrix(df))[-1,]
+    dimnames(pwm)[[1]] <- c('A', 'C', 'G', 'T')
+    return(pwm)
+}
+
+files <- list.files('../ref/cisbp_hsapiens/RBP/pwms_all_motifs', full.names = T)
+# get motif names
+motif_names <- gsub('.txt', '', list.files('../ref/cisbp_hsapiens/RBP/pwms_all_motifs'))
+cisbp_rna_pwms <- lapply(as.list(files), function(x) read_pwm_from_file(x))
+names(cisbp_rna_pwms) <- motif_names
+# some motifs were empty, remove these from list
+cisbp_rna_pwms <- cisbp_rna_pwms[!sapply(cisbp_rna_pwms, is.null)]
+print(length(cisbp_rna_pwms))
+```
+
+Let's scan each PWM over each sequence.
+
+Let's encapsulate all of this into a function.
+```{r}
+# scan a list of PWMs over a single sequence
+scan_all_pwms <- function(pwms, sequence) {
+    all_pwms_result <- lapply(pwms, function(x) matchPWM(x, sequence, with.score = T))
+    return(all_pwms_result)
+}
+
+# get rid of motifs with no hit
+filter_hits <- function(hit_list) {
+    filtered <- hit_list[which(unlist(lapply(hit_list, 
+                                             function(x) length(mcols(x)$score) != 0)))]
+    return(filtered)
+}
+
+# convert matchPWM object to data frame
+# Create data frame for all of this data. For each hit, list the RBP motif name,
+# start, end, width, score, and sequence hit.
+create_pwm_df <- function(pwm_list, rev = F) {
+    if(length(pwm_list) == 0) {
+        return(data.frame())
+    }
+    scores <- sapply(pwm_list, function(x) mcols(x)$score)
+    df <- data.frame(score = unlist(scores), 
+                     motif_id = names(unlist(scores)))
+    # all PWMs for same sequence, grab it
+    seq <- as.character(subject(pwm_list[[1]]))
+    if(rev) {
+        seq = as.character(reverseComplement(DNAString(seq)))
+    }
+    df$subject_seq <- rep(seq, nrow(df))
+    df$start <- unlist(sapply(pwm_list, function(x) start(as(x, 'IRanges'))))
+    df$end <- unlist(sapply(pwm_list, function(x) end(as(x, 'IRanges'))))
+    return(df)
+}
+
+scan_pwms_to_df <- function(sequences, motifs, rev = F) {
+    dna_strings <- DNAStringSet(sequences)
+    if(rev) {
+        dna_strings <- lapply(dna_strings, reverseComplement)
+    }
+    # scan list of motifs over all sequences
+    pwm_hits_all <- lapply(dna_strings, function(x) scan_all_pwms(motifs, x))
+    # filter motifs
+    pwm_hits <- lapply(pwm_hits_all, function(x) filter_hits(x))
+    rm(pwm_hits_all)
+    # convert each element in list to data frame
+    if(rev) { 
+        pwm_dfs <- lapply(pwm_hits, function(x) create_pwm_df(x, rev = T))
+        matchStrand = -1
+    }
+    else { 
+        pwm_dfs <- lapply(pwm_hits, function(x) create_pwm_df(x))
+        matchStrand = 1
+    }
+    pwm_df <- do.call('rbind', pwm_dfs)
+    # get ID
+    pwm_df <- pwm_df %>% 
+        left_join(select(snv_data, id, original_seq),
+                  by = c('subject_seq' = 'original_seq')) %>%
+        mutate(match_strand = matchStrand)
+    return(pwm_df)
+}
+```
+
+```{r}
+sdv_nat_pwm_df <- scan_pwms_to_df(sdv_nat_seqs$original_seq, cisbp_rna_pwms)
+sdv_nat_pwm_df_rc <-  scan_pwms_to_df(sdv_nat_seqs$original_seq, cisbp_rna_pwms, rev = T)
+sdv_nat_exon_hits <- bind_rows(sdv_nat_pwm_df, sdv_nat_pwm_df_rc)
+rm(sdv_nat_pwm_df, sdv_nat_pwm_df_rc)
+# ending of motif ID (the version number) altered when unlisting, just remove it
+# from the end
+sdv_nat_exon_hits$motif_id <- sapply(strsplit(sdv_nat_exon_hits$motif_id, "_"), `[`, 1)
+sdv_nat_exon_hits$motif_id <- paste0(sdv_nat_exon_hits$motif_id, '_0.6')
+
+# calculate SNV relative position
+snv_data <- snv_data %>% 
+    mutate(rel_position_start = snp_position - start + 1,
+           rel_position_end = end - snp_position + 1)
+
+sdv_subset <- snv_data %>% 
+    filter(category != 'control', strong_lof == T) %>% 
+    select(id, ensembl_id, v2_dpsi, mean_cons_score, rel_position_start,
+           rel_position_end, rel_position_scaled)
+
+# add in relevant information
+sdv_nat_exon_hits <- sdv_nat_exon_hits %>% 
+    left_join(select(snv_data, id, ensembl_id, v2_index), by = 'id')
+
+# add in SDV information
+sdv_nat_exon_hits <- sdv_nat_exon_hits %>% 
+    left_join(select(sdv_subset, snv_id = id, ensembl_id:rel_position_end),
+              by = 'ensembl_id')
+
+# annotate if SDV overlaps motif
+overlap <- function(position, start, end) {
+    overlap <- findInterval(position, c(start, end))
+    if(overlap == 1) {
+        return(TRUE)
+    }
+    else{ return(FALSE)}
+}
+
+# annotate if natural exon contains an SDV that overlaps motif
+sdv_nat_exon_hits <- sdv_nat_exon_hits %>% 
+    # sample_n(10) %>% 
+    rowwise() %>% 
+    mutate(sdv_pwm_overlap = ifelse(match_strand == 1,
+                                    overlap(rel_position_start, start, end),
+                                    overlap(rel_position_end, start, end))) %>% 
+    ungroup()
+```
+
+
+```{r}
+sdv_nat_exon_hits %>% 
+    group_by(ensembl_id) %>% 
+    mutate(sdv_pwm_overlap_any = any(sdv_pwm_overlap)) %>% 
+    ungroup() %>% 
+    select(id, -ensembl_id, v2_dpsi, rel_position_scaled, sdv_pwm_overlap_any) %>% 
+    distinct(.keep_all = T) %>% 
+    count(sdv_pwm_overlap_any)
+```
+
+Most SDVs overlap with at least 1 PWM hit (out of 193 potential motifs). Let's
+count the number of PWM overlaps for each SDV. There may be multiple hits for the
+same PWM.
+
+```{r}
+sdv_subset <- sdv_nat_exon_hits %>% 
+    group_by(ensembl_id) %>% 
+    mutate(num_sdv_pwm_overlap = length(which(sdv_pwm_overlap))) %>% 
+    ungroup() %>% 
+    select(ensembl_id, num_sdv_pwm_overlap) %>% 
+    distinct(.keep_all = T) %>% 
+    right_join(sdv_subset, by = 'ensembl_id')
+```
+
+```{r}
+ggplot(sdv_subset, aes(num_sdv_pwm_overlap)) + geom_histogram() +
+    labs(x = 'number of PWM hits', y = 'number of SDVs')
+```
+
+Let's try to filter this down so we get number of distinct PWM hits, so only one
+hit per motif.
+
+```{r}
+sdv_subset <- sdv_nat_exon_hits %>% 
+    group_by(ensembl_id, motif_id) %>% 
+    mutate(sdv_pwm_overlap_motif = any(sdv_pwm_overlap)) %>% 
+    ungroup() %>% 
+    select(snv_id, ensembl_id, motif_id, sdv_pwm_overlap_motif) %>% 
+    distinct() %>% 
+    group_by(snv_id) %>% 
+    mutate(num_sdv_pwm_overlap_unique = length(which(sdv_pwm_overlap_motif))) %>% 
+    ungroup() %>% 
+    select(snv_id, num_sdv_pwm_overlap_unique) %>% 
+    distinct(.keep_all = T) %>% 
+    right_join(sdv_subset, by = c('snv_id' = 'id'))
+```
+
+```{r}
+ggplot(sdv_subset, aes(num_sdv_pwm_overlap_unique)) + geom_histogram(binwidth = 1) + 
+    labs(x = 'number of distinct RBP hit overlaps',
+         y = 'number of SDVs')
+```
+
+```{r}
+rbp_info <- read.table('../ref/cisbp_hsapiens/RBP/RBP_Information_all_motifs.txt',
+                       sep = '\t', header = T)
+
+sdv_nat_exon_hits <- sdv_nat_exon_hits %>% 
+    left_join(select(rbp_info, motif_id = Motif_ID, DBID, RBP_Name), by = 'motif_id')
+```
+
+```{r}
+ggplot(sdv_subset, aes(rel_position_scaled, num_sdv_pwm_overlap_unique)) + 
+    geom_point() +
+    labs(x = 'relative scaled position',
+         y = 'number of distinct RBP hits')
+```
+
+```{r}
+sdv_subset %>% 
+    ggplot(aes(mean_cons_score, num_sdv_pwm_overlap_unique)) +
+    geom_point() +
+    labs(x = 'SDV conservation', y = 'distinct RBP hits')
+```
+
+
+Let's try quantifying PWM hits in a different way. Let's also get the PWM hits for
+the mutant sequences so we can compare them to the WT and look at the difference in
+the total number of hits between the mutant and WT.
+
+```{r}
+sdv_sequences <- filter(snv_data, category == 'mutant', strong_lof == T)$original_seq
+sdv_pwm_df <- scan_pwms_to_df(sdv_sequences, cisbp_rna_pwms)
+sdv_pwm_df_rc <-  scan_pwms_to_df(sdv_sequences, cisbp_rna_pwms, rev = T)
+sdv_hits <- bind_rows(sdv_pwm_df, sdv_pwm_df_rc)
+rm(sdv_pwm_df, sdv_pwm_df_rc)
+# ending of motif ID (the version number) altered when unlisting, just remove it
+# from the end
+sdv_hits$motif_id <- sapply(strsplit(sdv_hits$motif_id, "_"), `[`, 1)
+sdv_hits$motif_id <- paste0(sdv_hits$motif_id, '_0.6')
+
+# add in relevant information
+sdv_hits <- sdv_hits %>% 
+    left_join(select(snv_data, id, ensembl_id, v2_index, mean_cons_score,
+                     rel_position_start, rel_position_end, rel_position_scaled),
+              by = 'id')
+```
+
+Let's generate some statistics for the SDV PWM hits
+
+```{r}
+# annotate if SDV overlaps motif
+sdv_hits <- sdv_hits %>% 
+    # sample_n(10) %>% 
+    rowwise() %>% 
+    mutate(sdv_pwm_overlap = ifelse(match_strand == 1,
+                                    overlap(rel_position_start, start, end),
+                                    overlap(rel_position_end, start, end))) %>% 
+    ungroup()
+
+sdv_subset <- select(sdv_subset, id = snv_id, 
+                     num_nat_sdv_pwm_overlap_unique = num_sdv_pwm_overlap_unique,
+                     num_nat_sdv_pwm_overlap = num_sdv_pwm_overlap,
+                     v2_dpsi:rel_position_scaled)
+
+# number of PWM hits per SDV
+sdv_subset <- sdv_hits %>% 
+    group_by(id) %>% 
+    mutate(num_sdv_pwm_overlap = length(which(sdv_pwm_overlap))) %>% 
+    ungroup() %>% 
+    select(id, num_sdv_pwm_overlap) %>% 
+    distinct(.keep_all = T) %>% 
+    right_join(sdv_subset, by = 'id')
+
+# number of unique PWM hits per SDV
+sdv_subset <- sdv_hits %>% 
+    group_by(ensembl_id, motif_id) %>% 
+    mutate(sdv_pwm_overlap_motif = any(sdv_pwm_overlap)) %>% 
+    ungroup() %>% 
+    select(id, ensembl_id, motif_id, sdv_pwm_overlap_motif) %>% 
+    distinct() %>% 
+    group_by(id) %>% 
+    mutate(num_sdv_pwm_overlap_unique = length(which(sdv_pwm_overlap_motif))) %>% 
+    ungroup() %>% 
+    select(id, num_sdv_pwm_overlap_unique) %>% 
+    distinct(.keep_all = T) %>% 
+    right_join(sdv_subset, by = 'id')
+
+# total hits for mutant sequence
+sdv_subset <- sdv_hits %>% 
+    group_by(id) %>% 
+    summarise(total_hits = length(unique(motif_id))) %>% 
+    right_join(sdv_subset, by = 'id')
+
+# add ensembl ID
+sdv_subset <- sdv_subset %>% 
+    left_join(select(snv_data, id, ensembl_id), by = 'id')
+
+# total hits for WT sequence
+sdv_subset <- sdv_nat_exon_hits %>% 
+    group_by(ensembl_id) %>% 
+    summarise(total_nat_hits = length(unique(motif_id))) %>% 
+    right_join(sdv_subset, by = 'ensembl_id')
+```
+
+Now we can compare the number of PWM hits for the sequence with the SDV compared
+to the number of hits for its natural exon background.
+
+```{r}
+ggplot(sdv_subset, aes(total_nat_hits, total_hits)) +
+    geom_point() + geom_abline(intercept = 0) +
+    labs(x = 'distinct number of RBP hits\n in natural sequence',
+         y = 'distinct number of RBP hits\n in mutant sequence',
+         title = 'splice-disrupting variants only')
+```
+
+```{r}
+sdv_subset %>% 
+    mutate(hit_diff = total_nat_hits - total_hits) %>% 
+    ggplot(aes(v2_dpsi, hit_diff)) + geom_point() +
+    labs(x = expression(paste(Delta, 'inclusion index')),
+         y = 'number of WT PWM hits - \n number of SDV PWM hits')
+```
+
+Points higher on the y-axis correspond to SDVs whose natural sequence have more PWM
+hits, i.e. the wild-type is stronger. Points lower on the y-axis are SDVs that have
+more hits than wild-type, i.e. the mutant is stronger.
+
+Let's try graphing by the rank order of delta inclusion index, may see clearer trend.
+
+```{r}
+sdv_subset %>% 
+    mutate(hit_diff = total_nat_hits - total_hits,
+           dpsi_rank = rank(v2_dpsi)) %>%
+    ggplot(aes(dpsi_rank, hit_diff)) + geom_line()
+```
+
+Hmm, not much. Let's take a random sample of non-SDV sequences and their
+corresponding natural sequences to have something to compare to.
+
+```{r}
+set.seed(123)
+nonsdv_sequences <- snv_data %>% 
+    filter(category == 'mutant', strong_lof == F) %>% 
+    sample_n(1000)
+# include corresponding natural sequence
+nonsdv_nat_sequences <- snv_data %>% 
+    filter(category == 'natural', ensembl_id %in% nonsdv_sequences$ensembl_id)
+
+nonsdv_pwm_df <- scan_pwms_to_df(c(nonsdv_sequences$original_seq,
+                                   nonsdv_nat_sequences$original_seq), 
+                                 cisbp_rna_pwms)
+nonsdv_pwm_df_rc <-  scan_pwms_to_df(c(nonsdv_sequences$original_seq,
+                                   nonsdv_nat_sequences$original_seq), 
+                                   cisbp_rna_pwms, rev = T)
+nonsdv_hits <- bind_rows(nonsdv_pwm_df, nonsdv_pwm_df_rc)
+rm(nonsdv_pwm_df, nonsdv_pwm_df_rc)
+# ending of motif ID (the version number) altered when unlisting, just remove it
+# from the end
+nonsdv_hits$motif_id <- sapply(strsplit(nonsdv_hits$motif_id, "_"), `[`, 1)
+nonsdv_hits$motif_id <- paste0(nonsdv_hits$motif_id, '_0.6')
+```
+
+```{r}
+nonsdv_subset <- nonsdv_sequences %>% 
+    bind_rows(nonsdv_nat_sequences) %>% 
+    mutate(rel_position_start = snp_position - start + 1,
+           rel_position_end = end - snp_position + 1) %>% 
+    select(id, ensembl_id, v2_dpsi, mean_cons_score,
+           rel_position_scaled, rel_position_start, rel_position_end)
+
+nonsdv_hits <- nonsdv_hits %>% 
+    left_join(nonsdv_subset, by = 'id')
+
+# count total number of hits
+nonsdv_subset <- nonsdv_hits %>% 
+    group_by(id) %>% 
+    summarise(total_hits = length(unique(motif_id))) %>% 
+    right_join(nonsdv_subset, by = 'id')
+
+
+nonsdv_subset <- nonsdv_subset %>% 
+    group_by(ensembl_id) %>% 
+    mutate(total_nat_hits = total_hits[endsWith(id, '000')]) %>% 
+    ungroup()
+```
+
+```{r}
+nonsdv_subset %>% 
+    filter(!endsWith(id, '000')) %>% 
+    ggplot(aes(total_nat_hits, total_hits)) +
+        geom_point() + geom_abline(intercept = 0) +
+        labs(x = 'distinct number of RBP hits\n in natural sequence',
+            y = 'distinct number of RBP hits\n in mutant sequence',
+            title = 'non splice-disrupting variants,\n random sample n = 1,000')
+```
+
+```{r}
+nonsdv_subset %>% 
+    filter(!endsWith(id, '000')) %>% 
+    mutate(hit_diff = total_nat_hits - total_hits) %>% 
+    ggplot(aes(v2_dpsi, hit_diff)) + geom_point() +
+    labs(x = expression(paste(Delta, 'inclusion index')),
+         y = 'number of WT PWM hits - \n number of SDV PWM hits')
+```
+
+```{r}
+nonsdv_subset <- nonsdv_subset %>% 
+    mutate(is_sdv = F)
+
+sdv_subset <- sdv_subset %>% 
+    mutate(is_sdv = T)
+
+nonsdv_subset %>% 
+    filter(!endsWith(id, '000')) %>% 
+    bind_rows(sdv_subset) %>% 
+    mutate(hit_diff = total_nat_hits - total_hits,
+           dpsi_rank = rank(v2_dpsi)) %>% 
+    ggplot(aes(v2_dpsi, hit_diff)) + geom_point() +
+    labs(x = 'ranked delta inclusion index', y = 'total hits WT -\n total hits mutant')
+    
+```
+
+Points higher on the y-axis correspond to stronger WT sequences, points lower on
+the y-axis correspond to stronger mutant sequences.
+
+```{r}
+sdv_hits <- sdv_hits %>% 
+    left_join(select(rbp_info, motif_id = Motif_ID, RBP_Name), by = 'motif_id')
+
+nonsdv_hits <- nonsdv_hits %>% 
+    left_join(select(rbp_info, motif_id = Motif_ID, RBP_Name), by = 'motif_id')
+```
+
+
+Let's try looking at things in terms of the score difference.
+```{r}
+sdv_nat_exon_score_summary <- sdv_nat_exon_hits %>% 
+    group_by(id, motif_id) %>% 
+    summarise(max_score = max(score)) %>% 
+    group_by(id) %>% 
+    summarise(total_score = sum(max_score))
+
+sdv_score_summary <- sdv_hits %>% 
+    group_by(id, motif_id) %>% 
+    summarise(max_score = max(score)) %>% 
+    group_by(id) %>% 
+    summarise(total_score = sum(max_score)) %>% 
+    bind_rows(sdv_nat_exon_score_summary) %>% 
+    left_join(select(snv_data, id, ensembl_id), by = 'id') %>% 
+    group_by(ensembl_id) %>% 
+    mutate(score_diff = total_score - total_score[endsWith(id, '000')]) %>% 
+    ungroup()
+
+nonsdv_score_summary <- nonsdv_hits %>% 
+    group_by(id, motif_id) %>% 
+    summarise(max_score = max(score)) %>% 
+    group_by(id) %>% 
+    summarise(total_score = sum(max_score)) %>% 
+    left_join(select(snv_data, id, ensembl_id), by = 'id') %>% 
+    group_by(ensembl_id) %>% 
+    mutate(score_diff = total_score - total_score[endsWith(id, '000')]) %>% 
+    ungroup()
+```
+
+```{r}
+sdv_score_summary %>% 
+    bind_rows(nonsdv_score_summary) %>% 
+    left_join(select(snv_data, id, v2_dpsi), by = 'id') %>% 
+    ggplot(aes(v2_dpsi, score_diff)) + geom_point() +
+    labs(x = 'delta inclusion index',
+         y = 'total max mutant PWM score -\ntotal max WT PWM score')
+```
+
+Let's focus on specific motifs.
+
+```{r}
+motif_summary <- sdv_nat_exon_hits %>% 
+    select(id, motif_id, RBP_Name, score) %>% 
+    bind_rows(select(sdv_hits, id, motif_id, RBP_Name, score),
+              select(nonsdv_hits, id, motif_id, RBP_Name, score)) %>% 
+    group_by(id, RBP_Name) %>% 
+    summarise(max_score = max(score),
+              num_hits = n()) %>% 
+    left_join(select(snv_data, id, v2_dpsi, ensembl_id, sub_id), by = 'id') %>% 
+    ungroup()
+
+motif_summary <- motif_summary %>% 
+    group_by(ensembl_id, RBP_Name) %>% 
+    mutate(max_score_diff = ifelse(length(max_score[sub_id == '000']) > 0,
+                                   max_score - max_score[endsWith(id, '000')],
+                                   NA)) %>% 
+    ungroup()
+
+motif_summary %>% 
+    filter(RBP_Name == 'SRSF1') %>% 
+    ggplot(aes(v2_dpsi, max_score_diff)) + geom_point() + ylim(c(-0.10, 0.10)) +
+    labs(x = 'delta inclusion index', y = 'SRSF1 PWM score mutant - \n SRSF1 PWM score WT',
+         title = 'SDVs and random sample 1,000 non-SDVs')
+```
+
+
+This isn't right, need to restrict to motifs that specifically overlap the SNV position.
+
+```{r}
+motif_max_len <- max(sapply(cisbp_rna_pwms, ncol))
+tmp <- nonsdv_hits %>% 
+    mutate(fragment = substr(original_seq,
+                             start = rel_position_start - motif_max_len + 1,
+                             stop = rel_position_start + motif_max_len - 1))
+```
+
+
+
